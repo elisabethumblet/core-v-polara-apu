@@ -1036,7 +1036,7 @@ print("    assign ariane_bootaddr  =  64'h%s;" % bootAddr)
 %>
 
 
-    ariane_verilog_wrap #(
+    ara_verilog_wrap #(
 <%
 str = '''
         .NrPMPEntries           ( 4    ),
