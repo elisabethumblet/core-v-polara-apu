@@ -2302,7 +2302,7 @@ sub assemble_diag
       # RISCV flow for RV64
       if (!$opt{rv64_target_triple}) {
         if ($opt{ariane}) {
-          $ENV{RV64_TARGET_TRIPLE} = "riscv64-unknown-elf" ;
+          $ENV{RV64_TARGET_TRIPLE} = "riscv64-unknown-elf-gcc" ;
         }
       } else {
         $ENV{RV64_TARGET_TRIPLE} = $opt{rv64_target_triple} ;

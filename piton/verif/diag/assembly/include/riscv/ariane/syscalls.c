@@ -162,13 +162,13 @@ void _init(int cid, int nc)
   // synchronize for debug output below
   while(finish_sync1 != cid);
 
-  char buf[NUM_COUNTERS * 32] __attribute__((aligned(64)));
-  char* pbuf = buf;
-  for (int i = 0; i < NUM_COUNTERS; i++)
-    if (counters[i])
-      pbuf += sprintf(pbuf, "core %d: %s = %d\n", cid, counter_names[i], counters[i]);
-  if (pbuf != buf)
-    printstr(buf);
+  //char buf[NUM_COUNTERS * 32] __attribute__((aligned(64)));
+  //char* pbuf = buf;
+  //for (int i = 0; i < NUM_COUNTERS; i++)
+  //  if (counters[i])
+  //    pbuf += sprintf(pbuf, "core %d: %s = %d\n", cid, counter_names[i], counters[i]);
+  //if (pbuf != buf)
+  //  printstr(buf);
 
   ATOMIC_OP(finish_sync1, 1, add, w);
   //__asm__ __volatile__ (  " amoadd.w zero, %1, %0" : "+A" (finish_sync1) : "r" (1) : "memory");
@@ -432,18 +432,18 @@ int printf(const char* fmt, ...)
   return 0; // incorrect return value, but who cares, anyway?
 }
 
+void sprintf_putch(int ch, void** data)
+{
+  char** pstr = (char**)data;
+  **pstr = ch;
+  (*pstr)++;
+}
+
 int sprintf(char* str, const char* fmt, ...)
 {
   va_list ap;
   char* str0 = str;
   va_start(ap, fmt);
-
-  void sprintf_putch(int ch, void** data)
-  {
-    char** pstr = (char**)data;
-    **pstr = ch;
-    (*pstr)++;
-  }
 
   vprintfmt(sprintf_putch, (void**)&str, fmt, ap);
   *str = 0;
