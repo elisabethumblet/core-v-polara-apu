@@ -9,9 +9,10 @@ this License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
-Author: Michael Schaffner <schaffner@iis.ee.ethz.ch>, ETH Zurich
-Date: 26.11.2018
-Description: Basic linker script for bare metal programs running on Ariane (copied from RISCV tests).
+Author: Hossein Askari <m.h.askari.hemmat@gmail.com>, Polytechnique Montreal
+Date: 06.03.2023
+Description: Basic linker script for bare metal programs running on Polara
+(copy and modified from Ariane linker script for openpiton).
 */
 
 OUTPUT_ARCH( "riscv" )
@@ -31,35 +32,39 @@ SECTIONS
   }
 
   /* data segment */
-  .data : {
+  .data : ALIGN(16) {
     *(.data)
   }
 
-  .sdata : {
+  .rodata  : ALIGN(16) { 
+    *(.rodata .rodata.* .gnu.linkonce.r.*) 
+    } 
+  
+  .sdata : ALIGN(16) {
     __global_pointer$ = . + 0x800;
     *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata*)
     *(.sdata .sdata.* .gnu.linkonce.s.*)
   }
 
   /* bss segment */
-  .sbss : {
+  .sbss : ALIGN(16) {
     *(.sbss .sbss.* .gnu.linkonce.sb.*)
-    *(.scommon)
+    *(.scommon)_
   }
 
-  .bss : {
+  .bss : ALIGN(16) {
     *(.bss)
   }
 
   /* thread-local data segment */
-  .tdata : {
+  .tdata : ALIGN(16) {
     _tls_data = .;
     *(.tdata.begin)
     *(.tdata)
     *(.tdata.end)
   }
 
-  .tbss : {
+  .tbss : ALIGN(16) {
     *(.tbss)
     *(.tbss.end)
   }
