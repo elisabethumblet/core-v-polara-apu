@@ -79,7 +79,9 @@ _start:
   # enable FPU and accelerator if present
   li t0, MSTATUS_FS | MSTATUS_XS
   csrs mstatus, t0
-
+  // Enable Vector Extension
+  li   t0, (MSTATUS_VS & (MSTATUS_VS >> 1))
+  csrs mstatus, t0
   # make sure XLEN agrees with compilation choice
   li t0, 1
   slli t0, t0, 31
