@@ -16,12 +16,26 @@
 # The first argument is the path to the c program to be compiled, 
 # second argument can be used to pass additional arguments to GCC.
 
-# Todo: upgrade from IMAC -> IMACFD when FP is available
-RISCV_GCC=${RV64_TARGET_TRIPLE}
-RISCV_GCC_OPTS="-march=${RV64_MARCH} -mabi=${RV64_MABI} -DPREALLOCATE=1 -mcmodel=medany -static -std=gnu99 -O2 -fno-common -fno-builtin-printf -I/home/ci-chian/openpiton/piton/design/chip/tile/ara/toolchain/newlib/newlib/libc/include $2"
-RISCV_LINK_OPTS="-static -nostdlib -nostartfiles -T ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/link.ld"
+#----------------------------------------------------------
+#                          Configs
+#----------------------------------------------------------
+RISCV_XLEN=64
+RISCV_ARCH=rv${RISCV_XLEN}gcv
+RISCV_ABI=lp64d
+RISCV_TARGET=riscv${RISCV_XLEN}-unknown-elf
+#----------------------------------------------------------
+#                          LLVM Flags
+#----------------------------------------------------------
+LLVM_FLAGS="-march=rv64gcv_zfh_zvfh0p1 -menable-experimental-extensions -mabi=${RISCV_ABI} -mno-relax -fuse-ld=lld"
+LLVM_V_FLAGS="-fno-vectorize -scalable-vectorization=off -mllvm -riscv-v-vector-bits-min=0 -Xclang -target-feature -Xclang +no-optimized-zero-stride-load"
+RISCV_LDFLAGS="-static -nostartfiles -lm -Wl,--gc-sections -T ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/link.ld"
+#----------------------------------------------------------
+#                          Build
+#----------------------------------------------------------
+RISCV_GCC="/users/hemmat/MyRepos/PolyMTL/ara/install/riscv-llvm/bin/clang"
+RISCV_LINK_OPTS="-nostdlib ${RISCV_LDFLAGS} ${LLVM_FLAGS} -DDEFINE_MALLOC -DDEFINE_REALLOC -DDEFINE_FREE  -Werror-implicit-function-declaration -fno-math-errno"
+RISCV_GCC_OPTS="-DPREALLOCATE=1 -mcmodel=medany -std=gnu99 -O2 -fno-common -fno-builtin-printf -I/home/ci-chian/openpiton/piton/design/chip/tile/ara/toolchain/newlib/newlib/libc/include $2"
 
-# $(src_dir)/../env -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
 INCS="-I${DV_ROOT}/verif/diag/assembly/include/riscv/ariane"
 
 ${RISCV_GCC} ${INCS} ${RISCV_GCC_OPTS} -o diag.exe $1                        \
@@ -29,3 +43,4 @@ ${RISCV_GCC} ${INCS} ${RISCV_GCC_OPTS} -o diag.exe $1                        \
              ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/crt.S       \
              ${RISCV_LINK_OPTS}
 
+riscv64-unknown-elf-objdump -D diag.exe > diag.objdump
