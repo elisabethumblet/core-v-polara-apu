@@ -28,4 +28,3 @@ ${RISCV_GCC} ${INCS} ${RISCV_GCC_OPTS} -o diag.exe $1                        \
              ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/syscalls.c  \
              ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/crt.S       \
              ${RISCV_LINK_OPTS}
-

@@ -20,6 +20,10 @@
 
 int main(int argc, char** argv) {
 
+
+  //int C=256;
+  //asm volatile("vsetvli zero, %0, e64, m2, ta, ma" ::"r"(C));
+
   // synchronization variable
   volatile static uint32_t amo_cnt = 0;
 
