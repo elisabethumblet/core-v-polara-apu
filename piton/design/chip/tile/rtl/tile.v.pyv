@@ -1105,6 +1105,9 @@ print(str)
         .ipi_i       ( ipi_i                  ),
         .time_irq_i  ( timer_irq_i            ),
         .debug_req_i ( debug_req_i            ),
+        .default_chipid               (default_chipid               ),
+        .default_coreid_x             (default_coreid_x             ),
+        .default_coreid_y             (default_coreid_y             ),
         
         .noc2_valid_out(src1_merger_vr_noc2_val),
         .noc2_data_out(src1_merger_vr_noc2_dat),
