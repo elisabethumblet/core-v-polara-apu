@@ -34,11 +34,13 @@ RISCV_LDFLAGS="-static -nostartfiles -lm -Wl,--gc-sections -T ${DV_ROOT}/verif/d
 #----------------------------------------------------------
 RISCV_GCC="/home/ci-chian/openpiton/piton/design/chip/tile/ara/install/riscv-llvm/bin/clang"
 RISCV_LINK_OPTS="-nostdlib ${RISCV_LDFLAGS} ${LLVM_FLAGS} -DDEFINE_MALLOC -DDEFINE_REALLOC -DDEFINE_FREE  -Werror-implicit-function-declaration -fno-math-errno"
-RISCV_GCC_OPTS="-DPREALLOCATE=1 -mcmodel=medany -std=gnu99 -O2 -fno-common -fno-builtin-printf -I/home/ci-chian/openpiton/piton/design/chip/tile/ara/toolchain/newlib/newlib/libc/include $2"
+RISCV_GCC_OPTS="-DPREALLOCATE=1 -mcmodel=medany -std=gnu99 -O2 -fno-common -fno-builtin-printf $2"
 
 INCS="-I${DV_ROOT}/verif/diag/assembly/include/riscv/ariane"
+ARA_INCS="-I${DV_ROOT}/design/chip/tile/ara/apps/riscv-tests/isa/macros/vector"
 
-${RISCV_GCC} ${INCS} ${RISCV_GCC_OPTS} -o diag.exe $1                        \
+
+${RISCV_GCC} ${INCS} ${ARA_INCS} ${RISCV_GCC_OPTS} -o diag.exe $1            \
              ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/syscalls.c  \
              ${DV_ROOT}/verif/diag/assembly/include/riscv/ariane/crt.S       \
              ${RISCV_LINK_OPTS}

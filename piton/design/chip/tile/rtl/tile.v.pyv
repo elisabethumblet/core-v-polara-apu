@@ -1108,7 +1108,7 @@ print(str)
         .default_chipid               (default_chipid               ),
         .default_coreid_x             (default_coreid_x             ),
         .default_coreid_y             (default_coreid_y             ),
-        
+      `ifdef ARA_REQ2MEM // direct memory request to main memory 
         .noc2_valid_out(src1_merger_vr_noc2_val),
         .noc2_data_out(src1_merger_vr_noc2_dat),
         .noc2_ready_in(src1_merger_vr_noc2_rdy),
@@ -1116,7 +1116,15 @@ print(str)
         .noc3_valid_in(splitter_dst1_vr_noc3_val),
         .noc3_data_in(splitter_dst1_vr_noc3_dat),
         .noc3_ready_out(splitter_dst1_vr_noc3_rdy),
-
+      `else // memeory request to L2 Cache 
+        .noc1_valid_out(src1_merger_vr_noc1_val),
+        .noc1_data_out(src1_merger_vr_noc1_dat),
+        .noc1_ready_in(src1_merger_vr_noc1_rdy),
+        
+        .noc2_valid_in(splitter_dst1_vr_noc2_val),
+        .noc2_data_in(splitter_dst1_vr_noc2_dat),
+        .noc2_ready_out(splitter_dst1_vr_noc2_rdy),
+      `endif 
         .l15_req_o   ( l15_req                ),
         .l15_rtrn_i  ( l15_rtrn               )
     );
@@ -1215,14 +1223,24 @@ print(str)
         .merger_dst_vr_noc_dat         (merger_buffer_vr_noc2_dat),
         .merger_dst_vr_noc_rdy         (merger_buffer_vr_noc2_rdy)   
     );
+    `ifdef ARA_REQ2MEM
+        assign splitter_dst1_vr_noc1_rdy = 1'b0;
+        assign splitter_dst1_vr_noc2_rdy = 1'b0;
+        // assign splitter_dst1_vr_noc3_rdy = 1'b0; // connected with ARA NOC intf 
+        assign src1_merger_vr_noc1_val = 1'b0; 
+        assign src1_merger_vr_noc1_dat = 64'd0; 
+        //assign src1_merger_vr_noc2_val = 1'b0;  // connected with ARA NOC intf
+        //assign src1_merger_vr_noc2_dat = 64'd0; // connected with ARA NOC intf
+    `else 
+        assign splitter_dst1_vr_noc1_rdy = 1'b0;
+        //assign splitter_dst1_vr_noc2_rdy = 1'b0;
+        assign splitter_dst1_vr_noc3_rdy = 1'b0; // connected with ARA NOC intf 
+        //assign src1_merger_vr_noc1_val = 1'b0; 
+        //assign src1_merger_vr_noc1_dat = 64'd0; 
+        assign src1_merger_vr_noc2_val = 1'b0;  // connected with ARA NOC intf
+        assign src1_merger_vr_noc2_dat = 64'd0; // connected with ARA NOC intf
+    `endif
 
-    assign splitter_dst1_vr_noc1_rdy = 1'b0;
-    assign splitter_dst1_vr_noc2_rdy = 1'b0;
-    // assign splitter_dst1_vr_noc3_rdy = 1'b0; // connected with ARA NOC intf 
-    assign src1_merger_vr_noc1_val = 1'b0; 
-    assign src1_merger_vr_noc1_dat = 64'd0; 
-    //assign src1_merger_vr_noc2_val = 1'b0;  // connected with ARA NOC intf
-    //assign src1_merger_vr_noc2_dat = 64'd0; // connected with ARA NOC intf
 
     //////////
     // L1.5 //
