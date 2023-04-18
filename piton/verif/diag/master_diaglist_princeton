@@ -23,6 +23,90 @@
 // master diag list for princeton
 ////////////////////////////////////////////////////////////////////////////////
 
+<ara_tile1 sys=manycore -x_tiles=1 -y_tiles=1 -ariane -config_rtl=SYNTHESIS -vcs_build_args="-lca -LDFLAGS -rdynamic -assert svaext +define+LOAD_NOSHARE_TEST +define+VLEN=4096 +define+NR_LANES=4 +define+ARIANE_ACCELERATOR_PORT=1" -vcs_build_args="-LDFLAGS -Wl,--no-as-needed">
+    <cmp_default name=default>
+    <runargs -x_tiles=1 -y_tiles=1 -ariane>
+    vsetivli vsetivli.c
+    vmsgt vmsgt.c 
+    vrsub vrsub.c
+    // vredmaxu vredmaxu.c
+    vid vid.c
+    vnclipu vnclipu.c
+    vmfeq vmfeq.c
+    vsmul vsmul.c
+    vssra vssra.c
+    // vfredosum vfredosum.c
+    vmerge vmerge.c
+    // vse64 vse64.c
+    vfnmacc vfnmacc.c
+    // vlx vlx.c
+    vwmaccus vwmaccus.c
+    vnsrl vnsrl.c
+    vxor vxor.c
+    // vredxor vredxor.c
+    vfnmsub vfnmsub.c
+    vmvxs vmvxs.c
+    // vs1r vs1r.c
+    vmulhsu vmulhsu.c
+    vsext vsext.c
+    // vsx vsx.c
+    vmsif vmsif.c
+    vmflt vmflt.c
+    vmslt vmslt.c
+    vmaxu vmaxu.c
+    // vasubu vasubu.c
+    vwmulsu vwmulsu.c
+    vmsleu vmsleu.c
+    vcpop vcpop.c
+    vfclass vfclass.c
+    vfwsub vfwsub.c
+    vfmadd vfmadd.c
+    // viota viota.c
+    vmulhu vmulhu.c
+    vslide1down vslide1down.c
+    vmsgtu vmsgtu.c
+    vfnmadd vfnmadd.c
+    // vrgather vrgather.c
+    vssrl vssrl.c
+    vl vl.c
+    vfsub vfsub.c
+    // vmnand vmnand.c
+    vmsof vmsof.c
+    vadd vadd.c
+    vmfge vmfge.c
+    vls vls.c
+    vfnmsac vfnmsac.c
+    vfrdiv vfrdiv.c
+    vmsle vmsle.c
+    vmornot vmornot.c
+    vmadc vmadc.c
+    vsadd vsadd.c
+    vnsra vnsra.c
+    vfwadd vfwadd.c
+    vluxei vluxei.c
+    // vmvnrr vmvnrr.c
+    // vcompress vcompress.c
+    // vfwredusum vfwredusum.c
+    vmin vmin.c
+    vfdiv vfdiv.c
+    vminu vminu.c
+    vpopc_m vpopc_m.c
+    vsll vsll.c
+    // vredmax vredmax.c
+    vfmsac vfmsac.c
+    vfrsqrt7 vfrsqrt7.c
+    vnmsub vnmsub.c
+    // vle32 vle32.c
+    vfwcvt vfwcvt.c
+    vmxnor vmxnor.c
+    // vmxor vmxor.c
+    vfwmacc vfwmacc.c
+    // vredsum vredsum.c
+    </runargs>
+    </cmp_default>
+</ara_tile1>
+
+
 <pico_tile1 sys=manycore -x_tiles=1 -y_tiles=1 -pico>
 <cmp_default name=default>
 pico-add    add.S
@@ -1433,7 +1517,7 @@ pico-amoxor     amoxor_w.S
         thread_bug3753    -max_cycle=200000  -sim_run_args=+rand_err_en -sim_run_args=+ic_err -sim_run_args=+dc_err -sim_run_args=+frf_err -sim_run_args=+irf_err -sim_run_args=+rand_err_seed=1058334745 bug3753.s
         thread_bug4017    -max_cycle=400000  -sim_run_args=+asm_err_en  bug4017.s
 
-        // Tri: the following test simulates icache error, of which I'm not exactly sure if the cross-module references work. The main problem is that it runs 4 threads.
+        // Tri: the following test simulates icache error, of which I 'm not exactly sure if the cross-module references work. The main problem is that it runs 4 threads.
         io_icerr         -midas_args=-DCREGS_SPARC_ERROR_EN_REG_CEEN=0 -sim_run_args=+asm_err_en -sim_run_args=+fast_boot -vcs_run -midas_args=-allow_tsb_conflicts -sim_run_args=+inst_check_off=1 io_icerr.s
 
         bug3846    -max_cycle=400000  -sim_run_args=+asm_err_en  -finish_mask=13  -midas_args=-allow_tsb_conflicts  bug3846.s  // Jon: Was finish_mask=7
@@ -1663,7 +1747,7 @@ pico-amoxor     amoxor_w.S
 #include "princeton/princeton_cmp8_tso.diaglist"
 #include "princeton/princeton_cmp8_basic.diaglist"
 
-//We don't need those dram tests because we don't have a dram controller
+//We dont need those dram tests because we don't have a dram controller
 //#include "princeton/princeton_dram_basic.diaglist"
 
 <runargs -max_cycle=24000000 -rtl_timeout=500000 -sim_run_args=+sjm_timeout_scale10 -sim_run_args=+turn_off_exu_monitor -sim_run_args=+turn_off_thread_monitor -sim_run_args=+turn_off_nukeint_mon  -midas_args=-allow_tsb_conflicts  -fast_boot -sim_run_args=+stb_drain_to_max=30000>
@@ -2227,3 +2311,4 @@ alu_tsub_rand                           arch_alu.pal  -midas_args=-pal_diag_args
 </runargs>
 </dmbr_nightly_source_sink_default>
 </dmbr_nightly_source_sink>
+

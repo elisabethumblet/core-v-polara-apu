@@ -1707,13 +1707,14 @@ begin
                     `endif
                     `L2_MESI_E:
                     begin
-                        if (req_from_owner_S2 && (cache_type_S2_f == l2_way_state_cache_type_S2))
-                        begin
-                            cs_S2 = {`L2_AMO_ALU_NOP, n,         rd,      `OP_CLR, y,      rd,            n,       n,         `OP_CLR,    n,      n,
-                                     `OP_CLR,   n,       n,      `L2_VD_INVAL,  n,      `L2_MESI_I, y,      `L2_LRU_SET};
-                        end
-                        else
-                        begin
+                    /*comment out for load no share bug*/
+                    //    if (req_from_owner_S2 && (cache_type_S2_f == l2_way_state_cache_type_S2))
+                    //    begin
+                    //        cs_S2 = {`L2_AMO_ALU_NOP, n,         rd,      `OP_CLR, y,      rd,            n,       n,         `OP_CLR,    n,      n,
+                    //                 `OP_CLR,   n,       n,      `L2_VD_INVAL,  n,      `L2_MESI_I, y,      `L2_LRU_SET};
+                    //    end
+                    //    else
+                    //    begin
                             `ifndef NO_RTL_CSM
                             if (csm_en)
                             begin
@@ -1726,7 +1727,7 @@ begin
                                 cs_S2 = {`L2_AMO_ALU_NOP, n,         rd,      `OP_CLR, n,      rd,            y,       n,         `OP_CLR,    n,      n,
                                          `OP_CLR,   n,       n,      `L2_VD_INVAL,  n,      `L2_MESI_I, n,      `L2_LRU_CLR};
                             end
-                        end
+                    //    end
                     end
                     default:
                     begin
@@ -3230,7 +3231,9 @@ begin
                     end
                     `L2_MESI_E:
                     begin
-                        if (req_from_owner_S4 && (cache_type_S4_f == l2_way_state_cache_type_S4))
+                        /*comment out for load no share bug*/
+                        //if (req_from_owner_S4 && (cache_type_S4_f == l2_way_state_cache_type_S4))
+                        if (msg_type_S4_f == `MSG_TYPE_LOAD_REQ && req_from_owner_S4 && (cache_type_S4_f == l2_way_state_cache_type_S4))
                         begin
                             cs_S4 = {n,         y,          `MSG_TYPE_DATA_ACK,    n,          `MSG_TYPE_ERROR};
                         end
