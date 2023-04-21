@@ -76,7 +76,6 @@
     vmin vmin.c
     vfdiv vfdiv.c
     vminu vminu.c
-    vpopc_m vpopc_m.c
     vsll vsll.c
     vfmsac vfmsac.c
     vfrsqrt7 vfrsqrt7.c
@@ -115,24 +114,28 @@
     vfslide1down vfslide1down.c
     vfmerge vfmerge.c
 	vadc vadc.c
+
+    /***test cases that is fixed****/ 
+    vpopc_m vpopc_m.c // fix by adding new macro in vector_macro.h
+    vredand vredand.c // fix by reset dst register value to 0
+    vredmax vredmax.c // fix by reset dst register value to 0
+    vredmaxu vredmaxu.c // fix by reset dst register value to 0
+    vredmin vredmin.c // fix by reset dst register value to 0
+    vredminu vredminu.c // fix by reset dst register value to 0
+    vredxor vredxor.c  // fix by reset dst register value to 0
+    viota viota.c // fix by reset dst register value to 0
     
     /***************************/
     //**** noc2 send x data ***//
     /***************************/
-    // vfwredosum vfwredosum.c
-    // vfwredusum vfwredusum.c
-    // viota viota.c
-    vredand vredand.c // fix by reset dst register value to 0
-    vredmax vredmax.c // fix by reset dst register value to 0
-    // vredmaxu vredmaxu.c
-    // vredmin vredmin.c
-    // vredminu vredminu.c
-    // vredsum vredsum.c
-    // vfredmin vfredmin.c
-    // vfredosum vfredosum.c
-    // vfredusum vfredusum.c
-    // vwredsumu vwredsumu.c
-    // vredxor vredxor.c
+    // vfwredosum vfwredosum.c // can pass test1 and test2 seperately, but when execute them at the same time -> timeout
+    // vfwredusum vfwredusum.c can pass test1 and test2 seperately, but when execute them at the same time -> timeout
+    // vredsum vredsum.c // listed in the issue tracking, odd element issue 
+    // vfredmin vfredmin.c // listed in the issue tracking, odd element issue
+    // vfredosum vfredosum.c // odd element issue, and also variable type comparison issue
+    // vfredusum vfredusum.c // can't identify problem, but porbably the same as the issue above
+    // vwredsumu vwredsumu.c // can't identify problem, testcase 1 can be fixed by clearing dst reg, but the rest can't be fixed
+    
 
     /***************************/
     //**** undefined macro  ***//
