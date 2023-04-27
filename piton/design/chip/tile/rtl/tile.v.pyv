@@ -1124,6 +1124,8 @@ print(str)
         .noc2_valid_in(splitter_dst1_vr_noc2_val),
         .noc2_data_in(splitter_dst1_vr_noc2_dat),
         .noc2_ready_out(splitter_dst1_vr_noc2_rdy),
+        .config_system_tile_count_5_0(config_system_tile_count[5:0]),
+        .config_home_alloc_method(config_home_alloc_method),
       `endif 
         .l15_req_o   ( l15_req                ),
         .l15_rtrn_i  ( l15_rtrn               )
