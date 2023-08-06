@@ -16,11 +16,12 @@ Polara project is hosted at OpenHW github repository. You first need to clone th
 
     cd [YOUR_PROJECT_DIR]
     git clone https://github.com/openhwgroup/core-v-polara-apu.git
+    git submodule update --init --recursive
     cd core-v-polara-apu
 
 ### Pre-requisites
 
-1. RISC-V LLVM compiler with vector extension support: To build any binary for Polara, you will need to install RISC-V compiler with vector extension support. We recommend to follow the [steps](https://github.com/pulp-platform/ara#toolchain) provided by Ara project.
+1. RISC-V LLVM compiler with vector extension support: To build any binary for Polara, you will need to install RISC-V compiler with vector extension support. We recommend to follow the [steps](https://github.com/pulp-platform/ara#toolchain) provided by Ara project. Polara assumes that the LLVM RISC-V compiler with vector extension is availble at `${DV_ROOT}/design/chip/tile/ara/install/riscv-llvm/bin/clang`. Following [steps](https://github.com/pulp-platform/ara#toolchain) in ara submodule of Polara should be enough to prepare the compiler properly. 
 
 2. Acess to simulators: For simulation, Polara has been tested with VCS and Modelsim/Questasim. You will need to have access to one of these simulators. 
 
