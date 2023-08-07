@@ -28,7 +28,8 @@
 # Not intended to be run standalone
 #
 
-set GLOBAL_INCLUDE_DIRS "${DV_ROOT}/design/include ${DV_ROOT}/design/chipset/include ${DV_ROOT}/design/chip/tile/ariane/common/submodules/common_cells/include ${DV_ROOT}/design/chip/tile/ariane/common/local/util ${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/include"
+set GLOBAL_INCLUDE_DIRS "${DV_ROOT}/design/include ${DV_ROOT}/design/chipset/include ${DV_ROOT}/design/chip/tile/ariane/common/submodules/common_cells/include ${DV_ROOT}/design/chip/tile/ariane/common/local/util ${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/include ${DV_ROOT}/design/chip/tile/ara/hardware/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src ${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/include"
+
 
 # RTL include files
 set GLOBAL_INCLUDE_FILES [list \
@@ -541,6 +542,144 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/common/submodules/common_cells/src/counter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/common/submodules/common_cells/src/delta_counter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/cvxif_fu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/include/rvv_pkg.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/include/ara_pkg.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/sync_fifo.v " \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/noc_response_axilite.sv " \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/strb2mask.v" \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/axilite_noc_bridge.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/noc_response_axi.sv " \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/axi_noc_bridge.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/ara_verilog_wrap.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/accel_dispatcher_ideal.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/ara_dispatcher.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/ara_sequencer.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/ara_soc.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/ara.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/ara_system.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/axi_inval_filter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/axi_to_mem.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/ctrl_registers.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/cva6_accel_first_pass_decoder.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/fixed_p_rounding.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/operand_queues_stage.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/simd_alu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/valu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/vmfpu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/lane_sequencer.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/operand_queue.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/simd_div.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/vector_fus_stage.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/lane.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/operand_requester.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/simd_mul.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/lane/vector_regfile.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/masku/masku.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/sldu/sldu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/vlsu/addrgen.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/vlsu/vldu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/vlsu/vlsu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/src/vlsu/vstu.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/ecc_pkg.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/edge_detect.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/fifo_v3.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/edge_propagator_tx.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_omega_net.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/delta_counter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/cdc_2phase.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_xbar.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_register.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_to_mem.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/clock_divider_counter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/fifo_v2.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/prioarbiter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/pulp_sync.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/generic_LFSR_8bit.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/rrarbiter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/clock_divider.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/generic_fifo.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/fifo_v1.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/find_first_one.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/pulp_sync_wedge.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/deprecated/generic_fifo_adv.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/isochronous_spill_register.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/sub_per_hash.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_fifo.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/fall_through_register.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/exp_backoff.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/rstgen.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/ecc_decode.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/lzc.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/cdc_fifo_gray.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/edge_propagator.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/id_queue.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/cb_filter_pkg.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/serial_deglitch.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_demux.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_arbiter_flushable.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/onehot_to_bin.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/clk_div.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_fork.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_delay.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/rr_arb_tree.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_join.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_mux.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/max_counter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_arbiter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/addr_decode.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/edge_propagator_rx.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/binary_to_gray.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/spill_register.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/cb_filter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/lfsr.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_filter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/spill_register_flushable.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/cdc_fifo_2phase.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/ecc_encode.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/plru_tree.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/lfsr_8bit.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/shift_reg.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/lfsr_16bit.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_fork_dynamic.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/unread.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/popcount.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/sync.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/rstgen_bypass.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/sync_wedge.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/gray_to_binary.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/mv_filter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/counter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/src/stream_intf.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_join.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_cdc.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_to_axi.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_cdc_src.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_modify_address.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_dw_downsizer.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_xbar.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_xbar.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_err_slv.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_demux.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_join.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_mux.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_to_axi_lite.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_serializer.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_dw_converter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_cut.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_dw_upsizer.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_atop_filter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_burst_splitter.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_delayer.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_regs.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_to_apb.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_isolate.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_multicut.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_sim_mem.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_demux.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_id_prepend.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_mailbox.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_cdc_dst.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src/axi_lite_mux.sv" \
 ]
 
 set CHIP_INCLUDE_FILES [list \
@@ -655,6 +794,7 @@ set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/eth_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/mc_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/f1_mc_top.v" \
+    "${DV_ROOT}/design/chipset/mc/rtl/u280_polara_top.v"  \
     "${DV_ROOT}/design/chipset/mc/rtl/noc_mig_bridge.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/memory_zeroer.v" \
     "${DV_ROOT}/design/chipset/noc_axilite_bridge/rtl/noc_axilite_bridge.v" \
