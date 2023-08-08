@@ -277,7 +277,9 @@ begin
    // For interrupt controller access, hard code the fbits. This is DECADES_CHIP specific. 
    // otherwise set fbits to 0 (target L2)
    msg_dest_fbits = (noc1buffer_noc1encoder_req_address[39:33] == 7'b1110000) ?
-                   noc1buffer_noc1encoder_req_address[`ON_CHIP_DEV_FBITS] : `NOC_FBITS_L2;
+                    noc1buffer_noc1encoder_req_address[`ON_CHIP_DEV_FBITS] :
+		    ((noc1buffer_noc1encoder_req_address[39:28]==12'he20) ? `NOC_FBITS_PLIC
+		      : `NOC_FBITS_L2);
 
    // default value for a message, will be overwritten by interrupt reqs
    msg_dest_l2_xpos = req_dest_l2_xpos;

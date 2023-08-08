@@ -27,11 +27,12 @@
 `include "define.tmp.h"
 
 module pmesh_rvic #(
-    parameter  integer                  NUM_SOURCES = 128,
-    parameter  integer                  NUM_HARTS = 59,
+    parameter  integer                  NUM_SOURCES = 16,
+    parameter  integer                  NUM_HARTS = 4,
     parameter  integer                  MAX_PRIORITY = 7,
-    parameter                           CLINT_BASE   = 64'he103c00000,
-    parameter                           PLIC_BASE    = 64'he200000000,
+    parameter                           CLINT_BASE   = 64'he110500000, // north of the northeast tile
+    parameter                           PLIC_BASE    = 64'he200000000, // north of the northwest tile
+    parameter                           DEBUG_BASE   = 64'he110400000, // east of the northeast tile
     parameter                           SWAP_ENDIANESS = 1
 ) (
     input                               clk,
@@ -39,38 +40,255 @@ module pmesh_rvic #(
 
     // PLIC
 
-    // Interrupt status is snooped from TRI responses
-    input                               l15_transducer_val,
-    input [3:0]                         l15_transducer_returntype,
-    input [63:0]                        l15_transducer_data_0,
+    // Interrupt status is received from noc2
+    input                               src_rvic_cr_noc2_val,
+    input [`NOC_DATA_WIDTH-1:0]         src_rvic_cr_noc2_dat,
+    output                              src_rvic_cr_noc2_rdy,
 
     // input from noc1 (load/store to PLIC)
-    input                               src_rvic_vr_noc1_val,
-    input [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc1_dat,
-    output                              src_rvic_vr_noc1_rdy,
+    input                               src_rvic_cr_noc1_val,
+    input [`NOC_DATA_WIDTH-1:0]         src_rvic_cr_noc1_dat,
+    output                              src_rvic_cr_noc1_rdy,
 
     // output to noc2 (load/store PLIC response)
-    output                              rvic_dst_vr_noc2_val,
-    output [`NOC_DATA_WIDTH-1:0]        rvic_dst_vr_noc2_dat,
-    input                               rvic_dst_vr_noc2_rdy,
+    output                              rvic_dst_cr_noc2_val,
+    output [`NOC_DATA_WIDTH-1:0]        rvic_dst_cr_noc2_dat,
+    input                               rvic_dst_cr_noc2_rdy,
 
     // Interrupt targets go to core
     output   [NUM_HARTS*2-1:0]          irq_targets,
 
     // CLINT
     // input from noc1 (load/store to CLINT)
-    input                               src_clint_noc1_val,
-    input [`NOC_DATA_WIDTH-1:0]         src_clint_noc1_dat,
-    output                              src_clint_noc1_rdy,
+    input                               src_clint_cr_noc1_val,
+    input [`NOC_DATA_WIDTH-1:0]         src_clint_cr_noc1_dat,
+    output                              src_clint_cr_noc1_rdy,
 
     // output to noc2 (load/store CLINT response)
-    output                              clint_dst_noc2_val,
-    output [`NOC_DATA_WIDTH-1:0]        clint_dst_noc2_dat,
-    input                               clint_dst_noc2_rdy,
+    output                              clint_dst_cr_noc2_val,
+    output [`NOC_DATA_WIDTH-1:0]        clint_dst_cr_noc2_dat,
+    input                               clint_dst_cr_noc2_rdy,
 
     input                               rtc_i,        // Real-time clock in (usually 32.768 kHz)
     output [NUM_HARTS-1:0]              timer_irq_o,  // Timer interrupts
-    output [NUM_HARTS-1:0]              ipi_o         // software interrupt (a.k.a inter-process-interrupt)
+    output [NUM_HARTS-1:0]              ipi_o,        // software interrupt (a.k.a inter-process-interrupt)
+
+    // Debug unit
+    // input from noc1 (load/store to debug unit)
+    input                               src_debug_cr_noc1_val,
+    input [`NOC_DATA_WIDTH-1:0]         src_debug_cr_noc1_dat,
+    output                              src_debug_cr_noc1_rdy,
+
+    // output to noc2 (load/store debug unit response)
+    output                              debug_dst_cr_noc2_val,
+    output [`NOC_DATA_WIDTH-1:0]        debug_dst_cr_noc2_dat,
+    input                               debug_dst_cr_noc2_rdy,
+
+    // Debug sigs to cores
+    output                              ndmreset_o,    // non-debug module reset
+    output                              dmactive_o,    // debug module is active
+    output [NUM_HARTS-1:0]               debug_req_o,   // async debug request
+    input  [NUM_HARTS-1:0]               unavailable_i, // communicate whether the hart is unavailable (e.g.: power down)
+
+    // JTAG
+    input                               tck_i,
+    input                               tms_i,
+    input                               trst_ni,
+    input                               td_i,
+    output                              td_o,
+    output                              tdo_oe_o
+);
+
+// Interrupt status is received from noc2
+wire                               src_rvic_vr_noc2_val,
+wire [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc2_dat,
+wire                               src_rvic_vr_noc2_rdy,
+
+// input from noc1 (load/store to PLIC)
+wire                               src_rvic_vr_noc1_val,
+wire [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc1_dat,
+wire                               src_rvic_vr_noc1_rdy,
+
+// output to noc2 (load/store PLIC response)
+wire                               rvic_dst_vr_noc2_val,
+wire [`NOC_DATA_WIDTH-1:0]         rvic_dst_vr_noc2_dat,
+wire                               rvic_dst_vr_noc2_rdy,
+
+// CLINT
+// input from noc1 (load/store to CLINT)
+wire                               src_clint_vr_noc1_val,
+wire [`NOC_DATA_WIDTH-1:0]         src_clint_vr_noc1_dat,
+wire                               src_clint_vr_noc1_rdy,
+
+// output to noc2 (load/store CLINT response)
+wire                               clint_dst_vr_noc2_val,
+wire [`NOC_DATA_WIDTH-1:0]         clint_dst_vr_noc2_dat,
+wire                               clint_dst_vr_noc2_rdy,
+
+// Debug unit
+// input from noc1 (load/store to debug unit)
+wire                               src_debug_vr_noc1_val,
+wire [`NOC_DATA_WIDTH-1:0]         src_debug_vr_noc1_dat,
+wire                               src_debug_vr_noc1_rdy,
+
+// output to noc2 (load/store debug unit response)
+wire                               debug_dst_vr_noc2_val,
+wire [`NOC_DATA_WIDTH-1:0]         debug_dst_vr_noc2_dat,
+wire                               debug_dst_vr_noc2_rdy
+
+credit_to_valrdy src_rvic_noc2_c2v(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (src_rvic_cr_noc2_dat),
+    .valid_in   (src_rvic_cr_noc2_val),
+    .yummy_in   (src_rvic_cr_noc2_yum),
+
+    .data_out   (src_rvic_vr_noc2_dat),
+    .valid_out  (src_rvic_vr_noc2_val),
+    .ready_out  (src_rvic_vr_noc2_rdy)
+);
+
+credit_to_valrdy src_rvic_noc1_c2v(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (src_rvic_cr_noc1_dat),
+    .valid_in   (src_rvic_cr_noc1_val),
+    .yummy_in   (src_rvic_cr_noc1_yum),
+
+    .data_out   (src_rvic_vr_noc1_dat),
+    .valid_out  (src_rvic_vr_noc1_val),
+    .ready_out  (src_rvic_vr_noc1_rdy)
+);
+
+valrdy_to_credit #(4, 3) rvic_dst_noc2_v2c(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (rvic_dst_vr_noc2_dat),
+    .valid_in   (rvic_dst_vr_noc2_val),
+    .ready_in   (rvic_dst_vr_noc2_rdy),
+
+    .data_out   (rvic_dst_cr_noc2_dat),
+    .valid_out  (rvic_dst_cr_noc2_val),
+    .yummy_out  (rvic_dst_cr_noc2_yum)
+);
+
+credit_to_valrdy src_clint_noc1_c2v(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (src_clint_cr_noc1_dat),
+    .valid_in   (src_clint_cr_noc1_val),
+    .yummy_in   (src_clint_cr_noc1_yum),
+
+    .data_out   (src_clint_vr_noc1_dat),
+    .valid_out  (src_clint_vr_noc1_val),
+    .ready_out  (src_clint_vr_noc1_rdy)
+);
+
+valrdy_to_credit #(4, 3) clint_dst_noc2_v2c(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (clint_dst_vr_noc2_dat),
+    .valid_in   (clint_dst_vr_noc2_val),
+    .ready_in   (clint_dst_vr_noc2_rdy),
+
+    .data_out   (clint_dst_cr_noc2_dat),
+    .valid_out  (clint_dst_cr_noc2_val),
+    .yummy_out  (clint_dst_cr_noc2_yum)
+);
+
+credit_to_valrdy src_debug_noc1_c2v(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (src_debug_cr_noc1_dat),
+    .valid_in   (src_debug_cr_noc1_val),
+    .yummy_in   (src_debug_cr_noc1_yum),
+
+    .data_out   (src_debug_vr_noc1_dat),
+    .valid_out  (src_debug_vr_noc1_val),
+    .ready_out  (src_debug_vr_noc1_rdy)
+);
+
+valrdy_to_credit #(4, 3) debug_dst_noc2_v2c(
+    .clk        (clk),
+    .reset      (~rst_n),
+    .data_in    (debug_dst_vr_noc2_dat),
+    .valid_in   (debug_dst_vr_noc2_val),
+    .ready_in   (debug_dst_vr_noc2_rdy),
+
+    .data_out   (debug_dst_cr_noc2_dat),
+    .valid_out  (debug_dst_cr_noc2_val),
+    .yummy_out  (debug_dst_cr_noc2_yum)
+);
+
+
+wire [511:0] noc2_data;
+wire noc2_data_val;
+wire noc2_data_ack;
+
+simplenocbuffer simplenocbuffer(
+    .clk(clk),
+    .rst_n(rst_n),
+    .noc_in_val(src_rvic_vr_noc2_val),
+    .noc_in_data(src_rvic_vr_noc2_dat),
+    .msg_ack(noc2_data_ack),
+    .noc_in_rdy(src_rvic_vr_noc2_rdy),
+    .msg(noc2_data),
+    .msg_val(noc2_data_val)
+);
+
+wire l15_noc2decoder_ack;
+wire l15_noc2decoder_header_ack;
+wire noc2decoder_l15_val;
+wire [`L15_MSHR_ID_WIDTH-1:0] noc2decoder_l15_mshrid;
+wire noc2decoder_l15_l2miss;
+wire noc2decoder_l15_icache_type;
+wire noc2decoder_l15_f4b;
+wire [`MSG_TYPE_WIDTH-1:0] noc2decoder_l15_reqtype;
+wire [`L15_MESI_STATE_WIDTH-1:0] noc2decoder_l15_ack_state;
+wire [63:0] noc2decoder_l15_data_0;
+wire [63:0] noc2decoder_l15_data_1;
+wire [63:0] noc2decoder_l15_data_2;
+wire [63:0] noc2decoder_l15_data_3;
+wire [`L15_PADDR_HI:0] noc2decoder_l15_address;
+wire [3:0] noc2decoder_l15_fwd_subcacheline_vector;
+wire [`PACKET_HOME_ID_WIDTH-1:0] noc2decoder_l15_src_homeid;
+
+wire [`L15_CSM_NUM_TICKETS_LOG2-1:0] noc2decoder_l15_csm_mshrid;
+wire [`L15_THREADID_MASK] noc2decoder_l15_threadid;
+wire noc2decoder_l15_hmc_fill;
+
+/*
+    noc2decoder takes the data from the buffer and decode it to meaningful signals
+    to the l15
+*/
+noc2decoder noc2decoder(
+    .clk(clk),
+    .rst_n(rst_n),
+    .noc2_data(noc2_data),
+    .noc2_data_val(noc2_data_val),
+    .l15_noc2decoder_ack(l15_noc2decoder_ack),
+    .l15_noc2decoder_header_ack(l15_noc2decoder_header_ack),
+    .noc2_data_ack(noc2_data_ack),
+    .noc2decoder_l15_val(noc2decoder_l15_val),
+    .noc2decoder_l15_mshrid(noc2decoder_l15_mshrid),
+    .noc2decoder_l15_l2miss(noc2decoder_l15_l2miss),
+    .noc2decoder_l15_icache_type(noc2decoder_l15_icache_type),
+    .noc2decoder_l15_f4b(noc2decoder_l15_f4b),
+    .noc2decoder_l15_reqtype(noc2decoder_l15_reqtype),
+    .noc2decoder_l15_ack_state(noc2decoder_l15_ack_state),
+    .noc2decoder_l15_data_0(noc2decoder_l15_data_0),
+    .noc2decoder_l15_data_1(noc2decoder_l15_data_1),
+    .noc2decoder_l15_data_2(noc2decoder_l15_data_2),
+    .noc2decoder_l15_data_3(noc2decoder_l15_data_3),
+    .noc2decoder_l15_address(noc2decoder_l15_address),
+    .noc2decoder_l15_fwd_subcacheline_vector(noc2decoder_l15_fwd_subcacheline_vector),
+    .noc2decoder_l15_src_homeid(noc2decoder_l15_src_homeid),
+    .noc2decoder_l15_csm_mshrid(noc2decoder_l15_csm_mshrid),
+    .noc2decoder_l15_threadid(noc2decoder_l15_threadid),
+    .noc2decoder_l15_hmc_fill(noc2decoder_l15_hmc_fill),
+    .l15_dmbr_l2missIn(l15_dmbr_l2missIn),
+    .l15_dmbr_l2missTag(l15_dmbr_l2missTag),
+    .l15_dmbr_l2responseIn(l15_dmbr_l2responseIn)
 );
 
 reg                     new_edge_irq;
@@ -107,14 +325,14 @@ always @* begin
     irq_sources_next = irq_sources;
     lev_or_edge_next = lev_or_edge;
     source_id_field  = 10'b0;
-    if (l15_transducer_val && (l15_transducer_returntype == `CPX_RESTYPE_INTERRUPT) && ~new_edge_irq && (l15_transducer_data_0[17:16] == 2'b0)) begin
+    if (noc2decoder_l15_val && (noc2decoder_l15_reqtype == `MSG_TYPE_INTERRUPT) && ~new_edge_irq && (noc2decoder_l15_data_0[17:16] == 2'b0)) begin
         // Comebine the source id together
-	source_id_field = {l15_transducer_data_0[59:56], l15_transducer_data_0[5:0]};
+	source_id_field = {noc2decoder_l15_data_0[59:56], noc2decoder_l15_data_0[5:0]};
         // Either level sensitive edge or rising edge of edge sensitive pulse
-        new_edge_irq_next = l15_transducer_data_0[7];
+        new_edge_irq_next = noc2decoder_l15_data_0[7];
         most_recent_source_next = source_id_field[6:0];
-	irq_sources_next[source_id_field[6:0]] = l15_transducer_data_0[7] | (~l15_transducer_data_0[7] & ~l15_transducer_data_0[6]); // edge-sensitive or rising edge of level-sensitive
-	lev_or_edge_next[source_id_field[6:0]] = l15_transducer_data_0[7];
+	irq_sources_next[source_id_field[6:0]] = noc2decoder_l15_data_0[7] | (~noc2decoder_l15_data_0[7] & ~noc2decoder_l15_data_0[6]); // edge-sensitive or rising edge of level-sensitive
+	lev_or_edge_next[source_id_field[6:0]] = noc2decoder_l15_data_0[7];
     end else if (new_edge_irq) begin
         // Edge sensitive automatic falling edge of pulse
         most_recent_source_next = 7'b0;
@@ -255,12 +473,12 @@ noc_axilite_bridge #(
     .clk                    ( clk                           ),
     .rst                    ( ~rst_n                        ),
     // to/from NOC
-    .splitter_bridge_val    ( src_clint_noc1_val            ),
-    .splitter_bridge_data   ( src_clint_noc1_dat            ),
-    .bridge_splitter_rdy    ( src_clint_noc1_rdy            ),
-    .bridge_splitter_val    ( clint_dst_noc2_val            ),
-    .bridge_splitter_data   ( clint_dst_noc2_dat            ),
-    .splitter_bridge_rdy    ( clint_dst_noc2_rdy            ),
+    .splitter_bridge_val    ( src_clint_vr_noc1_val            ),
+    .splitter_bridge_data   ( src_clint_vr_noc1_dat            ),
+    .bridge_splitter_rdy    ( src_clint_vr_noc1_rdy            ),
+    .bridge_splitter_val    ( clint_dst_vr_noc2_val            ),
+    .bridge_splitter_data   ( clint_dst_vr_noc2_dat            ),
+    .splitter_bridge_rdy    ( clint_dst_vr_noc2_rdy            ),
     //axi lite signals
     //write address channel
     .m_axi_awaddr           ( clint_aw_addr         ),
@@ -295,7 +513,8 @@ rvic_wrap #(
     .NumHarts          ( NUM_HARTS     ),
     .PlicMaxPriority   ( MAX_PRIORITY  ),
     .ClintBase         ( CLINT_BASE    ),
-    .PlicBase          ( PLIC_BASE     )
+    .PlicBase          ( PLIC_BASE     ),
+    .DmBase            ( DEBUG_BASE    )
 ) rvic_wrap (
     .clk            ( clk           ),
     .rst_n          ( rst_n         ),

@@ -234,6 +234,7 @@ begin
    end
 end
 
+wire [`HOME_ID_WIDTH-1:0] lhid_s2_pre;
 l15_home_encoder    l15_home_encoder(
    // .clk            (clk),
    // .rst_n          (rst_n),
@@ -241,6 +242,18 @@ l15_home_encoder    l15_home_encoder(
    .num_homes      (num_homes_s2),
    .lhid_out       (lhid_s2)
 );
+
+always @(*) begin
+    // We make the interrupt controller a special on-chip device.
+    // Different from other on-chip devices (addr starts from 0xe1 and 0xe0),
+    // the address mapped to interrupt controller starts from 0xe20
+    if (l15_csm_req_address_s2[39:28] == 12'he20) begin
+        lhid_s2 = `PLIC_FLATID;
+    end
+    else begin
+       lhid_s2 = lhid_s2_pre;
+    end
+end
 
 always @ *
 begin
