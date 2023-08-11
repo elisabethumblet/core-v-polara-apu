@@ -35,9 +35,9 @@ set BOARD_DEFAULT_VERILOG_MACROS "ALVEO_BOARD"
 
 
 # Create a block design containing PCIe and GPIO using the FPGA_PART variable
-# It will produce the "meep_shell.bd" file
+# It will produce the "polara_fpga.bd" file
 
-source $DV_ROOT/tools/src/proto/${BOARD}/polara.tcl
+source $DV_ROOT/tools/src/proto/${BOARD}/polara_fpga.tcl
 
 # Grab the file from where the above tcl script has placed it
 set DESIGN_BD_FILES [list $DV_ROOT/design/chipset/xilinx/alveou280/polara_fpga/polara_fpga]
