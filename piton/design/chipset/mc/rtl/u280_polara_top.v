@@ -149,7 +149,7 @@ module u280_polara_top (
 		
 		);
 
-	polara polara_i (
+	polara_fpga polara_i (
 
 		.c0_sysclk_clk_p           ( c0_sysclk_clk_p           ),
 		.c0_sysclk_clk_n           ( c0_sysclk_clk_n           ),
