@@ -43,17 +43,17 @@ module pmesh_rvic #(
     // Interrupt status is received from noc2
     input                               src_rvic_cr_noc2_val,
     input [`NOC_DATA_WIDTH-1:0]         src_rvic_cr_noc2_dat,
-    output                              src_rvic_cr_noc2_rdy,
+    output                              src_rvic_cr_noc2_yum,
 
     // input from noc1 (load/store to PLIC)
     input                               src_rvic_cr_noc1_val,
     input [`NOC_DATA_WIDTH-1:0]         src_rvic_cr_noc1_dat,
-    output                              src_rvic_cr_noc1_rdy,
+    output                              src_rvic_cr_noc1_yum,
 
     // output to noc2 (load/store PLIC response)
     output                              rvic_dst_cr_noc2_val,
     output [`NOC_DATA_WIDTH-1:0]        rvic_dst_cr_noc2_dat,
-    input                               rvic_dst_cr_noc2_rdy,
+    input                               rvic_dst_cr_noc2_yum,
 
     // Interrupt targets go to core
     output   [NUM_HARTS*2-1:0]          irq_targets,
@@ -62,12 +62,12 @@ module pmesh_rvic #(
     // input from noc1 (load/store to CLINT)
     input                               src_clint_cr_noc1_val,
     input [`NOC_DATA_WIDTH-1:0]         src_clint_cr_noc1_dat,
-    output                              src_clint_cr_noc1_rdy,
+    output                              src_clint_cr_noc1_yum,
 
     // output to noc2 (load/store CLINT response)
     output                              clint_dst_cr_noc2_val,
     output [`NOC_DATA_WIDTH-1:0]        clint_dst_cr_noc2_dat,
-    input                               clint_dst_cr_noc2_rdy,
+    input                               clint_dst_cr_noc2_yum,
 
     input                               rtc_i,        // Real-time clock in (usually 32.768 kHz)
     output [NUM_HARTS-1:0]              timer_irq_o,  // Timer interrupts
@@ -77,12 +77,12 @@ module pmesh_rvic #(
     // input from noc1 (load/store to debug unit)
     input                               src_debug_cr_noc1_val,
     input [`NOC_DATA_WIDTH-1:0]         src_debug_cr_noc1_dat,
-    output                              src_debug_cr_noc1_rdy,
+    output                              src_debug_cr_noc1_yum,
 
     // output to noc2 (load/store debug unit response)
     output                              debug_dst_cr_noc2_val,
     output [`NOC_DATA_WIDTH-1:0]        debug_dst_cr_noc2_dat,
-    input                               debug_dst_cr_noc2_rdy,
+    input                               debug_dst_cr_noc2_yum,
 
     // Debug sigs to cores
     output                              ndmreset_o,    // non-debug module reset
@@ -100,41 +100,41 @@ module pmesh_rvic #(
 );
 
 // Interrupt status is received from noc2
-wire                               src_rvic_vr_noc2_val,
-wire [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc2_dat,
-wire                               src_rvic_vr_noc2_rdy,
+wire                               src_rvic_vr_noc2_val;
+wire [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc2_dat;
+wire                               src_rvic_vr_noc2_rdy;
 
 // input from noc1 (load/store to PLIC)
-wire                               src_rvic_vr_noc1_val,
-wire [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc1_dat,
-wire                               src_rvic_vr_noc1_rdy,
+wire                               src_rvic_vr_noc1_val;
+wire [`NOC_DATA_WIDTH-1:0]         src_rvic_vr_noc1_dat;
+wire                               src_rvic_vr_noc1_rdy;
 
 // output to noc2 (load/store PLIC response)
-wire                               rvic_dst_vr_noc2_val,
-wire [`NOC_DATA_WIDTH-1:0]         rvic_dst_vr_noc2_dat,
-wire                               rvic_dst_vr_noc2_rdy,
+wire                               rvic_dst_vr_noc2_val;
+wire [`NOC_DATA_WIDTH-1:0]         rvic_dst_vr_noc2_dat;
+wire                               rvic_dst_vr_noc2_rdy;
 
 // CLINT
 // input from noc1 (load/store to CLINT)
-wire                               src_clint_vr_noc1_val,
-wire [`NOC_DATA_WIDTH-1:0]         src_clint_vr_noc1_dat,
-wire                               src_clint_vr_noc1_rdy,
+wire                               src_clint_vr_noc1_val;
+wire [`NOC_DATA_WIDTH-1:0]         src_clint_vr_noc1_dat;
+wire                               src_clint_vr_noc1_rdy;
 
 // output to noc2 (load/store CLINT response)
-wire                               clint_dst_vr_noc2_val,
-wire [`NOC_DATA_WIDTH-1:0]         clint_dst_vr_noc2_dat,
-wire                               clint_dst_vr_noc2_rdy,
+wire                               clint_dst_vr_noc2_val;
+wire [`NOC_DATA_WIDTH-1:0]         clint_dst_vr_noc2_dat;
+wire                               clint_dst_vr_noc2_rdy;
 
 // Debug unit
 // input from noc1 (load/store to debug unit)
-wire                               src_debug_vr_noc1_val,
-wire [`NOC_DATA_WIDTH-1:0]         src_debug_vr_noc1_dat,
-wire                               src_debug_vr_noc1_rdy,
+wire                               src_debug_vr_noc1_val;
+wire [`NOC_DATA_WIDTH-1:0]         src_debug_vr_noc1_dat;
+wire                               src_debug_vr_noc1_rdy;
 
 // output to noc2 (load/store debug unit response)
-wire                               debug_dst_vr_noc2_val,
-wire [`NOC_DATA_WIDTH-1:0]         debug_dst_vr_noc2_dat,
-wire                               debug_dst_vr_noc2_rdy
+wire                               debug_dst_vr_noc2_val;
+wire [`NOC_DATA_WIDTH-1:0]         debug_dst_vr_noc2_dat;
+wire                               debug_dst_vr_noc2_rdy;
 
 credit_to_valrdy src_rvic_noc2_c2v(
     .clk        (clk),
