@@ -68,8 +68,8 @@ set_property PACKAGE_PIN AV8              [get_ports {pci_express_x16_txn[9]} ] 
 set_property PACKAGE_PIN AU6              [get_ports {pci_express_x16_txn[8]} ]                    ;# Bank 225 - MGTYTXN3_225
 set_property PACKAGE_PIN AY9              [get_ports {pci_express_x16_txp[11]} ]                   ;# Bank 225 - MGTYTXP0_225
 set_property PACKAGE_PIN AW11             [get_ports {pci_express_x16_txp[10]} ]                   ;# Bank 225 - MGTYTXP1_225
-set_property PACKAGE_PIN AV9              [get_ports {pci_express_x16_txp[8]} ]                    ;# Bank 225 - MGTYTXP2_225
-set_property PACKAGE_PIN AU7              [get_ports {pci_express_x16_txp[9]} ]                    ;# Bank 225 - MGTYTXP3_225
+set_property PACKAGE_PIN AV9              [get_ports {pci_express_x16_txp[9]} ]                    ;# Bank 225 - MGTYTXP2_225
+set_property PACKAGE_PIN AU7              [get_ports {pci_express_x16_txp[8]} ]                    ;# Bank 225 - MGTYTXP3_225
 set_property PACKAGE_PIN AU1              [get_ports {pci_express_x16_rxn[7]} ]                    ;# Bank 226 - MGTYRXN0_226
 set_property PACKAGE_PIN AT3              [get_ports {pci_express_x16_rxn[6]} ]                    ;# Bank 226 - MGTYRXN1_226
 set_property PACKAGE_PIN AR1              [get_ports {pci_express_x16_rxn[5]} ]                    ;# Bank 226 - MGTYRXN2_226
@@ -269,3 +269,4 @@ set_property -dict {PACKAGE_PIN BG29 IOSTANDARD DIFF_POD12_DCI}          [ get_p
 
 set_property -dict {PACKAGE_PIN D32 IOSTANDARD LVCMOS18}                 [get_ports hbm_cattrip]
 set_property PULLTYPE PULLDOWN                                           [get_ports hbm_cattrip]
+
