@@ -1,6 +1,8 @@
 
 `include "mc_define.h"
 
+`include "noc_axi4_bridge_define.vh"
+
 module u280_polara_top (
 
     input         pcie_refclk_clk_n    ,
