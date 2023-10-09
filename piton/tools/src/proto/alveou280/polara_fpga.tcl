@@ -111,14 +111,14 @@ proc create_root_design { parentCell } {
    CONFIG.DATA_WIDTH {512} \
    CONFIG.FREQ_HZ {300000000} \
    CONFIG.HAS_BRESP {1} \
-   CONFIG.HAS_BURST {0} \
-   CONFIG.HAS_CACHE {0} \
-   CONFIG.HAS_LOCK {0} \
-   CONFIG.HAS_PROT {0} \
-   CONFIG.HAS_QOS {0} \
-   CONFIG.HAS_REGION {0} \
+   CONFIG.HAS_BURST {1} \
+   CONFIG.HAS_CACHE {1} \
+   CONFIG.HAS_LOCK {1} \
+   CONFIG.HAS_PROT {1} \
+   CONFIG.HAS_QOS {1} \
+   CONFIG.HAS_REGION {1} \
    CONFIG.HAS_RRESP {1} \
-   CONFIG.HAS_WSTRB {0} \
+   CONFIG.HAS_WSTRB {1} \
    CONFIG.ID_WIDTH {6} \
    CONFIG.MAX_BURST_LENGTH {256} \
    CONFIG.NUM_READ_OUTSTANDING {1} \
@@ -185,9 +185,6 @@ proc create_root_design { parentCell } {
   set chip_rstn [ create_bd_port -dir O -from 0 -to 0 chip_rstn ]
   set pcie_perstn [ create_bd_port -dir I -type rst pcie_perstn ]
   set resetn [ create_bd_port -dir I -type rst resetn ]
-  set_property -dict [ list \
-   CONFIG.POLARITY {ACTIVE_HIGH} \
- ] $resetn
 
   # Create instance: axi_gpio_0, and set properties
   set axi_gpio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 ]
@@ -242,19 +239,31 @@ proc create_root_design { parentCell } {
   set qdma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:qdma:4.0 qdma_0 ]
   set_property -dict [ list \
    CONFIG.MAILBOX_ENABLE {true} \
-   CONFIG.PF0_SRIOV_FIRST_VF_OFFSET {4} \
-   CONFIG.PF1_SRIOV_FIRST_VF_OFFSET {7} \
-   CONFIG.PF2_SRIOV_FIRST_VF_OFFSET {10} \
-   CONFIG.PF3_SRIOV_FIRST_VF_OFFSET {13} \
+   CONFIG.PF0_SRIOV_CAP_INITIAL_VF {4} \
+   CONFIG.PF0_SRIOV_FIRST_VF_OFFSET {0} \
+   CONFIG.PF1_MSIX_CAP_TABLE_SIZE_qdma {000} \
+   CONFIG.PF1_SRIOV_CAP_INITIAL_VF {0} \
+   CONFIG.PF1_SRIOV_FIRST_VF_OFFSET {0} \
+   CONFIG.PF2_MSIX_CAP_TABLE_SIZE_qdma {000} \
+   CONFIG.PF2_SRIOV_CAP_INITIAL_VF {0} \
+   CONFIG.PF2_SRIOV_FIRST_VF_OFFSET {0} \
+   CONFIG.PF3_MSIX_CAP_TABLE_SIZE_qdma {000} \
+   CONFIG.PF3_SRIOV_CAP_INITIAL_VF {0} \
+   CONFIG.PF3_SRIOV_FIRST_VF_OFFSET {0} \
    CONFIG.SRIOV_CAP_ENABLE {true} \
    CONFIG.SRIOV_FIRST_VF_OFFSET {4} \
    CONFIG.axi_data_width {256_bit} \
    CONFIG.barlite_mb_pf0 {1} \
+   CONFIG.barlite_mb_pf1 {0} \
+   CONFIG.barlite_mb_pf2 {0} \
+   CONFIG.barlite_mb_pf3 {0} \
    CONFIG.coreclk_freq {250} \
    CONFIG.dma_intf_sel_qdma {AXI_MM} \
    CONFIG.en_axi_st_qdma {false} \
    CONFIG.flr_enable {true} \
    CONFIG.mode_selection {Advanced} \
+   CONFIG.pcie_blk_locn {PCIE4C_X1Y0} \
+   CONFIG.select_quad {GTY_Quad_227} \
    CONFIG.pf0_ari_enabled {true} \
    CONFIG.pf0_bar0_prefetchable_qdma {true} \
    CONFIG.pf0_bar2_prefetchable_qdma {true} \
@@ -271,6 +280,7 @@ proc create_root_design { parentCell } {
    CONFIG.pf3_device_id {932F} \
    CONFIG.pf3_msix_enabled_qdma {false} \
    CONFIG.pl_link_cap_max_link_speed {5.0_GT/s} \
+   CONFIG.pl_link_cap_max_link_width {X16} \
    CONFIG.testname {mm} \
  ] $qdma_0
 
