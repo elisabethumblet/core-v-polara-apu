@@ -28,7 +28,7 @@
 # Not intended to be run standalone
 #
 
-set GLOBAL_INCLUDE_DIRS "${DV_ROOT}/design/include ${DV_ROOT}/design/chipset/include ${DV_ROOT}/design/chip/tile/ariane/common/submodules/common_cells/include ${DV_ROOT}/design/chip/tile/ariane/common/local/util ${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/include ${DV_ROOT}/design/chip/tile/ara/hardware/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src ${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/include"
+set GLOBAL_INCLUDE_DIRS "${DV_ROOT}/design/include ${DV_ROOT}/design/chipset/include ${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/common_cells/include ${DV_ROOT}/design/chip/tile/ariane/common/local/util ${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/include ${DV_ROOT}/design/chip/tile/ara/hardware/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/axi/src ${DV_ROOT}/design/chip/tile/ara/hardware/deps/common_cells/include ${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/include"
 
 
 # RTL include files
@@ -499,8 +499,6 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/riscv-dbg/src/dmi_jtag_tap.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/openpiton/riscv_peripherals.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/openpiton/ariane_verilog_wrap.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/openpiton/bootrom/baremetal/bootrom.sv"               \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/openpiton/bootrom/linux/bootrom_linux.sv"             \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/rv_plic_target.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/rv_plic_gateway.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/plic_regmap.sv" \
@@ -694,8 +692,10 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_regs.sv"  \
     "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_err_slv.sv"  \
     "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_cdc.sv"  \
-    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_demux.sv"  \    
+    "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_demux.sv"  \
 ]
+
+
 
 set CHIP_INCLUDE_FILES [list \
 ]
@@ -809,7 +809,7 @@ set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/eth_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/mc_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/f1_mc_top.v" \
-    "${DV_ROOT}/design/chipset/mc/rtl/u280_polara_top.v"  \
+    "${DV_ROOT}/design/chipset/mc/rtl/u280_polara_top.sv"  \
     "${DV_ROOT}/design/chipset/mc/rtl/noc_mig_bridge.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/memory_zeroer.v" \
     "${DV_ROOT}/design/chipset/noc_axilite_bridge/rtl/noc_axilite_bridge.v" \
@@ -897,7 +897,7 @@ set CHIPSET_INCLUDE_FILES [list \
     "${DV_ROOT}/design/chipset/include/uart16550_define.vh" \
     "${DV_ROOT}/design/chipset/include/chipset_define.vh" \
     "${DV_ROOT}/design/chipset/noc_axi4_bridge/rtl/noc_axi4_bridge_define.vh" \
-    "${DV_ROOT}/design/chip/tile/ariane/src/common_cells/include/common_cells/registers.svh"
+    "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/common_cells/include/common_cells/registers.svh"
 ]
 
 set CHIPSET_IP_FILE_PREFIXES [list \
