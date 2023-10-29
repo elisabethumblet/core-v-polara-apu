@@ -227,7 +227,7 @@
 
 <ara_tile2x2 sys=manycore -x_tiles=2 -y_tiles=2 -ariane -config_rtl=SYNTHESIS -vcs_build_args="-lca -LDFLAGS -rdynamic -assert svaext +define+LOAD_NOSHARE_TEST +define+VLEN=4096 +define+NR_LANES=4 +define+ARIANE_ACCELERATOR_PORT=1" -vcs_build_args="-LDFLAGS -Wl,--no-as-needed">
     <cmp_default name=default>
-    <runargs -x_tiles=2 -y_tiles=2 -ariane>
+    <runargs -x_tiles=2 -y_tiles=2 -ariane -rtl_timeout=500000>
     vadd vadd.c
     vmsgt vmsgt.c 
     vrsub vrsub.c
