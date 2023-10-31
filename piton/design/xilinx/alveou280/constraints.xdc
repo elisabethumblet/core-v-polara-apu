@@ -17,8 +17,8 @@ set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]
 set_false_path -from [get_pins -hier *Not_Dual.gpio_Data_Out_reg*/C]
 
 # 156.25MHz General purpose system clock
-set_property PACKAGE_PIN G30 [get_ports chipset_clk_osc_p]
-set_property PACKAGE_PIN F30 [get_ports chipset_clk_osc_n]
+set_property PACKAGE_PIN BH6 [get_ports chipset_clk_osc_p]
+set_property PACKAGE_PIN BJ6 [get_ports chipset_clk_osc_n]
 set_property IOSTANDARD LVDS [get_ports chipset_clk*]
 
 # Reset, connects SW1 push button On the top edge of the PCB Assembly, also connects to Satellite Controller
@@ -109,14 +109,6 @@ set_property PACKAGE_PIN AL10 [get_ports {pci_express_x16_txn[0]}]
 
 create_clock -period 10.000 -name pcie_refclk [get_ports pcie_refclk_clk_p]
 
-#--------------------------------------------
-# Specifying the placement of PCIe clock domain modules into single SLR to facilitate routing
-# https://www.xilinx.com/support/documentation/sw_manuals/xilinx2020_1/ug912-vivado-properties.pdf#page=386
-#Collecting all units from correspondingly PCIe domain,
-#Setting specific SLR to which PCIe pins are wired since placer may miss it if just "group_name" is applied
-set_property USER_SLR_ASSIGNMENT SLR0 [get_cells chipset/chipset_impl/u280_polara_i/polara_i/smartconnect_0]
-set_property USER_SLR_ASSIGNMENT SLR0 [get_cells chipset/chipset_impl/u280_polara_i/polara_i/qdma_0]
-set_property USER_SLR_ASSIGNMENT SLR0 [get_cells chipset/chipset_impl/u280_polara_i/polara_i/axi_gpio_0]
 
 
 
@@ -282,5 +274,8 @@ set_property -dict {PACKAGE_PIN D32 IOSTANDARD LVCMOS18} [get_ports hbm_cattrip]
 set_property PULLDOWN true [get_ports hbm_cattrip]
 
 set_false_path -from [get_pins chipset/chipset_impl/u280_polara_i/polara_i/ddr4_0/inst/u_ddr4_mem_intfc/u_ddr_cal_top/*/C] -to [get_pins chipset/chipset_impl/init_calib_complete_f_reg/D]
+
+set_property USER_SLR_ASSIGNMENT SLR0 [get_cells [get_cells -of_objects [get_nets -of_objects [get_pins -hierarchical qdma_0/axi_aclk]]]]
+
 
 
