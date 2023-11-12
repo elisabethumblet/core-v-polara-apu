@@ -145,7 +145,7 @@ module system(
     input                                       sys_rst_n,
 
 `ifndef PITON_FPGA_SYNTH
-    input                                       pll_rst_n,
+    input                                       fll_rst_n,
 `endif // endif PITON_FPGA_SYNTH
 
     // Chip-level clock enable
@@ -153,16 +153,19 @@ module system(
     input                                       clk_en,
 `endif // endif PITON_FPGA_SYNTH
 
-    // Chip PLL settings
+    // Chip FLL settings
 `ifndef PITON_FPGA_SYNTH
-    input                                       pll_bypass,
-    input [4:0]                                 pll_rangea,
-    output                                      pll_lock,
+   output                                       fll_lock,
+   output                                       fll_clkdiv,
+   input                                        fll_bypass,
+   input                                        fll_opmode,
+   input  [3:0]                                 fll_range,
+   input                                        fll_cfgreq,
 `endif // endif PITON_FPGA_SYNTH
 
-    // Chip clock mux selection (bypass PLL or not)
+    // Chip clock mux selection
 `ifndef PITON_FPGA_SYNTH
-    input [1:0]                                 clk_mux_sel,
+    input                                       clk_mux_sel,
 `endif // endif PITON_FPGA_SYNTH
 
     // Chip JTAG
@@ -420,9 +423,9 @@ reg                 sys_rst_n_rect;
 // Chip resets derived from sys_rst_n and passthru output reset
 reg                 chip_rst_n;
 
-// JTAG and PLL resets derived from inputs and passthru output resets
+// JTAG and FLL resets derived from inputs and passthru output resets
 reg                 jtag_rst_n_full;
-reg                 pll_rst_n_full;
+reg                 fll_rst_n_full;
 
 // Passthru module reset derived from sys_rst_n
 reg                 passthru_rst_n;
@@ -430,13 +433,13 @@ reg                 passthru_rst_n;
 // Passthru output clocks to chip
 wire                passthru_chip_rst_n;
 wire                passthru_jtag_rst_n;
-wire                passthru_pll_rst_n;
+wire                passthru_fll_rst_n;
 
 // Chipset module reset derived from sys_rst_n
 reg                 chipset_rst_n;
 
 `ifdef PITON_FPGA_SYNTH
-wire                pll_lock;
+wire                fll_lock;
 `endif // endif PITON_FPGA_SYNTH
 
 // Signal from passthru to chipset to signal
@@ -589,9 +592,9 @@ begin
     jtag_rst_n_full = jtag_rst_l & passthru_jtag_rst_n;
 `endif // endif PITON_NO_JTAG
 `ifdef PITON_FPGA_SYNTH
-    pll_rst_n_full = passthru_pll_rst_n;
+    fll_rst_n_full = passthru_fll_rst_n;
 `else // ifnddef PITON_FPGA_SYNTH
-    pll_rst_n_full = pll_rst_n & passthru_pll_rst_n;
+    fll_rst_n_full = fll_rst_n & passthru_fll_rst_n;
 `endif // endif PITON_FPGA_SYNTH
     // These should have their own internal
     // synchronization if needed
@@ -610,7 +613,7 @@ end
 `ifndef PITONSYS_INC_PASSTHRU
 assign passthru_chip_rst_n = 1'b1;
 assign passthru_jtag_rst_n = 1'b1;
-assign passthru_pll_rst_n = 1'b1;
+assign passthru_fll_rst_n = 1'b1;
 `endif
 
 
@@ -712,7 +715,7 @@ chip chip(
     .core_ref_clk(core_ref_clk),
     .io_clk(io_clk),
     .rst_n(chip_rst_n),
-    .pll_rst_n(pll_rst_n_full),
+    .fll_rst_n(fll_rst_n_full),
 
     // Chip-level clock enable
 `ifdef PITON_FPGA_SYNTH
@@ -722,22 +725,27 @@ chip chip(
     .clk_en(clk_en),
 `endif
 
-    // PLL settings
-    .pll_lock (pll_lock),
+    // FLL settings
+    .fll_lock (fll_lock),
+    .fll_clkdiv (fll_clkdiv),
+
 `ifdef PITON_FPGA_SYNTH
     // Tie off when not used
-    .pll_bypass (1'b1),
-    .pll_rangea (5'b0),
+    .fll_bypass (1),
+    .fll_opmode (0),
+    .fll_range  (0),
+    .fll_cfgreq (0),
 `else // ifndef PITON_FPGA_SYNTH
-    .pll_bypass (pll_bypass),
-    .pll_rangea (pll_rangea),
+    .fll_bypass (fll_bypass),
+    .fll_opmode (fll_opmode),
+    .fll_range  (fll_range ),
+    .fll_cfgreq (fll_cfgreq),
 `endif // endif PITON_FPGA_SYNTH
 
-    // Clock mux selection (bypass PLL or not)
-    // Double redundancy with PLL internal bypass
+    // Clock mux selection
 `ifdef PITON_FPGA_SYNTH
     // Tie off, not used
-    .clk_mux_sel (2'b0),
+    .clk_mux_sel (1'b0),
 `else // ifndef PITON_FPGA_SYNTH
     .clk_mux_sel (clk_mux_sel),
 `endif // endif PITON_FPGA_SYNTH
@@ -870,10 +878,10 @@ passthru passthru(
     // Passthru reset outputs to other modules
     .chip_rst_n(passthru_chip_rst_n),
     .jtag_rst_n(passthru_jtag_rst_n),
-    .pll_rst_n(passthru_pll_rst_n),
+    .fll_rst_n(passthru_fll_rst_n),
 
-    // PLL lock input
-    .pll_lock(pll_lock),
+    // FLL lock input
+    .fll_lock(fll_lock),
 
     // Piton ready signal, used to signal to chipset
     // when Piton is out of reset and ready for action.

@@ -41,16 +41,19 @@ module OCI (
    input core_ref_clk,
    input io_clk,
    input rst_n,
-   input pll_rst_n,
-   input [4:0] pll_rangea,
-   input [1:0] clk_mux_sel,
+   input fll_rst_n,
+   output       fll_lock,
+   output       fll_clkdiv,
+   input        fll_bypass,
+   input        fll_opmode,
+   input  [3:0] fll_range,
+   input        fll_cfgreq,
+   input clk_mux_sel,
    input clk_en,
-   input pll_bypass,
    input async_mux,
    input oram_on,
    input oram_traffic_gen,
    input oram_dummy_gen,
-   output pll_lock,
    input  wire jtag_clk,
    input  wire jtag_rst_l,
    input  wire jtag_modesel,
@@ -66,16 +69,19 @@ module OCI (
    output core_ref_clk_inter,
    output io_clk_inter,
    output rst_n_inter,
-   output pll_rst_n_inter,
-   output [4:0] pll_rangea_inter,
-   output [1:0] clk_mux_sel_inter,
+   output fll_rst_n_inter,
+   output       fll_lock_inter,
+   output       fll_clkdiv_inter,
+   input        fll_bypass_inter,
+   input        fll_opmode_inter,
+   input  [3:0] fll_range_inter,
+   input        fll_cfgreq_inter,
+   output clk_mux_sel_inter,
    output clk_en_inter,
-   output pll_bypass_inter,
    output async_mux_inter,
    output oram_on_inter,
    output oram_traffic_gen_inter,
    output oram_dummy_gen_inter,
-   input  pll_lock_inter,
    output wire jtag_clk_inter,
    output wire jtag_rst_l_inter,
    output wire jtag_modesel_inter,
@@ -94,16 +100,19 @@ module OCI (
     assign core_ref_clk_inter = core_ref_clk;
     assign io_clk_inter = io_clk;
     assign rst_n_inter = rst_n;
-    assign pll_rst_n_inter = pll_rst_n;
-    assign pll_rangea_inter = pll_rangea;
+    assign fll_rst_n_inter = fll_rst_n;
+    assign fll_lock_inter = fll_lock;
+    assign fll_clkdiv_inter = fll_clkdiv;
+    assign fll_bypass_inter = fll_bypass;
+    assign fll_opmode_inter = fll_opmode;
+    assign fll_range_inter = fll_range;
+    assign fll_cfgreq_inter = fll_cfgreq;
     assign clk_mux_sel_inter = clk_mux_sel;
     assign clk_en_inter = clk_en;
-    assign pll_bypass_inter = pll_bypass;
     assign async_mux_inter = async_mux;
     assign oram_on_inter = oram_on;
     assign oram_traffic_gen_inter = oram_traffic_gen;
     assign oram_dummy_gen_inter = oram_dummy_gen;
-    assign pll_lock = pll_lock_inter;
     assign jtag_clk_inter = jtag_clk;
     assign jtag_rst_l_inter = jtag_rst_l;
     assign jtag_modesel_inter = jtag_modesel;
@@ -123,16 +132,19 @@ module OCI (
     assign core_ref_clk_inter = core_ref_clk;
     assign io_clk_inter = io_clk;
     assign rst_n_inter = rst_n;
-    assign pll_rst_n_inter = pll_rst_n;
-    assign pll_rangea_inter = pll_rangea;
+    assign fll_rst_n_inter = fll_rst_n;
+    assign fll_lock_inter = fll_lock;
+    assign fll_clkdiv_inter = fll_clkdiv;
+    assign fll_bypass_inter = fll_bypass;
+    assign fll_opmode_inter = fll_opmode;
+    assign fll_range_inter = fll_range;
+    assign fll_cfgreq_inter = fll_cfgreq;
     assign clk_mux_sel_inter = clk_mux_sel;
     assign clk_en_inter = clk_en;
-    assign pll_bypass_inter = pll_bypass;
     assign async_mux_inter = async_mux;
     assign oram_on_inter = oram_on;
     assign oram_traffic_gen_inter = oram_traffic_gen;
     assign oram_dummy_gen_inter = oram_dummy_gen;
-    assign pll_lock = pll_lock_inter;
     assign jtag_clk_inter = jtag_clk;
     assign jtag_rst_l_inter = jtag_rst_l;
     assign jtag_modesel_inter = jtag_modesel;
