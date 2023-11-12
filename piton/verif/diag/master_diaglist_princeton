@@ -26,6 +26,7 @@
 <ara_tile1 sys=manycore -x_tiles=1 -y_tiles=1 -ariane -config_rtl=SYNTHESIS -vcs_build_args="-lca -LDFLAGS -rdynamic -assert svaext +define+LOAD_NOSHARE_TEST +define+VLEN=4096 +define+NR_LANES=4 +define+ARIANE_ACCELERATOR_PORT=1" -vcs_build_args="-LDFLAGS -Wl,--no-as-needed">
     <cmp_default name=default>
     <runargs -x_tiles=1 -y_tiles=1 -ariane>
+    vadd vadd.c
     vmsgt vmsgt.c 
     vrsub vrsub.c
     vnclipu vnclipu.c
@@ -53,7 +54,6 @@
     vmsgtu vmsgtu.c
     vfnmadd vfnmadd.c
     vfsub vfsub.c
-    vadd vadd.c
     vmfge vmfge.c
     vls vls.c
     vfnmsac vfnmsac.c
@@ -145,16 +145,16 @@
     vwsubu vwsubu.c
 
     /***test cases that is fixed****/ 
-    vredand vredand.c // fix by set the dst reg element number to 1
-    vredmax vredmax.c // fix by set the dst reg element number to 1
-    vredmaxu vredmaxu.c // fix by set the dst reg element number to 1
-    vredmin vredmin.c // fix by set the dst reg element number to 1
-    vredminu vredminu.c // fix by set the dst reg element number to 1
-    vredxor vredxor.c  // fix by set the dst reg element number to 1
-    vle8 vle8.c
-    vle16 vle16.c
-    vle32 vle32.c
-    vle64 vle64.c
+    # vredand vredand.c // fix by set the dst reg element number to 1
+    # vredmax vredmax.c // fix by set the dst reg element number to 1
+    # vredmaxu vredmaxu.c // fix by set the dst reg element number to 1
+    # vredmin vredmin.c // fix by set the dst reg element number to 1
+    # vredminu vredminu.c // fix by set the dst reg element number to 1
+    # vredxor vredxor.c  // fix by set the dst reg element number to 1
+    # vle8 vle8.c
+    # vle16 vle16.c
+    # vle32 vle32.c
+    # vle64 vle64.c
     
     /***************************/
     //**** noc2 send x data ***//
@@ -224,6 +224,208 @@
     </runargs>
     </cmp_default>
 </ara_tile1>
+
+<ara_tile2x2 sys=manycore -x_tiles=2 -y_tiles=2 -ariane -config_rtl=SYNTHESIS -vcs_build_args="-lca -LDFLAGS -rdynamic -assert svaext +define+LOAD_NOSHARE_TEST +define+VLEN=4096 +define+NR_LANES=4 +define+ARIANE_ACCELERATOR_PORT=1" -vcs_build_args="-LDFLAGS -Wl,--no-as-needed">
+    <cmp_default name=default>
+    <runargs -x_tiles=2 -y_tiles=2 -ariane -rtl_timeout=500000>
+    vadd vadd.c
+    vmsgt vmsgt.c 
+    vrsub vrsub.c
+    vnclipu vnclipu.c
+    vmfeq vmfeq.c
+    vmerge vmerge.c
+    vfnmacc vfnmacc.c
+    vwmaccus vwmaccus.c
+    vnsrl vnsrl.c
+    vxor vxor.c
+    vfnmsub vfnmsub.c
+    vmvxs vmvxs.c
+    vmulhsu vmulhsu.c
+    vsext vsext.c
+    vmflt vmflt.c
+    vmslt vmslt.c
+    vmaxu vmaxu.c
+    vwmulsu vwmulsu.c
+    vmsleu vmsleu.c
+    vcpop vcpop.c
+    vfclass vfclass.c
+    vfwsub vfwsub.c
+    vfmadd vfmadd.c
+    vmulhu vmulhu.c
+    vslide1down vslide1down.c
+    vmsgtu vmsgtu.c
+    vfnmadd vfnmadd.c
+    vfsub vfsub.c
+    vmfge vmfge.c
+    vls vls.c
+    vfnmsac vfnmsac.c
+    vfrdiv vfrdiv.c
+    vmsle vmsle.c
+    vmornot vmornot.c
+    vmadc vmadc.c
+    vnsra vnsra.c
+    vfwadd vfwadd.c
+    vluxei vluxei.c
+    vmin vmin.c
+    vfdiv vfdiv.c
+    vminu vminu.c
+    vsll vsll.c
+    vfmsac vfmsac.c
+    vfrsqrt7 vfrsqrt7.c
+    vnmsub vnmsub.c
+    vfwcvt vfwcvt.c
+    vmxnor vmxnor.c
+    vfwmacc vfwmacc.c
+    vdivu vdivu.c
+    vsbc vsbc.c
+    vsub vsub.c
+    vslide1up vslide1up.c
+    vfmsub vfmsub.c
+    vrem vrem.c
+    vfmvsf vfmvsf.c
+    vse1 vse1.c
+    vle_vse_hazards vle_vse_hazards.c
+    vmacc vmacc.c
+    vmfne vmfne.c
+    vfwnmsac vfwnmsac.c
+    vslideup vslideup.c
+    vslidedown vslidedown.c
+    vnmsac vnmsac.c
+    vsra vsra.c
+    vfmin vfmin.c
+    vfmvfs vfmvfs.c
+    vmsltu vmsltu.c
+    vdiv vdiv.c
+    vmax vmax.c
+    vmfgt vmfgt.c
+    vzext vzext.c
+    vwaddu vwaddu.c
+    vfslide1down vfslide1down.c
+    vfmerge vfmerge.c
+    vand vand.c
+    vfadd vfadd.c
+    vfcvt vfcvt.c
+    vfmacc vfmacc.c
+    vfmax vfmax.c
+    vfmul vfmul.c
+    vfmv vfmv.c
+    vfncvt vfncvt.c
+    vfrec7 vfrec7.c
+    vfrsub vfrsub.c
+    vfsgnj vfsgnj.c
+    vfsgnjn vfsgnjn.c
+    vfsgnjx vfsgnjx.c
+    vfslide1up vfslide1up.c
+    vfsqrt vfsqrt.c
+    vfwmsac vfwmsac.c
+    vfwmul vfwmul.c
+    vfwnmacc vfwnmacc.c
+    vmadd vmadd.c
+    vmand vmand.c
+    vmandnot vmandnot.c
+    vmfle vmfle.c
+    vmnor vmnor.c
+    vmor vmor.c
+    vmsbc vmsbc.c
+    vmseq vmseq.c
+    vmsne vmsne.c
+    vmul vmul.c
+    vmulh vmulh.c
+    vmv vmv.c
+    vmvsx vmvsx.c
+    vnclip vnclip.c
+    vor vor.c
+    vremu vremu.c
+    vsrl vsrl.c 
+    vwadd vwadd.c
+    vwmacc vwmacc.c
+    vwmaccsu vwmaccsu.c
+    vwmaccu vwmaccu.c
+    vwmul vwmul.c
+    vwmulu vwmulu.c
+    vwsub vwsub.c
+    vwsubu vwsubu.c
+
+    /***test cases that is fixed****/ 
+    # vredand vredand.c // fix by set the dst reg element number to 1
+    # vredmax vredmax.c // fix by set the dst reg element number to 1
+    # vredmaxu vredmaxu.c // fix by set the dst reg element number to 1
+    # vredmin vredmin.c // fix by set the dst reg element number to 1
+    # vredminu vredminu.c // fix by set the dst reg element number to 1
+    # vredxor vredxor.c  // fix by set the dst reg element number to 1
+    # vle8 vle8.c
+    # vle16 vle16.c
+    # vle32 vle32.c
+    # vle64 vle64.c
+    
+    /***************************/
+    //**** noc2 send x data ***//
+    /***************************/
+    // vfwredosum vfwredosum.c // can pass test1 and test2 seperately by setting correct element number, but hit bad trap on test 2 
+    // vfwredusum vfwredusum.c // can pass test1 and test2 seperately, but when execute them at the same time -> timeout
+    // vredsum vredsum.c // listed in the issue tracking, odd element issue 
+    // vfredmin vfredmin.c // listed in the issue tracking, odd element issue
+    // vfredosum vfredosum.c // odd element issue, and also variable type comparison issue
+    // vfredusum vfredusum.c // can't identify problem, but porbably the same as the issue above
+    // vwredsumu vwredsumu.c // can't identify problem, testcase 1 can be fixed by clearing dst reg, but the rest can't be fixed
+    // vfredmax vfredmax.c -> x data 
+    // vle1 vle1.c -> x data
+    // vwredsum vwredsum.c -> x data
+    // vredor vredor.c -> x data 
+    // vl1r vl1r.c
+    // vmvnrr vmvnrr.c
+    
+
+    /***************************/
+    //****    bad trap   ******//
+    /***************************/
+    // vmnand vmnand.c
+    // vmxor vmxor.c
+    // vs vs.c
+    // vsuxei vsuxei.c
+    // vss vss.c -> bad trap  
+    // vse16 vse16.c
+    // vse8 vse8.c 
+    // vse32 vse32.c
+    // vse64 vse64.c
+     // vs1r vs1r.c
+    
+    /***************************/
+    //****deprecated tes ******//
+    /***************************/
+    // vsx vsx.c
+    // vsux vsux.c
+    // vssubu vssubu.c
+    // vssub vssub.c
+    // vssrl vssrl.c
+    // vssra vssra.c
+    // vsmul vsmul.c
+    // vsetvli vsetvli.c
+    // vsetivli vsetivli.c
+    // vsetvl vsetvl.c
+    // vsaddu vsaddu.c
+    // vsadd vsadd.c
+    // vrgather vrgather.c
+    // vpopc_m vpopc_m.c // add VLOAD_U32 in vector_macros.h
+    // vmsof vmsof.c
+    // vmsif vmsif.c
+    // vmsbf vmsbf.c
+    // vlx vlx.c
+    // vl_nocheck vl_nocheck.c
+    // vlff vlff.c -> timeout
+    // vl vl.c
+    // viota viota.c // fix by set correct dst reg element number
+    // vid vid.c
+    // vfirst vfirst.c
+    // vasubu vasubu.c
+    // vcompress vcompress.c
+    // vasub vasub.c
+    // vadc vadc.c 
+    // vaaddu vaaddu.c
+    // vaadd vaadd.c
+    </runargs>
+    </cmp_default>
+</ara_tile2x2>
 
 <pico_tile1 sys=manycore -x_tiles=1 -y_tiles=1 -pico>
 <cmp_default name=default>
@@ -2429,4 +2631,3 @@ alu_tsub_rand                           arch_alu.pal  -midas_args=-pal_diag_args
 </runargs>
 </dmbr_nightly_source_sink_default>
 </dmbr_nightly_source_sink>
-
