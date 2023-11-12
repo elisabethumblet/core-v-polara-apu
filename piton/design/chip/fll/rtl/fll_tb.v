@@ -27,8 +27,8 @@ module tb_fll_top;
 
   // Create a clock with period of 20ns
   always begin
-    fll_ref_clk = 0; #85;
-    fll_ref_clk = 1; #85;
+    fll_ref_clk = 0; #23;
+    fll_ref_clk = 1; #23;
   end
 
   // Stimulate the inputs and observe the outputs
@@ -47,7 +47,7 @@ module tb_fll_top;
     fll_bypass = 0;
     fll_opmode = 1;
     fll_cfgreq = 0;
-    fll_range = 4'h7;
+    fll_range = 4'h5;
     fll_cfgreq = 1;
     #425;
     fll_cfgreq = 0;

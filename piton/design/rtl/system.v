@@ -86,6 +86,11 @@
 //                              simulated DRAM is used.
 
 module system(
+`ifdef DISABLE_ALL_MONITORS
+    output wire                                 good_end,
+    output wire                                 bad_end,
+    input  wire                                 test_ena,
+`endif
 `ifndef PITON_FPGA_SYNTH
     // I/O settings
     input                                       chip_io_slew,
@@ -697,7 +702,94 @@ assign passthru_fll_rst_n = 1'b1;
 // Sub-module Instances //
 //////////////////////////
 
-// Piton chip
+`ifdef POLARA_GATESIM
+
+// Add delay to chip interface signals coming from chipset
+`ifdef USE_SDF
+    wire [31:0] intf_chip_data_delayed;
+    wire [1:0]  intf_chip_channel_delayed;
+    wire [2:0]  chip_intf_credit_back_delayed;
+
+    // Adding 0.5 * io_clock delay 
+    // Target IO clock period : 10000 ps
+    // I/O delay 5000ps
+    assign #5 intf_chip_data_delayed        = intf_chip_data;
+    assign #5 intf_chip_channel_delayed     = intf_chip_channel;
+    assign #5 chip_intf_credit_back_delayed = chip_intf_credit_back;
+`else
+    wire [31:0] intf_chip_data_delayed;
+    wire [1:0]  intf_chip_channel_delayed;
+    wire [2:0]  chip_intf_credit_back_delayed;
+    assign intf_chip_data_delayed        = intf_chip_data;
+    assign intf_chip_channel_delayed     = intf_chip_channel;
+    assign chip_intf_credit_back_delayed = chip_intf_credit_back;
+`endif
+
+// COREV Polara SoC
+soc chip(
+    // I/O setting
+    .slew (chip_io_slew),
+    .impsel1 (chip_io_impsel[0]),
+    .impsel2 (chip_io_impsel[1]),
+
+    // Clocks and resets
+    .core_ref_clk(core_ref_clk),
+    .io_clk(io_clk),
+    .rst_n(chip_rst_n),
+    .fll_rst_n(fll_rst_n_full),
+
+    .clk_en(clk_en),
+
+    // FLL settings
+    .fll_lock (fll_lock),
+    .fll_clkdiv (fll_clkdiv),
+
+    .fll_bypass (fll_bypass),
+    .fll_opmode (fll_opmode),
+    .fll_range  (fll_range ),
+    .fll_cfgreq (fll_cfgreq),
+
+    .clk_mux_sel (clk_mux_sel),
+
+    // JTAG
+    .jtag_clk(jtag_clk),
+    .jtag_rst_l(jtag_rst_n_full),
+    .jtag_modesel(jtag_modesel),
+    .jtag_datain(jtag_datain),
+    .jtag_dataout(jtag_dataout),
+
+    // Asynchronous FIFOs enable
+    .async_mux (async_mux),
+
+    // Chipset (intf) to chip channel
+    .intf_chip_data(intf_chip_data_delayed),
+    .intf_chip_channel(intf_chip_channel_delayed),
+    .intf_chip_credit_back(intf_chip_credit_back),
+
+    // Chip to chipset (intf) channel
+    .chip_intf_data(chip_intf_data),
+    .chip_intf_channel(chip_intf_channel),
+    .chip_intf_credit_back(chip_intf_credit_back_delayed)
+
+    // Debug
+    ,.ndmreset_i                    ( ndmreset                   ) // non-debug module reset
+    ,.debug_req_i                   ( debug_req                  ) // async debug request
+    ,.unavailable_o                 ( unavailable                ) // communicate whether the hart is unavailable (e.g.: power down)
+
+    //CLINT
+    ,.timer_irq_i                   ( timer_irq                  ) // Timer interrupts
+    ,.ipi_i                         ( ipi                        ) // software interrupt (a.k.a inter-process-interrupt)
+
+    // PLIC
+    ,.irq_i                         ( irq                        )  // level sensitive IR lines, mip & sip (async)
+
+    // ORAM (not used)
+    ,.oram_on (1'b0)
+    ,.oram_traffic_gen (1'b0)
+    ,.oram_dummy_gen (1'b0)
+);
+`else
+    // Piton chip
 chip chip(
     // I/O settings
 `ifdef PITON_FPGA_SYNTH
@@ -838,6 +930,7 @@ chip chip(
 `endif // ifdef PITON_RV64_PLIC
 `endif // ifdef PITON_RV64_PLATFORM
 );
+`endif
 
 
 `ifdef PITONSYS_INC_PASSTHRU
@@ -938,7 +1031,11 @@ chipset chipset(
 `ifdef F1_BOARD
     .sys_clk(sys_clk),
 `else 
-
+`ifdef DISABLE_ALL_MONITORS
+    .good_end(good_end),
+    .bad_end(bad_end),
+    .test_ena(test_ena),
+`endif
 `ifdef PITON_CHIPSET_CLKS_GEN
 `ifdef PITON_CHIPSET_DIFF_CLK
     .clk_osc_p(chipset_clk_osc_p),

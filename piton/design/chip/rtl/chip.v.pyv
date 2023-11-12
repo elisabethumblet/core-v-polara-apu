@@ -254,6 +254,25 @@ module chip(
    wire [31:0]                                  chip_intf_data_inter;
    wire [1:0]                                   chip_intf_channel_inter;
    wire [2:0]                                   chip_intf_credit_back_inter;
+`ifdef PITON_RV64_PLATFORM
+`ifdef PITON_RV64_DEBUGUNIT
+    // Debug
+    wire                                      ndmreset_inter;
+    wire  [`PITON_NUM_TILES-1:0]              debug_req_inter;     
+    wire  [`PITON_NUM_TILES-1:0]              unavailable_inter;
+`endif // ifdef PITON_RV64_DEBUGUNIT
+
+`ifdef PITON_RV64_CLINT
+    // CLINT
+    wire  [`PITON_NUM_TILES-1:0]              timer_irq_inter;
+    wire  [`PITON_NUM_TILES-1:0]              ipi_inter;
+`endif // ifdef PITON_RV64_CLINT
+
+`ifdef PITON_RV64_PLIC
+    // PLIC
+    wire  [`PITON_NUM_TILES*2-1:0]           irq_inter;
+`endif // ifdef PITON_RV64_PLIC
+`endif // ifdef PITON_RV64_PLATFORM
 
    // Synchronized resets
    wire                                         rst_n_inter_sync;
@@ -753,6 +772,30 @@ module chip(
    .chip_intf_channel           (),
    .chip_intf_credit_back       (),
 `endif // endif PITON_NO_CHIP_BRIDGE
+`ifdef PITON_RV64_PLATFORM
+`ifdef PITON_RV64_DEBUGUNIT
+    .ndmreset                  (ndmreset_i       ),             
+    .ndmreset_inter            (ndmreset_inter   ),          
+    .debug_req                 (debug_req_i      ),    
+    .debug_req_inter           (debug_req_inter  ),              
+    .unavailable               (unavailable_o    ),       
+    .unavailable_inter         (unavailable_inter),                
+`endif // ifdef PITON_RV64_DEBUGUNIT
+
+`ifdef PITON_RV64_CLINT
+    // CLINT
+    .timer_irq                   (timer_irq_i),       
+    .timer_irq_inter             (timer_irq_inter),             
+    .ipi                         (ipi_i), 
+    .ipi_inter                   (ipi_inter),       
+`endif // ifdef PITON_RV64_CLINT
+
+`ifdef PITON_RV64_PLIC
+    // PLIC
+    .irq                         (irq_i),   
+    .irq_inter                   (irq_inter),         
+`endif // ifdef PITON_RV64_PLIC
+`endif // ifdef PITON_RV64_PLATFORM
    // Inside
    .core_ref_clk_inter           (core_ref_clk_inter),
    .io_clk_inter                 (io_clk_inter),
@@ -812,7 +855,7 @@ module chip(
       .clk1(fll_clk),
       .clk2(core_ref_clk_inter),
       .clksel(clk_mux_sel_inter),
-      .clkout(clk_muxed)
+      .clk_muxed(clk_muxed)
    );
 
    fll_top fll (
@@ -1082,15 +1125,15 @@ module chip(
         .flat_tileid                (`JTAG_FLATID_WIDTH'd_FLAT_ID_)
     `ifdef PITON_RV64_PLATFORM
     `ifdef PITON_RV64_DEBUGUNIT
-        ,.debug_req_i         ( debug_req_i[_FLAT_ID_]   )
-        ,.unavailable_o       ( unavailable_o[_FLAT_ID_] )
+        ,.debug_req_i         ( debug_req_inter[_FLAT_ID_]   )
+        ,.unavailable_o       ( unavailable_inter[_FLAT_ID_] )
     `endif // ifdef PITON_RV64_DEBUGUNIT
     `ifdef PITON_RV64_CLINT
-        ,.timer_irq_i         ( timer_irq_i[_FLAT_ID_]   )
-        ,.ipi_i               ( ipi_i[_FLAT_ID_]         )
+        ,.timer_irq_i         ( timer_irq_inter[_FLAT_ID_]   )
+        ,.ipi_i               ( ipi_inter[_FLAT_ID_]         )
     `endif // ifdef PITON_RV64_CLINT
     `ifdef PITON_RV64_PLIC
-        ,.irq_i               ( irq_i[_FLAT_ID_*2 +: 2]  )
+        ,.irq_i               ( irq_inter[_FLAT_ID_*2 +: 2]  )
     `endif // ifdef PITON_RV64_PLIC
     `endif // ifdef PITON_RV64_PLATFORM
         ,

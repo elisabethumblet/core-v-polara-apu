@@ -12,6 +12,7 @@ module fll_top (
 
 // Wire definitions
 wire clk_out;
+wire lock;
 
 wire cfgack;
 wire cfgreq;
@@ -25,7 +26,7 @@ gf22_FLL behav_fll (
     .FLLCLK (clk_out), 
     .FLLOE  (!fll_bypass),
     .REFCLK (fll_ref_clk),
-    .LOCK   (fll_lock),
+    .LOCK   (lock),
     .CFGREQ (cfgreq),
     .CFGACK (cfgack),
     .CFGAD  (cfgad),
@@ -60,10 +61,12 @@ fll_ctrl ctrl_unit (
 
 // Clock division unit
 fll_clk_div clk_div (
+    .rst_n (fll_rst_n & lock),
     .clk_in (clk_out),
     .clk_out(fll_clkdiv)
 );
 
+assign fll_lock = lock;
 assign fll_clk = clk_out;
 
 endmodule

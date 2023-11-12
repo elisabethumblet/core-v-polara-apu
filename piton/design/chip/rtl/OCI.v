@@ -65,17 +65,42 @@ module OCI (
    output [31:0]                 chip_intf_data,
    output [1:0]                  chip_intf_channel,
    input  [2:0]                  chip_intf_credit_back,
+`ifdef PITON_RV64_PLATFORM
+`ifdef PITON_RV64_DEBUGUNIT
+    // Debug
+    input                                       ndmreset,      // non-debug module reset
+    output                                      ndmreset_inter,
+    input   [`PITON_NUM_TILES-1:0]              debug_req,     // async debug request
+    output  [`PITON_NUM_TILES-1:0]              debug_req_inter,     
+    output  [`PITON_NUM_TILES-1:0]              unavailable,   // communicate whether the hart is unavailable (e.g.: power down)
+    input   [`PITON_NUM_TILES-1:0]              unavailable_inter,   
+`endif // ifdef PITON_RV64_DEBUGUNIT
+
+`ifdef PITON_RV64_CLINT
+    // CLINT
+    input   [`PITON_NUM_TILES-1:0]              timer_irq,     // Timer interrupts
+    output  [`PITON_NUM_TILES-1:0]              timer_irq_inter,
+    input   [`PITON_NUM_TILES-1:0]              ipi,           // software interrupt (a.k.a inter-process-interrupt)
+    output  [`PITON_NUM_TILES-1:0]              ipi_inter,
+`endif // ifdef PITON_RV64_CLINT
+
+`ifdef PITON_RV64_PLIC
+    // PLIC
+    input   [`PITON_NUM_TILES*2-1:0]            irq,          // level sensitive IR lines, mip & sip (async)
+    output  [`PITON_NUM_TILES*2-1:0]           irq_inter,
+`endif // ifdef PITON_RV64_PLIC
+`endif // ifdef PITON_RV64_PLATFORM
    // Inside
    output core_ref_clk_inter,
    output io_clk_inter,
    output rst_n_inter,
    output fll_rst_n_inter,
-   output       fll_lock_inter,
-   output       fll_clkdiv_inter,
-   input        fll_bypass_inter,
-   input        fll_opmode_inter,
-   input  [3:0] fll_range_inter,
-   input        fll_cfgreq_inter,
+   input         fll_lock_inter,
+   input         fll_clkdiv_inter,
+   output        fll_bypass_inter,
+   output        fll_opmode_inter,
+   output  [3:0] fll_range_inter,
+   output        fll_cfgreq_inter,
    output clk_mux_sel_inter,
    output clk_en_inter,
    output async_mux_inter,
@@ -101,8 +126,8 @@ module OCI (
     assign io_clk_inter = io_clk;
     assign rst_n_inter = rst_n;
     assign fll_rst_n_inter = fll_rst_n;
-    assign fll_lock_inter = fll_lock;
-    assign fll_clkdiv_inter = fll_clkdiv;
+    assign fll_lock = fll_lock_inter;
+    assign fll_clkdiv = fll_clkdiv_inter;
     assign fll_bypass_inter = fll_bypass;
     assign fll_opmode_inter = fll_opmode;
     assign fll_range_inter = fll_range;
@@ -124,8 +149,14 @@ module OCI (
     assign chip_intf_data = chip_intf_data_inter;
     assign chip_intf_channel = chip_intf_channel_inter;
     assign chip_intf_credit_back_inter = chip_intf_credit_back;
+    assign ndmreset_inter = ndmreset;
+    assign debug_req_inter = debug_req;
+    assign unavailable = unavailable_inter;
+    assign timer_irq_inter = timer_irq;
+    assign ipi_inter = ipi;
+    assign irq_inter = irq;
 
-`else // `ifndef USE_FAKE_IOS
+`else
     
     // PUT REAL PADS AND I/Os HERE FOR SYNTHESIS AND BACKEND
     // BELOW IS A DUMMY SO FUNCTIONALITY IS MAINTAINED
@@ -133,8 +164,8 @@ module OCI (
     assign io_clk_inter = io_clk;
     assign rst_n_inter = rst_n;
     assign fll_rst_n_inter = fll_rst_n;
-    assign fll_lock_inter = fll_lock;
-    assign fll_clkdiv_inter = fll_clkdiv;
+    assign fll_lock = fll_lock_inter;
+    assign fll_clkdiv = fll_clkdiv_inter;
     assign fll_bypass_inter = fll_bypass;
     assign fll_opmode_inter = fll_opmode;
     assign fll_range_inter = fll_range;
@@ -156,8 +187,15 @@ module OCI (
     assign chip_intf_data = chip_intf_data_inter;
     assign chip_intf_channel = chip_intf_channel_inter;
     assign chip_intf_credit_back_inter = chip_intf_credit_back; 
+    assign ndmreset_inter = ndmreset;
+    assign debug_req_inter = debug_req;
+    assign unavailable = unavailable_inter;
+    assign timer_irq_inter = timer_irq;
+    assign ipi_inter = ipi;
+    assign irq_inter = irq;
 
 `endif
    
    endmodule
    
+
