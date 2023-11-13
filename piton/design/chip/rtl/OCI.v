@@ -54,42 +54,17 @@ module OCI (
    input oram_on,
    input oram_traffic_gen,
    input oram_dummy_gen,
-   input  wire jtag_clk,
-   input  wire jtag_rst_l,
-   input  wire jtag_modesel,
-   input  wire jtag_datain,
-   output wire jtag_dataout,
+    input   wire tck,
+    input   wire trstn,
+    input   wire tms,
+    input   wire tdi,
+    output  wire tdo,
    input  [31:0]                 intf_chip_data,
    input  [1:0]                  intf_chip_channel,
    output [2:0]                  intf_chip_credit_back,
    output [31:0]                 chip_intf_data,
    output [1:0]                  chip_intf_channel,
    input  [2:0]                  chip_intf_credit_back,
-`ifdef PITON_RV64_PLATFORM
-`ifdef PITON_RV64_DEBUGUNIT
-    // Debug
-    input                                       ndmreset,      // non-debug module reset
-    output                                      ndmreset_inter,
-    input   [`PITON_NUM_TILES-1:0]              debug_req,     // async debug request
-    output  [`PITON_NUM_TILES-1:0]              debug_req_inter,     
-    output  [`PITON_NUM_TILES-1:0]              unavailable,   // communicate whether the hart is unavailable (e.g.: power down)
-    input   [`PITON_NUM_TILES-1:0]              unavailable_inter,   
-`endif // ifdef PITON_RV64_DEBUGUNIT
-
-`ifdef PITON_RV64_CLINT
-    // CLINT
-    input   [`PITON_NUM_TILES-1:0]              timer_irq,     // Timer interrupts
-    output  [`PITON_NUM_TILES-1:0]              timer_irq_inter,
-    input   [`PITON_NUM_TILES-1:0]              ipi,           // software interrupt (a.k.a inter-process-interrupt)
-    output  [`PITON_NUM_TILES-1:0]              ipi_inter,
-`endif // ifdef PITON_RV64_CLINT
-
-`ifdef PITON_RV64_PLIC
-    // PLIC
-    input   [`PITON_NUM_TILES*2-1:0]            irq,          // level sensitive IR lines, mip & sip (async)
-    output  [`PITON_NUM_TILES*2-1:0]           irq_inter,
-`endif // ifdef PITON_RV64_PLIC
-`endif // ifdef PITON_RV64_PLATFORM
    // Inside
    output core_ref_clk_inter,
    output io_clk_inter,
@@ -107,11 +82,11 @@ module OCI (
    output oram_on_inter,
    output oram_traffic_gen_inter,
    output oram_dummy_gen_inter,
-   output wire jtag_clk_inter,
-   output wire jtag_rst_l_inter,
-   output wire jtag_modesel_inter,
-   output wire jtag_datain_inter,
-   input  wire jtag_dataout_inter,
+   output wire tck_inter,
+   output wire trstn_inter,
+   output wire tms_inter,
+   output wire tdi_inter,
+   input  wire tdo_inter,
    output [31:0]                 intf_chip_data_inter,
    output [1:0]                  intf_chip_channel_inter,
    input  [2:0]                  intf_chip_credit_back_inter,
@@ -138,23 +113,17 @@ module OCI (
     assign oram_on_inter = oram_on;
     assign oram_traffic_gen_inter = oram_traffic_gen;
     assign oram_dummy_gen_inter = oram_dummy_gen;
-    assign jtag_clk_inter = jtag_clk;
-    assign jtag_rst_l_inter = jtag_rst_l;
-    assign jtag_modesel_inter = jtag_modesel;
-    assign jtag_datain_inter = jtag_datain;
-    assign jtag_dataout = jtag_dataout_inter;
+    assign tck_inter = tck;
+    assign trstn_inter = trstn;
+    assign tms_inter = tms;
+    assign tdi_inter = tdi;
+    assign tdo = tdo_inter;
     assign intf_chip_data_inter = intf_chip_data;
     assign intf_chip_channel_inter = intf_chip_channel;
     assign intf_chip_credit_back = intf_chip_credit_back_inter;
     assign chip_intf_data = chip_intf_data_inter;
     assign chip_intf_channel = chip_intf_channel_inter;
     assign chip_intf_credit_back_inter = chip_intf_credit_back;
-    assign ndmreset_inter = ndmreset;
-    assign debug_req_inter = debug_req;
-    assign unavailable = unavailable_inter;
-    assign timer_irq_inter = timer_irq;
-    assign ipi_inter = ipi;
-    assign irq_inter = irq;
 
 `else
     
@@ -176,23 +145,17 @@ module OCI (
     assign oram_on_inter = oram_on;
     assign oram_traffic_gen_inter = oram_traffic_gen;
     assign oram_dummy_gen_inter = oram_dummy_gen;
-    assign jtag_clk_inter = jtag_clk;
-    assign jtag_rst_l_inter = jtag_rst_l;
-    assign jtag_modesel_inter = jtag_modesel;
-    assign jtag_datain_inter = jtag_datain;
-    assign jtag_dataout = jtag_dataout_inter;
+    assign tck_inter = tck;
+    assign trstn_inter = trstn;
+    assign tms_inter = tms;
+    assign tdi_inter = tdi;
+    assign tdo = tdo_inter;
     assign intf_chip_data_inter = intf_chip_data;
     assign intf_chip_channel_inter = intf_chip_channel;
     assign intf_chip_credit_back = intf_chip_credit_back_inter;
     assign chip_intf_data = chip_intf_data_inter;
     assign chip_intf_channel = chip_intf_channel_inter;
     assign chip_intf_credit_back_inter = chip_intf_credit_back; 
-    assign ndmreset_inter = ndmreset;
-    assign debug_req_inter = debug_req;
-    assign unavailable = unavailable_inter;
-    assign timer_irq_inter = timer_irq;
-    assign ipi_inter = ipi;
-    assign irq_inter = irq;
 
 `endif
    
