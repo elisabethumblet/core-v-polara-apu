@@ -49,17 +49,6 @@ module u280_polara_top (
     input  logic                          mem_flit_out_rdy     
 );
 
-// ------------------Debug Section-----------------
-(* keep="TRUE", mark_debug="TRUE" *) reg fifo_trans_val_r;
-(* keep="TRUE", mark_debug="TRUE" *) reg fifo_trans_rdy_r;
-(* keep="TRUE", mark_debug="TRUE" *) reg trans_fifo_val_r;
-(* keep="TRUE", mark_debug="TRUE" *) reg trans_fifo_rdy_r;
-/*
-(* keep="TRUE", mark_debug="TRUE" *) reg mem_flit_in_val_r;
-(* keep="TRUE", mark_debug="TRUE" *) reg mem_flit_in_rdy_r;
-(* keep="TRUE", mark_debug="TRUE" *) reg mem_flit_out_val_r;
-(* keep="TRUE", mark_debug="TRUE" *) reg mem_flit_out_rdy_r;*/
-
 
 	logic mc_rst;
 	logic mc_clk;
@@ -309,19 +298,5 @@ module u280_polara_top (
 		.resetn(resetn)
 		);
 		
-always @(posedge mc_clk) begin : p_debug
-    fifo_trans_val_r <= fifo_trans_val;
-    fifo_trans_rdy_r <= fifo_trans_rdy;
-    trans_fifo_val_r <= trans_fifo_val;
-    trans_fifo_rdy_r <= trans_fifo_rdy;
-	
-end
-/*always@(posedge mc_clk) begin: p_debug
-	mem_flit_in_val_r <= mem_flit_in_val;
-	mem_flit_in_rdy_r <= mem_flit_in_rdy;
-	mem_flit_out_val_r <= mem_flit_out_val;
-	mem_flit_out_rdy_r <= mem_flit_out_rdy;
-end		*/
-
 endmodule		
 
