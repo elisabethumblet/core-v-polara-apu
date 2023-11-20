@@ -78,6 +78,9 @@ print("`define PITON_Y_TILES %d"   % PITON_Y_TILES)
 `define NOC_FBITS_MEM       4'd2
 
 `define NOC_FBITS_ARA       4'b1000
+// PLIC is to the north of tile 0,0
+`define NOC_FBITS_PLIC      4'd0101
+`define PLIC_FLATID         `HOME_ID_WIDTH'd0
 
 `define NOC_NODEID_WIDTH    34
 `define NOC_DATACOUNT_WIDTH 5

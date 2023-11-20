@@ -139,25 +139,6 @@ module chip(
    output                                       offchip_processor_noc3_yummy
 `endif // endif PITON_NO_CHIP_BRIDGE
 
-`ifdef PITON_RV64_PLATFORM
-`ifdef PITON_RV64_DEBUGUNIT
-    // Debug
-,   input                                       ndmreset_i      // non-debug module reset
-,   input   [`PITON_NUM_TILES-1:0]              debug_req_i     // async debug request
-,   output  [`PITON_NUM_TILES-1:0]              unavailable_o   // communicate whether the hart is unavailable (e.g.: power down)
-`endif // ifdef PITON_RV64_DEBUGUNIT
-
-`ifdef PITON_RV64_CLINT
-    // CLINT
-,   input   [`PITON_NUM_TILES-1:0]              timer_irq_i     // Timer interrupts
-,   input   [`PITON_NUM_TILES-1:0]              ipi_i           // software interrupt (a.k.a inter-process-interrupt)
-`endif // ifdef PITON_RV64_CLINT
-
-`ifdef PITON_RV64_PLIC
-    // PLIC
-,   input   [`PITON_NUM_TILES*2-1:0]            irq_i           // level sensitive IR lines, mip & sip (async)
-`endif // ifdef PITON_RV64_PLIC
-`endif // ifdef PITON_RV64_PLATFORM
 );
 
 <%
@@ -345,6 +326,26 @@ module chip(
    wire                                         tiles_jtag_ucb_val;
    wire [`UCB_BUS_WIDTH-1:0]                    tiles_jtag_ucb_data;
 
+`ifdef PITON_RV64_PLATFORM
+`ifdef PITON_RV64_DEBUGUNIT
+    // Debug
+   wire                                     ndmreset;     // non-debug module reset
+   wire [`PITON_NUM_TILES-1:0]              debug_req;    // async debug request
+   wire [`PITON_NUM_TILES-1:0]              unavailable;  // communicate whether the hart is unavailable (e.g.: power down)
+`endif // ifdef PITON_RV64_DEBUGUNIT
+
+`ifdef PITON_RV64_CLINT
+    // CLINT
+   wire  [`PITON_NUM_TILES-1:0]              timer_irq;    // Timer interrupts
+   wire [`PITON_NUM_TILES-1:0]              ipi;          // software interrupt (a.k.a inter-process-interrupt)
+`endif // ifdef PITON_RV64_CLINT
+
+`ifdef PITON_RV64_PLIC
+    // PLIC
+   wire [`PITON_NUM_TILES*2-1:0]            irq;          // level sensitive IR lines, mip & sip (async)
+`endif // ifdef PITON_RV64_PLIC
+`endif // ifdef PITON_RV64_PLATFORM
+
    // Tiles JTAG interface
    wire                                         jtag_tiles_ucb_val;
    wire [`UCB_BUS_WIDTH-1:0]                    jtag_tiles_ucb_data;
@@ -435,6 +436,35 @@ module chip(
            # print "wire offchip_out_S_noc%d_yummy;" % (k)
            print("wire offchip_out_E_noc%d_yummy;" % (k))
 %>
+
+   // make some PLIC, CLINT, debug unit signals
+   wire [`DATA_WIDTH-1:0] rvic_out_S_noc1_data = `DATA_WIDTH'b0;
+   wire rvic_out_S_noc1_valid = 1'b0;
+   wire rvic_out_S_noc1_yummy = 1'b0;
+   wire [`DATA_WIDTH-1:0] rvic_out_S_noc2_data;
+   wire rvic_out_S_noc2_valid;
+   wire rvic_out_S_noc2_yummy;
+   wire [`DATA_WIDTH-1:0] rvic_out_S_noc3_data = `DATA_WIDTH'b0;
+   wire rvic_out_S_noc3_valid = 1'b0;
+   wire rvic_out_S_noc3_yummy = 1'b0;
+   wire [`DATA_WIDTH-1:0] clint_out_S_noc1_data = `DATA_WIDTH'b0;
+   wire clint_out_S_noc1_valid = 1'b0;
+   wire clint_out_S_noc1_yummy = 1'b0;
+   wire [`DATA_WIDTH-1:0] clint_out_S_noc2_data;
+   wire clint_out_S_noc2_valid;
+   wire clint_out_S_noc2_yummy;
+   wire [`DATA_WIDTH-1:0] clint_out_S_noc3_data = `DATA_WIDTH'b0;
+   wire clint_out_S_noc3_valid = 1'b0;
+   wire clint_out_S_noc3_yummy = 1'b0;
+   wire [`DATA_WIDTH-1:0] debug_out_S_noc1_data = `DATA_WIDTH'b0;
+   wire debug_out_S_noc1_valid = 1'b0;
+   wire debug_out_S_noc1_yummy = 1'b0;
+   wire [`DATA_WIDTH-1:0] debug_out_S_noc2_data;
+   wire debug_out_S_noc2_valid;
+   wire debug_out_S_noc2_yummy;
+   wire [`DATA_WIDTH-1:0] debug_out_S_noc3_data = `DATA_WIDTH'b0;
+   wire debug_out_S_noc3_valid = 1'b0;
+   wire debug_out_S_noc3_yummy = 1'b0;
 
    //////////////////////
    // Sequential logic
@@ -1050,15 +1080,15 @@ module chip(
         .flat_tileid                (`JTAG_FLATID_WIDTH'd_FLAT_ID_)
     `ifdef PITON_RV64_PLATFORM
     `ifdef PITON_RV64_DEBUGUNIT
-        ,.debug_req_i         ( debug_req_i[_FLAT_ID_]   )
-        ,.unavailable_o       ( unavailable_o[_FLAT_ID_] )
+        ,.debug_req_i         ( debug_req[_FLAT_ID_]   )
+        ,.unavailable_o       ( unavailable[_FLAT_ID_] )
     `endif // ifdef PITON_RV64_DEBUGUNIT
     `ifdef PITON_RV64_CLINT
-        ,.timer_irq_i         ( timer_irq_i[_FLAT_ID_]   )
-        ,.ipi_i               ( ipi_i[_FLAT_ID_]         )
+        ,.timer_irq_i         ( timer_irq[_FLAT_ID_]   )
+        ,.ipi_i               ( ipi[_FLAT_ID_]         )
     `endif // ifdef PITON_RV64_CLINT
     `ifdef PITON_RV64_PLIC
-        ,.irq_i               ( irq_i[_FLAT_ID_*2 +: 2]  )
+        ,.irq_i               ( irq[_FLAT_ID_*2 +: 2]  )
     `endif // ifdef PITON_RV64_PLIC
     `endif // ifdef PITON_RV64_PLATFORM
         ,
@@ -1169,7 +1199,12 @@ module chip(
                 # special case for core 0
                 if i == 0 and j == 0:
                     idW = "offchip"
-                    idN = "dummy"
+                    idN = "rvic"
+
+                # special case for core 1
+                if i == 1 and j == 0:
+                    idE = "debug"
+                    idN = "clint"
 
                 currenttile = currenttile.replace("in_N", idN + "_out_S");
                 currenttile = currenttile.replace("in_S", idS + "_out_N");
@@ -1180,6 +1215,52 @@ module chip(
             print(currenttile)
             # print "`endif"
 %>
+
+pmesh_rvic pmesh_rvic (
+    .clk                        ( clk_muxed                 ),
+    .rst_n                      ( rst_n_inter_sync          ),
+    
+    // Interrupt status is received from noc2
+    .src_rvic_cr_noc2_val       ( tile_0_0_out_N_noc2_valid ),
+    .src_rvic_cr_noc2_dat       ( tile_0_0_out_N_noc2_data  ),
+    .src_rvic_cr_noc2_yum       ( tile_0_0_out_N_noc2_yummy ),
+    
+    // input from noc1 (load/store to RVIC)
+    .src_rvic_cr_noc1_val       ( tile_0_0_out_N_noc1_valid ),
+    .src_rvic_cr_noc1_dat       ( tile_0_0_out_N_noc1_data  ),
+    .src_rvic_cr_noc1_yum       ( tile_0_0_out_N_noc1_yummy ),
+    
+    // output to noc2 (load/store response)
+    .rvic_dst_cr_noc2_val       ( rvic_out_S_noc2_valid     ),
+    .rvic_dst_cr_noc2_dat       ( rvic_out_S_noc2_data      ),
+    .rvic_dst_cr_noc2_yum       ( rvic_out_S_noc2_yummy     ),
+    
+    // Interrupt targets go to core
+    .irq_targets                ( irq                       ),
+    
+    // CLINT
+    .src_clint_cr_noc1_val      ( tile_0_1_out_N_noc1_valid ),
+    .src_clint_cr_noc1_dat      ( tile_0_1_out_N_noc1_data  ),
+    .src_clint_cr_noc1_yum      ( tile_0_1_out_N_noc1_yummy ),
+    
+    .clint_dst_cr_noc2_val      ( clint_out_S_noc2_valid    ),
+    .clint_dst_cr_noc2_dat      ( clint_out_S_noc2_data     ),
+    .clint_dst_cr_noc2_yum      ( clint_out_S_noc2_yummy    ),
+    
+    .rtc_i                      ( rtc                     ), // Real-time clock in (usually 32.768 kHz)
+    .timer_irq_o                ( timer_irq               ), // Timer interrupts
+    .ipi_o                      ( ipi                     ), // software interrupt (a.k.a inter-process-interrupt)
+    
+    // Debug unit
+    .src_debug_cr_noc1_val      ( tile_0_1_out_E_noc1_valid ),
+    .src_debug_cr_noc1_dat      ( tile_0_1_out_E_noc1_data  ),
+    .src_debug_cr_noc1_yum      ( tile_0_1_out_E_noc1_yummy ),
+    
+    .debug_dst_cr_noc2_val      ( debug_out_W_noc2_valid    ),
+    .debug_dst_cr_noc2_dat      ( debug_out_W_noc2_data     ),
+    .debug_dst_cr_noc2_yum      ( debug_out_W_noc2_yummy    )
+);
+
 endmodule
 
 `endif
