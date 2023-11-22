@@ -514,49 +514,9 @@ wire                test_start;
 wire                uart_rst_out_n;
 `endif
 
-`ifdef PITON_RV64_PLATFORM
-`ifdef PITON_RV64_DEBUGUNIT
-// Debug
-wire                     ndmreset;    // non-debug module reset
-wire                     dmactive;    // debug module is active
-wire  [`PITON_NUM_TILES-1:0]   debug_req;   // async debug request
-wire  [`PITON_NUM_TILES-1:0]   unavailable; // communicate whether the hart is unavailable (e.g.: power down)
-`endif // ifdef PITON_RV64_DEBUGUNIT
-
-`ifdef PITON_RV64_CLINT
-// CLINT
-wire                     rtc;         // Real-time clock in (usually 32.768 kHz)
-wire  [`PITON_NUM_TILES-1:0]   timer_irq;   // Timer interrupts
-wire  [`PITON_NUM_TILES-1:0]   ipi;         // software interrupt (a.k.a inter-process-interrupt)
-`endif // ifdef PITON_RV64_CLINT
-
-`ifdef PITON_RV64_PLIC
-// PLIC
-wire  [`PITON_NUM_TILES*2-1:0] irq;         // level sensitive IR lines, mip & sip (async)
-`endif // ifdef PITON_RV64_PLIC
-`endif // ifdef PITON_RV64_PLATFORM
-
 //////////////////////
 // Sequential Logic //
 //////////////////////
-
-`ifdef PITON_RV64_CLINT
-
- // no RTC at the moment, have to derive it from the system clock
- // divide by 128
-reg [6:0] rtc_div;
-
-always @(posedge core_ref_clk or negedge chip_rst_n) begin : p_rtc_div
-  if(~chip_rst_n) begin
-    rtc_div <= 7'h0;
-  end else begin
-    rtc_div <= rtc_div + 7'h1;
-  end
-end
-
-assign rtc = rtc_div[6];
-
-`endif // ifdef PITON_RV64_CLINT
 
 
 /////////////////////////
@@ -910,25 +870,6 @@ chip chip(
     .offchip_processor_noc3_data    (offchip_processor_noc3_data),
     .offchip_processor_noc3_yummy   (offchip_processor_noc3_yummy)
 `endif // endif PITON_NO_CHIP_BRIDGE
-`ifdef PITON_RV64_PLATFORM
-`ifdef PITON_RV64_DEBUGUNIT
-    // Debug
-    ,.ndmreset_i                    ( ndmreset                   ) // non-debug module reset
-    ,.debug_req_i                   ( debug_req                  ) // async debug request
-    ,.unavailable_o                 ( unavailable                ) // communicate whether the hart is unavailable (e.g.: power down)
-`endif // ifdef PITON_RV64_DEBUGUNIT
-
-`ifdef PITON_RV64_CLINT
-    //CLINT
-    ,.timer_irq_i                   ( timer_irq                  ) // Timer interrupts
-    ,.ipi_i                         ( ipi                        ) // software interrupt (a.k.a inter-process-interrupt)
-`endif // ifdef PITON_RV64_CLINT
-
-`ifdef PITON_RV64_PLIC
-    // PLIC
-    ,.irq_i                         ( irq                        )  // level sensitive IR lines, mip & sip (async)
-`endif // ifdef PITON_RV64_PLIC
-`endif // ifdef PITON_RV64_PLATFORM
 );
 `endif
 
@@ -1312,35 +1253,6 @@ chipset chipset(
     .sw(sw),
 `endif
     .leds(leds)
-
-`ifdef PITON_RV64_PLATFORM
-`ifdef PITON_RV64_DEBUGUNIT
-    // Debug
-    ,.ndmreset_o                    ( ndmreset                   ) // non-debug module reset
-    ,.dmactive_o                    ( dmactive                   ) // debug module is active
-    ,.debug_req_o                   ( debug_req                  ) // async debug request
-    ,.unavailable_i                 ( unavailable                ) // communicate whether the hart is unavailable (e.g.: power down)
-    // JTAG
-    ,.tck_i                         ( tck_i                      )
-    ,.tms_i                         ( tms_i                      )
-    ,.trst_ni                       ( trst_ni                    )
-    ,.td_i                          ( td_i                       )
-    ,.td_o                          ( td_o                       )
-    ,.tdo_oe_o                      (                            )
-`endif // ifdef PITON_RV64_DEBUGUNIT
-
-`ifdef PITON_RV64_CLINT
-    //CLINT
-    ,.rtc_i                         ( rtc                        ) // Real-time clock in (usually 32.768 kHz)
-    ,.timer_irq_o                   ( timer_irq                  ) // Timer interrupts
-    ,.ipi_o                         ( ipi                        ) // software interrupt (a.k.a inter-process-interrupt)
-`endif // ifdef PITON_RV64_CLINT
-
-`ifdef PITON_RV64_PLIC
-    // PLIC
-    ,.irq_o                         ( irq                        ) // level sensitive IR lines, mip & sip (async)
-`endif // ifdef PITON_RV64_PLIC
-`endif // ifdef PITON_RV64_PLATFORM
 
 );
 

@@ -1,0 +1,12 @@
+reg_intf_pkg.sv
+top_pkg.sv
+tlul_pkg.sv
+rv_plic_reg_pkg.sv
+plic_regmap.sv
+plic_top.sv
+prim_subreg.sv
+prim_subreg_ext.sv
+rv_plic.sv
+rv_plic_gateway.sv
+rv_plic_reg_top.sv
+rv_plic_target.sv

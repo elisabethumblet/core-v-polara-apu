@@ -1168,12 +1168,6 @@ fake_uart fake_uart (
 
 `ifdef PITON_RV64_PLATFORM
 
-    wire [1:0] irq_sources, irq_le;
-    // 0:level 1:edge
-    // Eth is edge, Uart is level
-    assign irq_le      = {1'b1, 1'b0};
-    assign irq_sources = {net_interrupt, uart_interrupt};
-
     // this is for selecting the right bootrom (1: baremetal, 0: linux)
     wire ariane_boot_sel;
 `ifdef PITON_FPGA_SYNTH
@@ -1187,93 +1181,28 @@ fake_uart fake_uart (
 `endif
 
 <%
-DmBase    = 0
 RomBase   = 0
-ClintBase = 0
-PlicBase  = 0
 for i in range(len(devices)):
-    if devices[i]["name"] == "ariane_debug":
-        DmBase = devices[i]["base"]
     if devices[i]["name"] == "ariane_bootrom":
         RomBase = devices[i]["base"]
-    if devices[i]["name"] == "ariane_clint":
-        ClintBase = devices[i]["base"]
-    if devices[i]["name"] == "ariane_plic":
-        PlicBase = devices[i]["base"]
 str = '''
-    riscv_peripherals #(
+    polara_bootrom #(
         .DataWidth      ( `NOC_DATA_WIDTH ),
-        .NumHarts       ( `PITON_NUM_TILES),
-        .NumSources     (               2 ),
         .SwapEndianess  (               1 ),
-        .DmBase         ( 64'h%016x ),
-        .RomBase        ( 64'h%016x ),
-        .ClintBase      ( 64'h%016x ),
-        .PlicBase       ( 64'h%016x )
-    ) i_riscv_peripherals (
+        .RomBase        ( 64'h%016x )
+    ) polara_bootrom (
         .clk_i                           ( chipset_clk                   )
 ,       .rst_ni                          ( chipset_rst_n                 )
-`ifdef PITON_RV64_DEBUGUNIT
-,       .testmode_i                      ( 1'b0                          )
-,       .buf_ariane_debug_noc2_data_i    ( buf_ariane_debug_noc2_data    )
-,       .buf_ariane_debug_noc2_valid_i   ( buf_ariane_debug_noc2_valid   )
-,       .ariane_debug_buf_noc2_ready_o   ( ariane_debug_buf_noc2_ready   )
-,       .ariane_debug_buf_noc3_data_o    ( ariane_debug_buf_noc3_data    )
-,       .ariane_debug_buf_noc3_valid_o   ( ariane_debug_buf_noc3_valid   )
-,       .buf_ariane_debug_noc3_ready_i   ( buf_ariane_debug_noc3_ready   )
-`endif // ifdef PITON_RV64_DEBUGUNIT
 ,       .buf_ariane_bootrom_noc2_data_i  ( buf_ariane_bootrom_noc2_data  )
 ,       .buf_ariane_bootrom_noc2_valid_i ( buf_ariane_bootrom_noc2_valid )
 ,       .ariane_bootrom_buf_noc2_ready_o ( ariane_bootrom_buf_noc2_ready )
 ,       .ariane_bootrom_buf_noc3_data_o  ( ariane_bootrom_buf_noc3_data  )
 ,       .ariane_bootrom_buf_noc3_valid_o ( ariane_bootrom_buf_noc3_valid )
 ,       .buf_ariane_bootrom_noc3_ready_i ( buf_ariane_bootrom_noc3_ready )
-`ifdef PITON_RV64_CLINT
-,       .buf_ariane_clint_noc2_data_i    ( buf_ariane_clint_noc2_data    )
-,       .buf_ariane_clint_noc2_valid_i   ( buf_ariane_clint_noc2_valid   )
-,       .ariane_clint_buf_noc2_ready_o   ( ariane_clint_buf_noc2_ready   )
-,       .ariane_clint_buf_noc3_data_o    ( ariane_clint_buf_noc3_data    )
-,       .ariane_clint_buf_noc3_valid_o   ( ariane_clint_buf_noc3_valid   )
-,       .buf_ariane_clint_noc3_ready_i   ( buf_ariane_clint_noc3_ready   )
-`endif // ifdef PITON_RV64_CLINT
-`ifdef PITON_RV64_PLIC
-,       .buf_ariane_plic_noc2_data_i     ( buf_ariane_plic_noc2_data     )
-,       .buf_ariane_plic_noc2_valid_i    ( buf_ariane_plic_noc2_valid    )
-,       .ariane_plic_buf_noc2_ready_o    ( ariane_plic_buf_noc2_ready    )
-,       .ariane_plic_buf_noc3_data_o     ( ariane_plic_buf_noc3_data     )
-,       .ariane_plic_buf_noc3_valid_o    ( ariane_plic_buf_noc3_valid    )
-,       .buf_ariane_plic_noc3_ready_i    ( buf_ariane_plic_noc3_ready    )
-`endif // ifdef PITON_RV64_PLIC
         // This selects either the BM or linux bootrom
 ,       .ariane_boot_sel_i               ( ariane_boot_sel               )
-`ifdef PITON_RV64_DEBUGUNIT
-        // Debug sigs to cores
-,       .ndmreset_o                      ( ndmreset_o                    )
-,       .dmactive_o                      ( dmactive_o                    )
-,       .debug_req_o                     ( debug_req_o                   )
-,       .unavailable_i                   ( unavailable_i                 )
-        // JTAG
-,       .tck_i                           ( tck_i                         )
-,       .tms_i                           ( tms_i                         )
-,       .trst_ni                         ( trst_ni                       )
-,       .td_i                            ( td_i                          )
-,       .td_o                            ( td_o                          )
-,       .tdo_oe_o                        (                               )
-`endif // ifdef PITON_RV64_DEBUGUNIT
-`ifdef PITON_RV64_CLINT
-        // CLINT
-,       .rtc_i                           ( rtc_i                         )
-,       .timer_irq_o                     ( timer_irq_o                   )
-,       .ipi_o                           ( ipi_o                         )
-`endif // ifdef PITON_RV64_CLINT
-`ifdef PITON_RV64_PLIC
-        // PLIC
-,       .irq_le_i                        ( irq_le                        ) // 0:level 1:edge
-,       .irq_sources_i                   ( irq_sources                   )
-,       .irq_o                           ( irq_o                         )
-`endif // ifdef PITON_RV64_PLIC
     );
-''' % (int(DmBase), int(RomBase), int(ClintBase), int(PlicBase))
+''' % (int(RomBase))
 print(str)
 %>
 
