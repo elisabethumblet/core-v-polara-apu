@@ -87,8 +87,8 @@ module pmesh_rvic #(
     // Debug sigs to cores
     output                              ndmreset_o,    // non-debug module reset
     output                              dmactive_o,    // debug module is active
-    output [NUM_HARTS-1:0]               debug_req_o,   // async debug request
-    input  [NUM_HARTS-1:0]               unavailable_i, // communicate whether the hart is unavailable (e.g.: power down)
+    output [NUM_HARTS-1:0]              debug_req_o,   // async debug request
+    input  [NUM_HARTS-1:0]              unavailable_i, // communicate whether the hart is unavailable (e.g.: power down)
 
     // JTAG
     input                               tck_i,
@@ -286,9 +286,9 @@ noc2decoder noc2decoder(
     .noc2decoder_l15_csm_mshrid(noc2decoder_l15_csm_mshrid),
     .noc2decoder_l15_threadid(noc2decoder_l15_threadid),
     .noc2decoder_l15_hmc_fill(noc2decoder_l15_hmc_fill),
-    .l15_dmbr_l2missIn(l15_dmbr_l2missIn),
-    .l15_dmbr_l2missTag(l15_dmbr_l2missTag),
-    .l15_dmbr_l2responseIn(l15_dmbr_l2responseIn)
+    .l15_dmbr_l2missIn(),
+    .l15_dmbr_l2missTag(),
+    .l15_dmbr_l2responseIn()
 );
 
 reg                     new_edge_irq;
@@ -513,8 +513,7 @@ rvic_wrap #(
     .NumHarts          ( NUM_HARTS     ),
     .PlicMaxPriority   ( MAX_PRIORITY  ),
     .ClintBase         ( CLINT_BASE    ),
-    .PlicBase          ( PLIC_BASE     ),
-    .DmBase            ( DEBUG_BASE    )
+    .PlicBase          ( PLIC_BASE     )
 ) rvic_wrap (
     .clk            ( clk           ),
     .rst_n          ( rst_n         ),
@@ -568,5 +567,256 @@ rvic_wrap #(
     .timer_irq_o    ( timer_irq_o   ),       // Timer interrupts
     .ipi_o          ( ipi_o         )        // software interrupt (a.k.a inter-process-interrupt)
 );
+
+
+  /////////////////////////////
+  // Debug module and JTAG
+  /////////////////////////////
+  localparam AxiIdWidth    =  1;
+  localparam AxiAddrWidth  = 64;
+  localparam AxiDataWidth  = 64;
+  localparam AxiUserWidth  =  1;
+
+  wire          debug_req_valid;
+  wire          debug_req_ready;
+  wire          debug_resp_valid;
+  wire          debug_resp_ready;
+
+  dm::dmi_req_t  debug_req;
+  dm::dmi_resp_t debug_resp;
+
+`ifdef RISCV_FESVR_SIM
+
+  initial begin
+    $display("[INFO] instantiating FESVR DTM in simulation.");
+  end
+
+  // SiFive's SimDTM Module
+  // Converts to DPI calls
+  wire [31:0] sim_exit; // TODO: wire this up in the testbench
+  wire [1:0] debug_req_bits_op;
+  assign dmi_req.op = dm::dtm_op_t'(debug_req_bits_op);
+
+  SimDTM i_SimDTM (
+    .clk                  ( clk_i                ),
+    .reset                ( ~rst_ni              ),
+    .debug_req_valid      ( debug_req_valid      ),
+    .debug_req_ready      ( debug_req_ready      ),
+    .debug_req_bits_addr  ( debug_req.addr       ),
+    .debug_req_bits_op    ( debug_req_bits_op    ),
+    .debug_req_bits_data  ( debug_req.data       ),
+    .debug_resp_valid     ( debug_resp_valid     ),
+    .debug_resp_ready     ( debug_resp_ready       ),
+    .debug_resp_bits_resp ( debug_resp.resp      ),
+    .debug_resp_bits_data ( debug_resp.data      ),
+    .exit                 ( sim_exit             )
+  );
+
+`else // RISCV_FESVR_SIM
+
+  wire        tck, tms, trst_n, tdi, tdo, tdo_oe;
+
+  dmi_jtag i_dmi_jtag (
+    .clk_i            ( clk              ),
+    .rst_ni           ( rst_n            ),
+    .testmode_i       ( 1'b0             ),
+    .dmi_req_o        ( debug_req        ),
+    .dmi_req_valid_o  ( debug_req_valid  ),
+    .dmi_req_ready_i  ( debug_req_ready  ),
+    .dmi_resp_i       ( debug_resp       ),
+    .dmi_resp_ready_o ( debug_resp_ready ),
+    .dmi_resp_valid_i ( debug_resp_valid ),
+    .dmi_rst_no       (                  ), // not connected
+    .tck_i            ( tck              ),
+    .tms_i            ( tms              ),
+    .trst_ni          ( trst_n           ),
+    .td_i             ( tdi              ),
+    .td_o             ( tdo              ),
+    .tdo_oe_o         ( tdo_oe           )
+  );
+
+`ifdef RISCV_JTAG_SIM
+
+  initial begin
+    $display("[INFO] instantiating JTAG DTM in simulation.");
+  end
+
+  // SiFive's SimJTAG Module
+  // Converts to DPI calls
+  wire [31:0] sim_exit; // TODO: wire this up in the testbench
+  SimJTAG i_SimJTAG (
+    .clock                ( clk_i                ),
+    .reset                ( ~rst_ni              ),
+    .enable               ( jtag_enable[0]       ),
+    .init_done            ( init_done            ),
+    .jtag_TCK             ( tck                  ),
+    .jtag_TMS             ( tms                  ),
+    .jtag_TDI             ( trst_n               ),
+    .jtag_TRSTn           ( td                   ),
+    .jtag_TDO_data        ( td                   ),
+    .jtag_TDO_driven      ( tdo_oe               ),
+    .exit                 ( sim_exit             )
+  );
+
+  assign td_o     = 1'b0  ;
+  assign tdo_oe_o = 1'b0  ;
+
+`else // RISCV_JTAG_SIM
+
+  assign tck      = tck_i   ;
+  assign tms      = tms_i   ;
+  assign trst_n   = trst_ni ;
+  assign tdi      = td_i    ;
+  assign td_o     = tdo     ;
+  assign tdo_oe_o = tdo_oe  ;
+
+`endif // RISCV_JTAG_SIM
+`endif // RISCV_FESVR_SIM
+
+  wire                dm_slave_req;
+  wire                dm_slave_we;
+  wire [64-1:0]       dm_slave_addr;
+  wire [64/8-1:0]     dm_slave_be;
+  wire [64-1:0]       dm_slave_wdata;
+  wire [64-1:0]       dm_slave_rdata;
+
+  wire                dm_master_req;
+  wire [64-1:0]       dm_master_add;
+  wire                dm_master_we;
+  wire [64-1:0]       dm_master_wdata;
+  wire [64/8-1:0]     dm_master_be;
+  wire                dm_master_gnt;
+  wire                dm_master_r_valid;
+  wire [64-1:0]       dm_master_r_rdata;
+
+  // debug module
+  dm_top #(
+    .NrHarts              ( NUM_HARTS             ),
+    .BusWidth             ( AxiDataWidth         ),
+    .SelectableHarts      ( {NUM_HARTS{1'b1}}     )
+  ) i_dm_top (
+    .clk_i                ( clk                  ),
+    .rst_ni               ( rst_n                ), // PoR
+    .testmode_i           ( 1'b0                 ),
+    .ndmreset_o           (                      ),
+    .dmactive_o           (                      ), // active debug session
+    .debug_req_o          ( debug_req_o          ),
+    .unavailable_i        ( unavailable_i        ),
+    .hartinfo_i           ( {NUM_HARTS{ariane_pkg::DebugHartInfo}} ),
+    .slave_req_i          ( dm_slave_req         ),
+    .slave_we_i           ( dm_slave_we          ),
+    .slave_addr_i         ( dm_slave_addr        ),
+    .slave_be_i           ( dm_slave_be          ),
+    .slave_wdata_i        ( dm_slave_wdata       ),
+    .slave_rdata_o        ( dm_slave_rdata       ),
+    .master_req_o         ( dm_master_req        ),
+    .master_add_o         ( dm_master_add        ),
+    .master_we_o          ( dm_master_we         ),
+    .master_wdata_o       ( dm_master_wdata      ),
+    .master_be_o          ( dm_master_be         ),
+    .master_gnt_i         ( dm_master_gnt        ),
+    .master_r_valid_i     ( dm_master_r_valid    ),
+    .master_r_rdata_i     ( dm_master_r_rdata    ),
+    .dmi_rst_ni           ( rst_ni               ),
+    .dmi_req_valid_i      ( debug_req_valid      ),
+    .dmi_req_ready_o      ( debug_req_ready      ),
+    .dmi_req_i            ( debug_req            ),
+    .dmi_resp_valid_o     ( debug_resp_valid     ),
+    .dmi_resp_ready_i     ( debug_resp_ready     ),
+    .dmi_resp_o           ( debug_resp           )
+  );
+
+  AXI_BUS #(
+      .AXI_ADDR_WIDTH ( AxiAddrWidth     ),
+      .AXI_DATA_WIDTH ( AxiDataWidth     ),
+      .AXI_ID_WIDTH   ( AxiIdWidth       ),
+      .AXI_USER_WIDTH ( AxiUserWidth     )
+  ) dm_master();
+
+  axi2mem #(
+      .AXI_ID_WIDTH   ( AxiIdWidth   ),
+      .AXI_ADDR_WIDTH ( AxiAddrWidth ),
+      .AXI_DATA_WIDTH ( AxiDataWidth ),
+      .AXI_USER_WIDTH ( AxiUserWidth )
+  ) i_dm_axi2mem (
+      .clk_i      ( clk_i                     ),
+      .rst_ni     ( rst_ni                    ),
+      .slave      ( dm_master                 ),
+      .req_o      ( dm_slave_req              ),
+      .we_o       ( dm_slave_we               ),
+      .addr_o     ( dm_slave_addr             ),
+      .be_o       ( dm_slave_be               ),
+      .data_o     ( dm_slave_wdata            ),
+      .data_i     ( dm_slave_rdata            )
+  );
+
+  noc_axilite_bridge #(
+    .SLAVE_RESP_BYTEWIDTH   ( 8             ),
+    .SWAP_ENDIANESS         ( SWAP_ENDIANESS )
+  ) i_debug_axilite_bridge (
+    .clk                    ( clk_i                         ),
+    .rst                    ( ~rst_ni                       ),
+    // to/from NOC
+    .splitter_bridge_val    ( src_debug_vr_noc1_val ),
+    .splitter_bridge_data   ( src_debug_vr_noc1_dat ),
+    .bridge_splitter_rdy    ( src_debug_vr_noc1_rdy ),
+    .bridge_splitter_val    ( debug_dst_vr_noc2_val ),
+    .bridge_splitter_data   ( debug_dst_vr_noc2_dat ),
+    .splitter_bridge_rdy    ( debug_dst_vr_noc2_rdy ),
+    //axi lite signals
+    //write address channel
+    .m_axi_awaddr           ( dm_master.aw_addr             ),
+    .m_axi_awvalid          ( dm_master.aw_valid            ),
+    .m_axi_awready          ( dm_master.aw_ready            ),
+    //write data channel
+    .m_axi_wdata            ( dm_master.w_data              ),
+    .m_axi_wstrb            ( dm_master.w_strb              ),
+    .m_axi_wvalid           ( dm_master.w_valid             ),
+    .m_axi_wready           ( dm_master.w_ready             ),
+    //read address channel
+    .m_axi_araddr           ( dm_master.ar_addr             ),
+    .m_axi_arvalid          ( dm_master.ar_valid            ),
+    .m_axi_arready          ( dm_master.ar_ready            ),
+    //read data channel
+    .m_axi_rdata            ( dm_master.r_data              ),
+    .m_axi_rresp            ( dm_master.r_resp              ),
+    .m_axi_rvalid           ( dm_master.r_valid             ),
+    .m_axi_rready           ( dm_master.r_ready             ),
+    //write response channel
+    .m_axi_bresp            ( dm_master.b_resp              ),
+    .m_axi_bvalid           ( dm_master.b_valid             ),
+    .m_axi_bready           ( dm_master.b_ready             ),
+    // non-axi-lite signals
+    .w_reqbuf_size          (                               ),
+    .r_reqbuf_size          (                               )
+  );
+
+  // tie off system bus accesses (not supported yet due to
+  // missing AXI-lite br_master <-> NOC converter)
+  assign dm_master_gnt      = '0;
+  assign dm_master_r_valid  = '0;
+  assign dm_master_r_rdata  = '0;
+
+  // tie off signals not used by AXI-lite
+  assign dm_master.aw_id     = '0;
+  assign dm_master.aw_len    = '0;
+  assign dm_master.aw_size   = 3'b11;// 8byte
+  assign dm_master.aw_burst  = '0;
+  assign dm_master.aw_lock   = '0;
+  assign dm_master.aw_cache  = '0;
+  assign dm_master.aw_prot   = '0;
+  assign dm_master.aw_qos    = '0;
+  assign dm_master.aw_region = '0;
+  assign dm_master.aw_atop   = '0;
+  assign dm_master.w_last    = 1'b1;
+  assign dm_master.ar_id     = '0;
+  assign dm_master.ar_len    = '0;
+  assign dm_master.ar_size   = 3'b11;// 8byte
+  assign dm_master.ar_burst  = '0;
+  assign dm_master.ar_lock   = '0;
+  assign dm_master.ar_cache  = '0;
+  assign dm_master.ar_prot   = '0;
+  assign dm_master.ar_qos    = '0;
+  assign dm_master.ar_region = '0;
 
 endmodule
