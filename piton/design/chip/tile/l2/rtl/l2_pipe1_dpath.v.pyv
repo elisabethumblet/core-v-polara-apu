@@ -2040,7 +2040,7 @@ begin
         msg_send_dst_chipid_S4 = my_nodeid_chipid_S4;
         msg_send_dst_x_S4 = my_nodeid_x_S4;
         msg_send_dst_y_S4 = my_nodeid_y_S4;
-        msg_send_dst_fbits_S4 = `NOC_FBITS_L1;
+        msg_send_dst_fbits_S4 = msg_data_S4_f[37:34]; // Fetch fbits from data packet
     end
     default:
     begin
