@@ -236,8 +236,8 @@ simplenocbuffer simplenocbuffer(
     .msg_val(noc2_data_val)
 );
 
-wire l15_noc2decoder_ack;
-wire l15_noc2decoder_header_ack;
+reg l15_noc2decoder_ack;
+reg l15_noc2decoder_header_ack;
 wire noc2decoder_l15_val;
 wire [`L15_MSHR_ID_WIDTH-1:0] noc2decoder_l15_mshrid;
 wire noc2decoder_l15_l2miss;
@@ -290,6 +290,30 @@ noc2decoder noc2decoder(
     .l15_dmbr_l2missTag(),
     .l15_dmbr_l2responseIn()
 );
+
+// Mimic l15 behaviour for the l15 ACK signals
+reg l15_noc2decoder_ack_next;
+reg l15_noc2decoder_header_ack_next;
+
+always @(posedge clk) begin
+  if (~rst_n) begin
+    l15_noc2decoder_ack <= 1'b0;
+    l15_noc2decoder_header_ack <= 1'b0;
+  end else begin
+    l15_noc2decoder_ack <= l15_noc2decoder_ack_next;
+    l15_noc2decoder_header_ack <= l15_noc2decoder_header_ack_next;
+  end
+end
+
+always @* begin
+  if (noc2_data_val) begin
+    l15_noc2decoder_ack_next = 1'b1;
+    l15_noc2decoder_header_ack_next = 1'b1;
+  end else begin
+    l15_noc2decoder_ack_next = 1'b0;
+    l15_noc2decoder_header_ack_next = 1'b0;
+  end
+end
 
 reg                     new_edge_irq;
 reg                     new_edge_irq_next;
