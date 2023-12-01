@@ -1,2 +1,2 @@
-pmesh_rvic.sv
+pmesh_rvic.v
 rvic_wrap.sv

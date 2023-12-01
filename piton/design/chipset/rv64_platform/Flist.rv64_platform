@@ -1,2 +1,3 @@
 bootrom/baremetal/bootrom.sv
 bootrom/linux/bootrom_linux.sv
+bootrom/polara_bootrom.sv
