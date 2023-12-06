@@ -397,8 +397,11 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/sparc/srams/rtl/sram_wrappers/sram_l1d_tag.v" \
     "${DV_ROOT}/design/chip/tile/sparc/srams/rtl/sram_wrappers/sram_l1i_data.v" \
     "${DV_ROOT}/design/chip/tile/sparc/srams/rtl/sram_wrappers/sram_l1i_tag.v" \
+    "${DV_ROOT}/design/chip/tile/pmesh_rvic_rtl/pmesh_rvic.sv" \
+    "${DV_ROOT}/design/chip/tile/pmesh_rvic_rtl/rvic_wrap.sv" \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/baremetal/bootrom.sv"                    \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/linux/bootrom_linux.sv"                  \
+    "${DV_ROOT}/design/chipset/rv64_platform/bootrom/polara_bootrom.sv"                  \
     "${DV_ROOT}/design/chip/tile/ariane/core/include/cv64a6_imafdc_sv39_openpiton_config_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/include/riscv_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/riscv-dbg/src/dm_pkg.sv" \
@@ -516,7 +519,6 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/fpga/src/axi_slice/src/axi_aw_buffer.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/src/apb_to_reg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/src/reg_intf.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/register_interface/src/reg_intf_pkg.sv"           \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/openhwgroup/cvfpu/src/fpu_div_sqrt_mvp/hdl/defs_div_sqrt_mvp.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/openhwgroup/cvfpu/src/fpu_div_sqrt_mvp/hdl/control_mvp.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/openhwgroup/cvfpu/src/fpu_div_sqrt_mvp/hdl/div_sqrt_mvp_wrapper.sv" \
@@ -545,6 +547,18 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/common_cells/src/counter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/common_cells/src/delta_counter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/cvxif_fu.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/reg_intf_pkg.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/top_pkg.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/tlul_pkg.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/rv_plic_reg_pkg.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/plic_regmap.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/plic_top.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/prim_subreg.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/prim_subreg_ext.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/rv_plic.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/rv_plic_gateway.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/rv_plic_reg_top.sv" \
+    "${DV_ROOT}/design/chipset/rv64_platform/rv_plic_rtl/rtl/rv_plic_target.sv" \
     "${DV_ROOT}/design/chip/tile/ara/hardware/include/rvv_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ara/hardware/include/ara_pkg.sv"    \
     "${DV_ROOT}/design/chip/tile/ara/openpiton/sync_fifo.v " \
@@ -807,6 +821,7 @@ set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/uart_reseter.v" \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/fake_boot_ctrl.v" \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/eth_top.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/rtl/int_pkt_gen.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/mc_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/f1_mc_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/u280_polara_top.sv"  \

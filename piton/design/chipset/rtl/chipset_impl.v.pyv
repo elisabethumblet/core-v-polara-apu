@@ -342,6 +342,14 @@ wire                                            chip_filter_noc3_ready;
 wire                                            test_good_end;
 wire                                            test_bad_end;
 
+wire                                            int_pkt_filter_noc2_valid;
+wire    [`NOC_DATA_WIDTH-1:0]                   int_pkt_filter_noc2_data;
+wire                                            filter_int_pkt_noc2_ready;
+
+wire                                            uart_merger_filter_noc2_valid;
+wire    [`NOC_DATA_WIDTH-1:0]                   uart_merger_filter_noc2_data;
+wire                                            filter_uart_merger_noc2_ready;
+
 <%
 for i in range(len(devices)):
     if devices[i]["virtual"]:
@@ -1040,9 +1048,9 @@ uart_top        uart_top (
     .xbar_uart_noc3_ready       ( buf_uart_noc3_ready                   ),
 
     // output to noc2
-    .uart_xbar_noc2_valid       ( uart_filter_noc2_valid                ),
-    .uart_xbar_noc2_data        ( uart_filter_noc2_data                 ),
-    .xbar_uart_noc2_ready       ( filter_uart_noc2_ready                ),
+    .uart_xbar_noc2_valid       ( uart_merger_filter_noc2_valid                ),
+    .uart_xbar_noc2_data        ( uart_merger_filter_noc2_data                 ),
+    .xbar_uart_noc2_ready       ( filter_uart_merger_noc2_ready                ),
 
     // input from noc3
     .xbar_uart_noc3_valid       ( filter_uart_noc3_valid                ),
@@ -1054,6 +1062,35 @@ uart_top        uart_top (
     assign uart_interrupt = 1'b0;
     assign test_start = 1'b1;
 `endif // endif PITONSYS_UART
+
+int_pkt_gen int_pkt_gen (
+    .fpga_clk       ( chipset_clk                           ),
+    .rst_n          ( chipset_rst_n                         ),
+    .noc_out_val    ( int_pkt_filter_noc2_valid             ),
+    .noc_out_data   ( int_pkt_filter_noc2_data              ),
+    .noc_out_rdy    ( filter_int_pkt_noc2_ready             ),
+    .interrupt      ( uart_interrupt                        ),
+    .chip_id        ( {(`NOC_CHIPID_WIDTH){1'b0}}           ),
+    .x_pos          ( `NOC_X_WIDTH'd0                       ),
+    .y_pos          ( `NOC_Y_WIDTH'd0                       ),
+    .irq_le         ( 1'b0                                  ), //0: level, 1: edge
+    .device_id      ( 7'b1                                  ) // 32 devices
+);
+
+noc_simple_merger uart_int_pkt_noc_simple_merger (
+    .clk                    ( chipset_clk                   ),
+    .rst_n                  ( chipset_rst_n                 ),
+    .src0_merger_vr_noc_val ( int_pkt_filter_noc2_valid     ),
+    .src0_merger_vr_noc_dat ( int_pkt_filter_noc2_data      ),
+    .src0_merger_vr_noc_rdy ( filter_int_pkt_noc2_ready     ),
+    .src1_merger_vr_noc_val ( uart_merger_filter_noc2_valid ),
+    .src1_merger_vr_noc_dat ( uart_merger_filter_noc2_data  ), 
+    .src1_merger_vr_noc_rdy ( filter_uart_merger_noc2_ready ),
+    .merger_dst_vr_noc_val  ( uart_filter_noc2_valid        ),
+    .merger_dst_vr_noc_dat  ( uart_filter_noc2_data         ),
+    .merger_dst_vr_noc_rdy  ( filter_uart_noc2_ready        )
+);
+
 
 // SPI interface
 `ifdef PITONSYS_SPI
