@@ -38,35 +38,12 @@ Description: Peripheral address map for OpenPiton+Ariane configurations.
         <length>0xd4000</length>
         <noc2in/>
     </port>
-<!--     <port>
-        <name>net</name>
-        <base>0xfff0d00000</base>
-        <length>0x100000</length>
-    </port> -->
     <!-- note: the following modules are ariane-specific and are only instantiated in HW when using the ariane core -->
-    <port>
-        <!-- this is the shared debug module for JTAG access to all cores -->
-        <name>ariane_debug</name>
-        <base>0xfff1000000</base>
-        <length>0x1000</length>
-    </port>
     <port>
         <!-- this is the shared bootrom (contains DTB that is generated for the current platform config) -->
         <name>ariane_bootrom</name>
         <base>0xfff1010000</base>
         <length>0x10000</length>
-    </port>
-    <port>
-        <!-- core local interrupt controller with real-time counter. this is shared among all cores -->
-        <name>ariane_clint</name>
-        <base>0xfff1020000</base>
-        <length>0xc0000</length>
-    </port>
-    <!-- platform level interrupt controller -->
-    <port>
-        <name>ariane_plic</name>
-        <base>0xfff1100000</base>
-        <length>0x4000000</length>
     </port>
     <!-- end ariane specific periphs -->
 </devices>

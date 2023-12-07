@@ -205,44 +205,42 @@ def gen_riscv_dts(devices, nCpus, cpuFreq, timeBaseFreq, periphFreq, dtsPath, ti
         if devices[i]["name"] in devWithIrq:
             numIrqs += 1
 
+    # CLINT
+    addrBase = 0xe110500000
+    addrLen  = 0xc0000
+    tmpStr += '''
+    clint@%08x {
+        compatible = "riscv,clint0";
+        interrupts-extended = <''' % (addrBase)
+    for k in range(nCpus):
+        tmpStr += "&CPU%d_intc 3 &CPU%d_intc 7 " % (k,k)
+    tmpStr += '''>;
+        reg = <%s>;
+        reg-names = "control";
+    };
+        ''' % (_reg_fmt(addrBase, addrLen, 2, 2))
+    # PLIC
+    addrBase = 0xe200000000
+    addrLen  = 0x4000000
+    tmpStr += '''
+    PLIC0: plic@%08x {
+        #address-cells = <0>;
+        #interrupt-cells = <1>;
+        compatible = "riscv,plic0";
+        interrupt-controller;
+        interrupts-extended = <''' % (addrBase)
+    for k in range(nCpus):
+        tmpStr += "&CPU%d_intc 11 &CPU%d_intc 9 " % (k,k)
+    tmpStr += '''>;
+        reg = <%s>;
+        riscv,max-priority = <7>;
+        riscv,ndev = <%d>;
+    };
+        ''' % (_reg_fmt(addrBase, addrLen, 2, 2), numIrqs)
 
     # get the remaining periphs
     ioDeviceNr=1
     for i in range(len(devices)):
-        # CLINT
-        if devices[i]["name"] == "ariane_clint":
-            addrBase = devices[i]["base"]
-            addrLen  = devices[i]["length"]
-            tmpStr += '''
-        clint@%08x {
-            compatible = "riscv,clint0";
-            interrupts-extended = <''' % (addrBase)
-            for k in range(nCpus):
-                tmpStr += "&CPU%d_intc 3 &CPU%d_intc 7 " % (k,k)
-            tmpStr += '''>;
-            reg = <%s>;
-            reg-names = "control";
-        };
-            ''' % (_reg_fmt(addrBase, addrLen, 2, 2))
-        # PLIC
-        if devices[i]["name"] == "ariane_plic":
-            addrBase = devices[i]["base"]
-            addrLen  = devices[i]["length"]
-            tmpStr += '''
-        PLIC0: plic@%08x {
-            #address-cells = <0>;
-            #interrupt-cells = <1>;
-            compatible = "riscv,plic0";
-            interrupt-controller;
-            interrupts-extended = <''' % (addrBase)
-            for k in range(nCpus):
-                tmpStr += "&CPU%d_intc 11 &CPU%d_intc 9 " % (k,k)
-            tmpStr += '''>;
-            reg = <%s>;
-            riscv,max-priority = <7>;
-            riscv,ndev = <%d>;
-        };
-            ''' % (_reg_fmt(addrBase, addrLen, 2, 2), numIrqs)
         # UART
         if devices[i]["name"] == "uart":
             addrBase = devices[i]["base"]

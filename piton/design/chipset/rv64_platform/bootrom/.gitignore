@@ -1,6 +1,7 @@
 *.elf
 *.img
 *.dtb
-*.sv
+linux/*.sv
+baremetal/*.sv
 info.h
 rv64_platform.dts
