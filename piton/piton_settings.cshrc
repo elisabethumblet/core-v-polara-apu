@@ -51,7 +51,6 @@ endif
 # Please define SYN_HOME only if you are running synopsys
 
 #setenv SYN_HOME "/import/EDAtools/synopsys/synopsys.vX-2005.09"
-setenv SYN_HOME "/CMC/tools/synopsys/vcs_vT-2022.06-SP2/vcs/T-2022.06-SP2/"
 
 # Please define SYNP_HOME only if you are running Synplicity
 

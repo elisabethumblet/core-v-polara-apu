@@ -519,13 +519,7 @@ module chip(
    assign impsel1 = 1'b1;
    assign impsel2 = 1'b1;
 
-   // assign pll_rst_n = 1'b1;
-
    assign clk_en = 1'b1;
-
-   // assign pll_lock = 1'b1;
-   // assign pll_bypass = 1'b1;
-   // assign pll_rangea = 5'b0;
 
    assign clk_mux_sel = 2'b0;
 
@@ -811,32 +805,6 @@ module chip(
    .chip_intf_data_inter         (chip_intf_data_inter),
    .chip_intf_channel_inter      (chip_intf_channel_inter),
    .chip_intf_credit_back_inter  (chip_intf_credit_back_inter) );
-
-   // PLL and clock mux.  See above for alternatives
-   // clk_se_to_diff ref_clk_converter (
-   //     .clk_se  (core_ref_clk_inter),
-   //     .clk_p   (core_ref_clk_inter_t),
-   //     .clk_n   (core_ref_clk_inter_c)
-   // );
-   // clk_mux clock_mux (
-   //     .clk0_p(core_ref_clk_inter_t),
-   //     .clk0_n(core_ref_clk_inter_c),
-   //     .clk1_p(1'b1),
-   //     .clk1_n(1'b0),
-   //     .clk2(pll_clk),
-
-   //     .sel(clk_mux_sel_inter),
-
-   //     .clk_muxed(clk_muxed)
-   // );
-   // pll_top pll_top (
-   //    .clk_locked(pll_lock_inter),
-   //    .clk_out(pll_clk),
-   //    .rangeA(pll_rangea_inter),
-   //    .bypass_en(pll_bypass_inter),
-   //    .ref_clk(core_ref_clk_inter),
-   //    .rst(~pll_rst_n_inter)
-   // );
 
    fll_clk_mux clk_mux (
       .clk1(fll_clk),
@@ -1125,11 +1093,11 @@ module chip(
     `endif // ifdef PITON_RV64_PLATFORM
         ,
         // ucb from tiles to jtag
-        .tile_jtag_ucb_val   ( tile0_jtag_ucb_val      ),
-        .tile_jtag_ucb_data  ( tile0_jtag_ucb_data     ),
+        .tile_jtag_ucb_val   (       ),
+        .tile_jtag_ucb_data  (      ),
         // ucb from jtag to tiles
-        .jtag_tiles_ucb_val  ( jtag_tiles_ucb_val      ),
-        .jtag_tiles_ucb_data ( jtag_tiles_ucb_data     ),
+        .jtag_tiles_ucb_val  (       ),
+        .jtag_tiles_ucb_data (      ),
     '''
 
     subtemplate = r'''
@@ -1309,8 +1277,8 @@ pmesh_rvic pmesh_rvic (
     .debug_req_o                ( debug_req          ), 
     .unavailable_i              ( unavailable        ),
     .tck_i                      ( jtag_clk_inter     ),             
-    .tms_i                      ( jtag_rst_l_inter   ),             
-    .trst_ni                    ( jtag_modesel_inter ),                
+    .tms_i                      ( jtag_modesel_inter   ),             
+    .trst_ni                    ( jtag_rst_l_inter_sync ),                
     .td_i                       ( jtag_datain_inter  ),             
     .td_o                       ( jtag_dataout_inter ),             
     .tdo_oe_o                   (                    ) // not used               

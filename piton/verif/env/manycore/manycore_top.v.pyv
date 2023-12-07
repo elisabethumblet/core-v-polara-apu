@@ -177,36 +177,9 @@ begin
     `ifdef POST_PNR
     `ifdef USE_SDF
         // SDF annotations
+        // Change path of the target SDF file
         $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/tempus/lib/soc/soc.sdf.gz", cmp_top.system.chip);
         
-        // // SoC
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/soc_1429ps/soc.sdf.gz", cmp_top.system.chip);
-        // // Tiles
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/tile_1429ps/tile.sdf.gz", cmp_top.system.chip.tile0);
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/tile_1429ps/tile.sdf.gz", cmp_top.system.chip.tile1);
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/tile_1429ps/tile.sdf.gz", cmp_top.system.chip.tile2);
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/tile_1429ps/tile.sdf.gz", cmp_top.system.chip.tile3);
-        // // CVVEC & Lanes
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/cvvec_1429ps/cvvec.sdf.gz", cmp_top.system.chip.tile0.g_ariane_core_core);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile0.g_ariane_core_core.i_ara_gen_lanes_0__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile0.g_ariane_core_core.i_ara_gen_lanes_1__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile0.g_ariane_core_core.i_ara_gen_lanes_2__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile0.g_ariane_core_core.i_ara_gen_lanes_3__i_lane);
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/cvvec_1429ps/cvvec.sdf.gz", cmp_top.system.chip.tile1.g_ariane_core_core);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile1.g_ariane_core_core.i_ara_gen_lanes_0__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile1.g_ariane_core_core.i_ara_gen_lanes_1__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile1.g_ariane_core_core.i_ara_gen_lanes_2__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile1.g_ariane_core_core.i_ara_gen_lanes_3__i_lane);
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/cvvec_1429ps/cvvec.sdf.gz", cmp_top.system.chip.tile2.g_ariane_core_core);
-        //   $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile2.g_ariane_core_core.i_ara_gen_lanes_0__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile2.g_ariane_core_core.i_ara_gen_lanes_1__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile2.g_ariane_core_core.i_ara_gen_lanes_2__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile2.g_ariane_core_core.i_ara_gen_lanes_3__i_lane);
-        // $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/cvvec_1429ps/cvvec.sdf.gz", cmp_top.system.chip.tile3.g_ariane_core_core);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile3.g_ariane_core_core.i_ara_gen_lanes_0__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile3.g_ariane_core_core.i_ara_gen_lanes_1__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile3.g_ariane_core_core.i_ara_gen_lanes_2__i_lane);
-        //    $sdf_annotate("/users/fournier/main/corev_polara/be/gf22/innovus/out/lane_1429ps/lane.sdf.gz", cmp_top.system.chip.tile3.g_ariane_core_core.i_ara_gen_lanes_3__i_lane);
     `endif
     `endif
     `endif
