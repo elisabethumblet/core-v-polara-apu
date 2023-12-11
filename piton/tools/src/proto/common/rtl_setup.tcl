@@ -441,7 +441,7 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/core/cache_subsystem/axi_adapter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/alu.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/fpu_wrap.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/src/ariane.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/ariane.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/cva6.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/branch_unit.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/compressed_decoder.sv" \
