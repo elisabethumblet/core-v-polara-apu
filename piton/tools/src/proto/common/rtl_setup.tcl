@@ -419,7 +419,6 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/core/include/instr_tracer_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/cvxif_example/include/cvxif_instr_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/acc_dispatcher.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/rv_plic_reg_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/common/local/util/sram.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/common_cells/src/deprecated/rrarbiter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/common_cells/src/deprecated/fifo_v1.sv" \
@@ -444,7 +443,7 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/core/cache_subsystem/axi_adapter.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/alu.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/fpu_wrap.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/src/ariane.sv" \
+    "${DV_ROOT}/design/chip/tile/ara/openpiton/ariane.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/cva6.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/branch_unit.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/compressed_decoder.sv" \
@@ -502,10 +501,6 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/riscv-dbg/src/dmi_jtag_tap.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/openpiton/riscv_peripherals.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/openpiton/ariane_verilog_wrap.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/rv_plic_target.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/rv_plic_gateway.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/plic_regmap.sv" \
-    "${DV_ROOT}/design/chip/tile/ariane/corev_apu/rv_plic/rtl/plic_top.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/fpga/src/axi2apb/src/axi2apb_wrap.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/fpga/src/axi2apb/src/axi2apb.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/fpga/src/axi2apb/src/axi2apb_64_32.sv" \
