@@ -63,8 +63,11 @@ foreach ip_file ${ALL_IP_FILE_PREFIXES} {
 }
 
 set ALL_BD_FILES [list ]
-foreach bd_file ${DESIGN_BD_FILES} {
-    lappend ALL_BD_FILES "${bd_file}.bd"
+# Use block design only for alveou280 fpga emulation.
+if { ${BOARD} == "alveou280" } {
+    foreach bd_file ${DESIGN_BD_FILES} {
+        lappend ALL_BD_FILES "${bd_file}.bd"
+    }
 }
 
 set ALL_COE_FILES [concat ${DESIGN_COE_IP_FILES}]
