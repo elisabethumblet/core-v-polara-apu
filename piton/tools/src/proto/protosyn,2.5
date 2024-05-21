@@ -333,11 +333,23 @@ def runImplFlow(board, design_data, work_dir, log_dir, def_list, slurm, dep_list
     #os.chdir(dname)
     print_info("Running FPGA implementation down to bitstream generation")
     design_board_dir = os.path.join(design_data["PATH"], board)
+    # Debugging (RR 2024/05)
+    print("design_board_dir is: ", design_board_dir)
     impl_log = os.path.join(log_dir, PROJECT_IMPL_LOG)
+    print("impl_log is: ", impl_log)
     impl_flow = os.path.join(DV_ROOT, "tools/src/proto/" + tool + "/impl_flow.tcl")
+    print("impl_flow is: ", impl_flow)
     jname = "protosyn_impl_%s_%s" % (board, design_data["ID"])
+    print("jname is: ", jname)
     jid = None
     if (tool == "vivado"):
+        print("run_vivado called with: ")
+        print("impl_log, impl_flow")
+        print("design_data[PATH] is: ", design_data["PATH"])
+        print("board is: ", board)
+        print("slurm is: ", slurm)
+        print("jname")
+        print("dep_list is: ", dep_list)
         jid = run_vivado(impl_log, impl_flow, design_data["PATH"], board, \
                          slurm, 8, 64000, "6:00:00", jname, dep_list)
     elif (tool == "ise"):
@@ -576,6 +588,9 @@ def makeDefList(options):
     # Specific options for chipset implementations on piton_board:
     if options.design == "chipset":
         if options.board == "piton_board":
+            defines.append("PITON_BOARD_CHIPSET")
+        # TEST for genesys2 chipset only synthesis
+        elif options.board == "genesys2":
             defines.append("PITON_BOARD_CHIPSET")
         else:
             defines.append("PITON_ASIC_CHIPSET")
