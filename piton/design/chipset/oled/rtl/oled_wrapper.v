@@ -31,9 +31,6 @@ module oled_wrapper (
     input   btnr,
     input   btnu,
     input   btnd,
-    
-    //input   clk_osc_p,
-    //input   clk_osc_n,
 
     output  spi_sclk,
     output  spi_dc,
@@ -76,9 +73,6 @@ wire                btnd_pulse;
 
 wire                last_char;
 
-// If used alone 
-//reg                                             chipset_rst_n_f;
-//reg                                             chipset_rst_n_ff;
 
 assign last_char = char_cnt == (STRING_LEN - 1);
 
@@ -157,9 +151,7 @@ assign btnd_pulse = btnd & ~btnd_r;
 assign btnu_pulse = btnu & ~btnu_r;
 
 always @(posedge sys_clk) begin
-   // Debug 
-   //disp_string <= "0123456789012345678901234567890123456789012345678901234567891234";
-   disp_string <= `OLED_STRING;
+    disp_string <= `OLED_STRING;
 end
 
 generate begin
@@ -179,26 +171,5 @@ generate begin
     end
 end
 endgenerate
-
-/*
-// If running oled_wrapper alone
-always @ (posedge sys_clk)
-begin
-    chipset_rst_n_f <= sys_rst_n;
-    chipset_rst_n_ff <= chipset_rst_n_f;
-end
-
-clk_wiz_0 inst
-  (
-  // Clock out ports  
-  .chipset_clk(sys_clk),
-  // Status and control signals               
-  .resetn(chipset_rst_n_ff), 
-  .locked(locked),
- // Clock in ports
-  .clk_in1_p(clk_osc_p),
-  .clk_in1_n(clk_osc_n)
-  );*/
-
 
 endmodule
