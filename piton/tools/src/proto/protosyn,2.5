@@ -531,7 +531,8 @@ def makeDefList(options):
         defines.append("PITONSYS_MEM_ZEROER")    
 
     # do not use SD controller if BRAM is used for boot or a test or if board doesn't have sd
-    if (options.test_name != None) or (options.board in {"piton_board", "xupp3r", "f1", "alveou280"}):
+    # do not use SD controller if using UART boot with genesys2 board
+    if (options.test_name != None) or (options.board in {"piton_board", "xupp3r", "f1", "alveou280"}) or ((options.board == "genesys2") and (options.uart_dmw == "ddr")):
         pass
     else:   # default option
         defines.append("PITON_FPGA_SD_BOOT")
@@ -623,7 +624,8 @@ def makeDefList(options):
         else:
             print_warning("--oled option is ignored for %s" % options.board)
     elif options.design == "chipset" and (options.board == "genesys2" or options.board == "nexysVideo"):
-        disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
+#        disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
+        disp_string = "Hello"
         defines.append("{OLED_STRING=\\\"%s\\\"}" % disp_string)
 
     return defines
