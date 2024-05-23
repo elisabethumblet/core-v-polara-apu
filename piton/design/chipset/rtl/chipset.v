@@ -1584,8 +1584,8 @@ chipset_impl_noc_power_test  chipset_impl (
 
 `ifdef GENESYS2_BOARD
     oled_wrapper     #(
-        .OLED_SYS_CLK_KHZ   (50000),
-        .OLED_SPI_CLK_KHZ   (5000)
+        .OLED_SYS_CLK_KHZ   (66667),
+        .OLED_SPI_CLK_KHZ   (10000)
     ) oled_wrapper (
         .sys_clk        (chipset_clk        ),
         .sys_rst_n      (chipset_rst_n_ff   ),

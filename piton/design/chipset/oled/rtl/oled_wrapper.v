@@ -24,13 +24,16 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module oled_wrapper (
-    input   sys_clk,
+    //input   sys_clk,
     input   sys_rst_n,
 
     input   btnl,
     input   btnr,
     input   btnu,
     input   btnd,
+    
+    input   clk_osc_p,
+    input   clk_osc_n,
 
     output  spi_sclk,
     output  spi_dc,
@@ -73,11 +76,14 @@ wire                btnd_pulse;
 
 wire                last_char;
 
+// If used alone 
+reg                                             chipset_rst_n_f;
+reg                                             chipset_rst_n_ff;
 
 assign last_char = char_cnt == (STRING_LEN - 1);
 
 always @(posedge sys_clk) begin
-    if (~sys_rst_n) begin
+    if (~chipset_rst_n_ff) begin
         oled_state  <= IDLE;
         char_cnt    <= 8'b0;
         oled_val    <= 1'b0;
@@ -118,7 +124,7 @@ ssd1306_top     #(
     .SPI_CLK_FREQ_KHZ   (OLED_SPI_CLK_KHZ   )
 ) ssd1306_top (
     .sys_clk        (sys_clk    ),
-    .sys_rst_n      (sys_rst_n  ),
+    .sys_rst_n      (chipset_rst_n_ff  ),
 
     .init_done      (init_done  ),
 
@@ -151,14 +157,14 @@ assign btnd_pulse = btnd & ~btnd_r;
 assign btnu_pulse = btnu & ~btnu_r;
 
 always @(posedge sys_clk) begin
-    disp_string <= `OLED_STRING;
+    disp_string <= "Hello";
 end
 
 generate begin
     genvar i;
     for (i = 0; i < 64; i = i + 1) begin: disp_buf_change
     always @(posedge sys_clk) begin
-        if (~sys_rst_n) begin
+        if (~chipset_rst_n_ff) begin
             disp_buf[i] <= disp_string[8*i:8*(i+1)-1];
         end
         else begin
@@ -171,5 +177,25 @@ generate begin
     end
 end
 endgenerate
+
+// If running oled_wrapper alone
+always @ (posedge sys_clk)
+begin
+    chipset_rst_n_f <= sys_rst_n;
+    chipset_rst_n_ff <= chipset_rst_n_f;
+end
+
+clk_wiz_0 inst
+  (
+  // Clock out ports  
+  .chipset_clk(sys_clk),
+  // Status and control signals               
+  .resetn(chipset_rst_n_ff), 
+  .locked(locked),
+ // Clock in ports
+  .clk_in1_p(clk_osc_p),
+  .clk_in1_n(clk_osc_n)
+  );
+
 
 endmodule
