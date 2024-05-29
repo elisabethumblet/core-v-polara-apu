@@ -804,9 +804,9 @@ end
     assign leds[0] = clk_locked;
     assign leds[1] = ~piton_ready_n;
     assign leds[2] = init_calib_complete;
-    assign leds[3] = processor_offchip_noc2_valid;
-    assign leds[4] = offchip_processor_noc3_valid;
-    assign leds[5] = 1'b0;
+    assign leds[3] = 1'b0;
+    assign leds[4] = piton_prsnt_n;
+    assign leds[5] = chipset_rst_n_ff;
     assign leds[6] = invalid_access;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
