@@ -172,7 +172,8 @@ def configureUART(port):
             stopbits=serial.STOPBITS_ONE,
             timeout=0
         )
-    except:
+    except Exception as error:
+        print("An exception occurred:", error)
         print_error("Can not open serial device %s" % port_full)
         print_error("Provide correct device name using -p option")
         return None
