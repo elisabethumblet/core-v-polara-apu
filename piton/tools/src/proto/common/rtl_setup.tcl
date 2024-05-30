@@ -702,6 +702,7 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_err_slv.sv"  \
     "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_cdc.sv"  \
     "${DV_ROOT}/design/chip/tile/ara/hardware/deps/apb/src/apb_demux.sv"  \
+    "${DV_ROOT}/design/chipset/noc_axilite_bridge/rtl/noc_axilite_bridge.v" \
 ]
 
 
