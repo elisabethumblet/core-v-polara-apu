@@ -37,7 +37,7 @@ module chip(
 `ifdef POLARA_VC707_CHIP
    input                                        core_ref_clk,
    input                                        io_clk,
-`elsifdef PITON_FPGA_CLKS_GEN
+`elsif PITON_FPGA_CLKS_GEN
    input                                        clk_osc_p,
    input                                        clk_osc_n,
 `else // ifndef PITON_FPGA_CLKS_GEN
@@ -100,7 +100,7 @@ module chip(
    output [31:0]                                chip_intf_data,
    output [1:0]                                 chip_intf_channel,
    input  [2:0]                                 chip_intf_credit_back
-`elsifdef PITON_CHIP_FPGA
+`elsif PITON_CHIP_FPGA
    output                                      chip_intf_clk_p,
    output                                      chip_intf_clk_n,
    input                                       intf_chip_clk_p,
