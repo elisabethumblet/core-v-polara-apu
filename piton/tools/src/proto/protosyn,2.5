@@ -143,6 +143,10 @@ def usage():
     print("              Number of jobs to use in Vivado implementation flow", file=sys.stderr)
     print("\n       --postroutephysopt", file=sys.stderr)
     print("              Use post-route physical optimisation in Vivado implementation flow (can improve timing, not recommended by default)", file=sys.stderr)
+#     parser.add_option("--vc707chip", dest="polara_vc707_chip_flag", action="store_true", default=False)
+    print("\n       --vc707chip", file=sys.stderr)
+    print("              Sets POLARA_VC707_CHIP rtl define used to recreate Polara chip on VC707 FPGA (False by default)", file=sys.stderr)
+    print("              Assumes vc707 board is chosen", file=sys.stderr)
     print("\n       -h, --help", file=sys.stderr)
     print("              Display this help message and exit", file=sys.stderr)
     print("\n", file=sys.stderr)
@@ -494,6 +498,7 @@ def setParserOptions(parser):
     parser.add_option("--axi4_mem", dest="axi4_mem", action="store_true", default=False)
     parser.add_option("--zeroer_off", dest="zeroer_off", action="store_true", default=False)
     parser.add_option("--postroutephysopt", dest="postroutephysopt", action="store_true", default=False)
+    parser.add_option("--vc707chip", dest="polara_vc707_chip_flag", action="store_true", default=False)
 
     return parser
 
@@ -532,7 +537,8 @@ def makeDefList(options):
 
     # do not use SD controller if BRAM is used for boot or a test or if board doesn't have sd
     # do not use SD controller if using UART boot with genesys2 board
-    if (options.test_name != None) or (options.board in {"piton_board", "xupp3r", "f1", "alveou280"}) or ((options.board == "genesys2") and (options.uart_dmw == "ddr")):
+    # do not use SD controller if targetting chip to vc707 board
+    if (options.test_name != None) or (options.board in {"piton_board", "xupp3r", "f1", "alveou280"}) or ((options.board == "genesys2") and (options.uart_dmw == "ddr")) or ((options.design == "chip") and (options.board == "vc707")):
         pass
     else:   # default option
         defines.append("PITON_FPGA_SD_BOOT")
@@ -558,6 +564,9 @@ def makeDefList(options):
 
     # --chip-bridge option
     if (options.board == "piton_board") and (options.design == "chipset"):
+        pass
+    # VC707 chip emulation needs the chip bridge
+    elif (options.design == "chip") and (options.board == "vc707"):
         pass
     # chip-bridge is used for chipset by default
     elif options.chip_bridge == False and options.design != "chipset":
@@ -624,9 +633,12 @@ def makeDefList(options):
         else:
             print_warning("--oled option is ignored for %s" % options.board)
     elif options.design == "chipset" and (options.board == "genesys2" or options.board == "nexysVideo"):
-#        disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
-        disp_string = "Hello"
+        disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
+        #disp_string = "Hello"
         defines.append("{OLED_STRING=\\\"%s\\\"}" % disp_string)
+
+    if options.polara_vc707_chip_flag == True:
+        defines.append("POLARA_VC707_CHIP")
 
     return defines
 
