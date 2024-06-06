@@ -555,7 +555,9 @@ module chip(
    assign piton_ready_n = ~rst_n_inter_sync;
 
 `ifdef PITON_FPGA_CLKS_GEN
+`ifndef POLARA_VC707_CHIP
    assign leds[0] = mmcm_locked;
+`endif // endif POLARA_VC707_CHIP
 `else // ifndef PITON_FPGA_CLKS_GEN
    assign leds[0] = 1'b1;
 `endif // endif PITON_FPGA_CLKS_GEN
