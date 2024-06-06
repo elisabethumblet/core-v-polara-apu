@@ -172,8 +172,12 @@ set_property IOSTANDARD LVCMOS18 [get_ports leds[7]]
 #############################################
 # Clock signals from chipset
 
-create_clock -period 14.9999993 -name io_clk -waveform {0.000 7.49999965} [get_ports io_clk]
-create_clock -period 14.9999993 -name core_ref_clk -waveform {0.000 7.49999965} [get_ports core_ref_clk]
+# 66.6667MHz
+#create_clock -period 14.9999993 -name io_clk -waveform {0.000 7.49999965} [get_ports io_clk]
+#create_clock -period 14.9999993 -name core_ref_clk -waveform {0.000 7.49999965} [get_ports core_ref_clk]
+# 64MHz
+create_clock -period 15.625 -name io_clk -waveform {0.000 7.8125} [get_ports io_clk]
+create_clock -period 15.625 -name core_ref_clk -waveform {0.000 7.8125} [get_ports core_ref_clk]
 
 set_property -dict {PACKAGE_PIN L39 IOSTANDARD LVCMOS18} [get_ports io_clk]
 set_property -dict {PACKAGE_PIN L40 IOSTANDARD LVCMOS18} [get_ports core_ref_clk]
