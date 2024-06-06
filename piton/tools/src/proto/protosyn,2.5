@@ -624,8 +624,8 @@ def makeDefList(options):
         else:
             print_warning("--oled option is ignored for %s" % options.board)
     elif options.design == "chipset" and (options.board == "genesys2" or options.board == "nexysVideo"):
-#        disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
-        disp_string = "Hello"
+        disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
+#        disp_string = "Hello"
         defines.append("{OLED_STRING=\\\"%s\\\"}" % disp_string)
 
     return defines
