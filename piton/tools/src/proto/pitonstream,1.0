@@ -363,6 +363,7 @@ def main():
         st_brd = StorageBoard("bram", options.board)
 
     if options.storage == "ddr":
+        print("Storage option selected is ddr.")
         st_brd = StorageBoard("dmw", options.board)
 
     # Get list of tests and board configuration
