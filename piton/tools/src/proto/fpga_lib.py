@@ -196,9 +196,15 @@ def find_design_block(design_block):
 # Output:   div         -   int - uart divider latch
 ############################################################################
 def calcUARTLatch(design_data, board):
+    print("design_data[Boards]=", design_data["BOARDS"])
+    print("design_data[Boards][board]=", design_data["BOARDS"][board])
+    print("design_data[Boards][board][FREQ]=", design_data["BOARDS"][board]["FREQ"])
+    print("Calculating (float(design_data[BOARDS][board][FREQ]) * 10**6) / (16 * UART_BAUD_RATE)")
+    
     div = (float(design_data["BOARDS"][board]["FREQ"]) * 10**6) / (16 * UART_BAUD_RATE);
+    print("Result float=", div)
     div = int(round(div))
-
+    print("Result int=", div)    
     return div
 
 
@@ -255,6 +261,8 @@ def getTestList(fname, flog, ustr_files=False):
 
     test_list = list()
     suff = "ustr" if ustr_files else "([s|S|c]|riscv)"
+    dbg.print_info("suff is: ", suff)
+    dbg.print_info("Test found:")
     for line in f:
         mstr = "([0-9a-zA-Z_-]+\.%s)" % suff
         m = re.search(mstr, line)
