@@ -776,6 +776,7 @@ set PASSTHRU_PRJ_IP_FILES [list \
 
 set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/linux/bootrom_linux.sv" \
+    "${DV_ROOT}/design/common/rtl/bram_1r1w_wrapper.v" \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/baremetal/bootrom.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/axi_mem_if/src/axi2mem.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/axi/src/axi_pkg.sv" \
