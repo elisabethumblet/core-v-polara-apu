@@ -62,6 +62,8 @@
 //                                      purposes
 //  NEXYS4DDR_BOARD NEXYSVIDEO_BOARD    Used to indicate which board this code is
 //                                      being synthesized for. There are more than just these
+//  POLARA_GEN2_CHIPSET                 Uses specific memory controller for the chipset being implemented
+//                                      on a genesys2 board for the Polara project.
 <%
 import os
 import sys
@@ -901,6 +903,18 @@ credit_to_valrdy noc3_xbar_to_%s(
             .ddr_odt(ddr_odt)
         );
     `endif // F1_BOARD
+
+    `ifdef POLARA_GEN2_CHIPSET
+    gen2_polara_top gen2_polara_top_i(
+        .mem_flit_in_data(buf_mem_noc2_data),
+        .mem_flit_in_val(buf_mem_noc2_valid),
+        .mem_flit_in_rdy(mem_buf_noc2_ready),
+
+        .mem_flit_out_data(mem_buf_noc3_data),
+        .mem_flit_out_val(mem_buf_noc3_valid),
+        .mem_flit_out_rdy(buf_mem_noc3_ready)
+    );
+    `endif // POLARA_GEN2_CHIPSET
 
 `else
 
