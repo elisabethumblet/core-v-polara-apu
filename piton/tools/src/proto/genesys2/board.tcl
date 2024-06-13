@@ -32,3 +32,9 @@ set BOARD_PART ""
 set FPGA_PART "xc7k325tffg900-2"
 set VIVADO_FLOW_PERF_OPT 0
 set BOARD_DEFAULT_VERILOG_MACROS "GENESYS2_BOARD"
+
+
+# Create a block design containing a JTAG-AXI master using the FPGA_PART variable
+# It will produce the "gen2_polara_fpga.bd" file
+
+source $DV_ROOT/tools/src/proto/${BOARD}/gen2_polara_fpga.tcl
