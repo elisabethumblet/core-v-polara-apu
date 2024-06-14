@@ -38,3 +38,6 @@ set BOARD_DEFAULT_VERILOG_MACROS "GENESYS2_BOARD"
 # It will produce the "gen2_polara_fpga.bd" file
 
 source $DV_ROOT/tools/src/proto/${BOARD}/gen2_polara_fpga.tcl
+
+# Grab the file from where the above tcl script has placed it
+set DESIGN_BD_FILES [list $DV_ROOT/design/chipset/xilinx/genesys2/gen2_polara_fpga/gen2_polara_fpga]

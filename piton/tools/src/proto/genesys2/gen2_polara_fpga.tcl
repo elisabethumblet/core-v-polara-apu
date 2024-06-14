@@ -38,7 +38,7 @@ file delete -force ${tmp_build_dir}/${tmp_prj}
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project -force ${tmp_build_dir}/${tmp_prj} -part -part xc7k325tffg900-2
+   create_project -force ${tmp_build_dir}/${tmp_prj} -part xc7k325tffg900-2
 #   create_project project_1 myproj -part xc7k325tffg900-2
    set_property BOARD_PART digilentinc.com:genesys2:part0:1.1 [current_project]
 }
@@ -59,100 +59,14 @@ set nRet 0
 set cur_design [current_bd_design -quiet]
 set list_cells [get_bd_cells -quiet]
 
-if { ${design_name} eq "" } {
-   # USE CASES:
-   #    1) Design_name not set
-
-   set errMsg "Please set the variable <design_name> to a non-empty value."
-   set nRet 1
-
-} elseif { ${cur_design} ne "" && ${list_cells} eq "" } {
-   # USE CASES:
-   #    2): Current design opened AND is empty AND names same.
-   #    3): Current design opened AND is empty AND names diff; design_name NOT in project.
-   #    4): Current design opened AND is empty AND names diff; design_name exists in project.
-
-   if { $cur_design ne $design_name } {
-      common::send_gid_msg -ssname BD::TCL -id 2001 -severity "INFO" "Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
-      set design_name [get_property NAME $cur_design]
-   }
-   common::send_gid_msg -ssname BD::TCL -id 2002 -severity "INFO" "Constructing design in IPI design <$cur_design>..."
-
-} elseif { ${cur_design} ne "" && $list_cells ne "" && $cur_design eq $design_name } {
-   # USE CASES:
-   #    5) Current design opened AND has components AND same names.
-
-   set errMsg "Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-   set nRet 1
-} elseif { [get_files -quiet ${design_name}.bd] ne "" } {
-   # USE CASES: 
-   #    6) Current opened design, has components, but diff names, design_name exists in project.
-   #    7) No opened design, design_name exists in project.
-
-   set errMsg "Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-   set nRet 2
-
-} else {
-   # USE CASES:
-   #    8) No opened design, design_name not in project.
-   #    9) Current opened design, has components, but diff names, design_name not in project.
-
-   common::send_gid_msg -ssname BD::TCL -id 2003 -severity "INFO" "Currently there is no design <$design_name> in project, so creating one..."
-
-   create_bd_design $design_name
-
-   common::send_gid_msg -ssname BD::TCL -id 2004 -severity "INFO" "Making design <$design_name> as current_bd_design."
-   current_bd_design $design_name
-
-}
+create_bd_design $design_name -dir $DV_ROOT/design/chipset/xilinx/genesys2
+current_bd_design $design_name
 
 common::send_gid_msg -ssname BD::TCL -id 2005 -severity "INFO" "Currently the variable <design_name> is equal to \"$design_name\"."
-
-if { $nRet != 0 } {
-   catch {common::send_gid_msg -ssname BD::TCL -id 2006 -severity "ERROR" $errMsg}
-   return $nRet
-}
-
-set bCheckIPsPassed 1
-##################################################################
-# CHECK IPs
-##################################################################
-set bCheckIPs 1
-if { $bCheckIPs == 1 } {
-   set list_check_ips "\ 
-xilinx.com:ip:jtag_axi:1.2\
-xilinx.com:ip:mig_7series:4.2\
-xilinx.com:ip:proc_sys_reset:5.0\
-xilinx.com:ip:smartconnect:1.0\
-"
-
-   set list_ips_missing ""
-   common::send_gid_msg -ssname BD::TCL -id 2011 -severity "INFO" "Checking if the following IPs exist in the project's IP catalog: $list_check_ips ."
-
-   foreach ip_vlnv $list_check_ips {
-      set ip_obj [get_ipdefs -all $ip_vlnv]
-      if { $ip_obj eq "" } {
-         lappend list_ips_missing $ip_vlnv
-      }
-   }
-
-   if { $list_ips_missing ne "" } {
-      catch {common::send_gid_msg -ssname BD::TCL -id 2012 -severity "ERROR" "The following IPs are not found in the IP Catalog:\n  $list_ips_missing\n\nResolution: Please add the repository containing the IP(s) to the project." }
-      set bCheckIPsPassed 0
-   }
-
-}
-
-if { $bCheckIPsPassed != 1 } {
-  common::send_gid_msg -ssname BD::TCL -id 2023 -severity "WARNING" "Will not continue with creation of design due to the error(s) above."
-  return 3
-}
 
 ##################################################################
 # DESIGN PROCs
 ##################################################################
-
-
 
 # Procedure to create entire design; Provide argument to make
 # procedure reusable. If parentCell is "", will use root.
@@ -189,11 +103,11 @@ proc create_root_design { parentCell } {
   # Create interface ports
   set ddr3_axi [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 ddr3_axi ]
   set_property -dict [ list \
-   CONFIG.ADDR_WIDTH {32} \
+   CONFIG.ADDR_WIDTH {64} \
    CONFIG.ARUSER_WIDTH {0} \
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
-   CONFIG.DATA_WIDTH {32} \
+   CONFIG.DATA_WIDTH {512} \
    CONFIG.FREQ_HZ {225022502} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
@@ -204,7 +118,7 @@ proc create_root_design { parentCell } {
    CONFIG.HAS_REGION {1} \
    CONFIG.HAS_RRESP {1} \
    CONFIG.HAS_WSTRB {1} \
-   CONFIG.ID_WIDTH {0} \
+   CONFIG.ID_WIDTH {6} \
    CONFIG.MAX_BURST_LENGTH {256} \
    CONFIG.NUM_READ_OUTSTANDING {1} \
    CONFIG.NUM_READ_THREADS {1} \
@@ -298,4 +212,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+close_project
 
+file delete -force ${tmp_build_dir}/${tmp_prj}
