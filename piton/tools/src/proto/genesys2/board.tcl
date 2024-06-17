@@ -28,7 +28,7 @@
 # Not intended to be run standalone
 #
 
-set BOARD_PART ""
+set BOARD_PART "digilentinc.com:genesys2:part0:1.1"
 set FPGA_PART "xc7k325tffg900-2"
 set VIVADO_FLOW_PERF_OPT 0
 set BOARD_DEFAULT_VERILOG_MACROS "GENESYS2_BOARD"

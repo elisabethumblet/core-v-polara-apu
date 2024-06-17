@@ -56,7 +56,6 @@ module gen2_polara_top(
    logic                                 ddr3_axi_arready;
    logic [`AXI4_SIZE_WIDTH   -1:0]       ddr3_axi_arsize;
    logic                                 ddr3_axi_arvalid;
-   logic [`AXI4_QOS_WIDTH    -1:0]       ddr3_axi_arqos;
    logic [`AXI4_REGION_WIDTH -1:0]       m_axi_arregion; // not used
    logic [`AXI4_USER_WIDTH   -1:0]       m_axi_aruser; // not used
    

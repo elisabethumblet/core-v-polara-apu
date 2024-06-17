@@ -161,10 +161,10 @@ proc create_root_design { parentCell } {
  ] $jtag_axi_0
 
   # Create instance: mig_7series_0, and set properties
-  set mig_7series_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mig_7series:4.2 mig_7series_0 ]
+  set mig_7series_0_gen2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mig_7series:4.2 mig_7series_0_gen2 ]
   set_property -dict [ list \
    CONFIG.BOARD_MIG_PARAM {ddr3_sdram} \
- ] $mig_7series_0
+ ] $mig_7series_0_gen2
 
   # Create instance: proc_sys_reset_0, and set properties
   set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
@@ -180,21 +180,21 @@ proc create_root_design { parentCell } {
   # Create interface connections
   connect_bd_intf_net -intf_net S01_AXI_0_1 [get_bd_intf_ports ddr3_axi] [get_bd_intf_pins smartconnect_0/S01_AXI]
   connect_bd_intf_net -intf_net jtag_axi_0_M_AXI [get_bd_intf_pins jtag_axi_0/M_AXI] [get_bd_intf_pins smartconnect_0/S00_AXI]
-  connect_bd_intf_net -intf_net mig_7series_0_DDR3 [get_bd_intf_ports ddr3_sdram] [get_bd_intf_pins mig_7series_0/DDR3]
-  connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins mig_7series_0/S_AXI] [get_bd_intf_pins smartconnect_0/M00_AXI]
-  connect_bd_intf_net -intf_net sys_diff_clock_1 [get_bd_intf_ports mig_ddr3_sys_diff_clock] [get_bd_intf_pins mig_7series_0/SYS_CLK]
+  connect_bd_intf_net -intf_net mig_7series_0_gen2_DDR3 [get_bd_intf_ports ddr3_sdram] [get_bd_intf_pins mig_7series_0_gen2/DDR3]
+  connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins mig_7series_0_gen2/S_AXI] [get_bd_intf_pins smartconnect_0/M00_AXI]
+  connect_bd_intf_net -intf_net sys_diff_clock_1 [get_bd_intf_ports mig_ddr3_sys_diff_clock] [get_bd_intf_pins mig_7series_0_gen2/SYS_CLK]
 
   # Create port connections
-  connect_bd_net -net mig_7series_0_init_calib_complete [get_bd_ports mig_ddr3_init_calib_complete] [get_bd_pins mig_7series_0/init_calib_complete]
-  connect_bd_net -net mig_7series_0_ui_clk [get_bd_ports mig_ddr3_ui_clk] [get_bd_pins jtag_axi_0/aclk] [get_bd_pins mig_7series_0/ui_clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk]
-  connect_bd_net -net mig_7series_0_ui_clk_sync_rst [get_bd_ports mig_ddr3_ui_clk_sync_rst] [get_bd_pins mig_7series_0/ui_clk_sync_rst]
+  connect_bd_net -net mig_7series_0_init_calib_complete [get_bd_ports mig_ddr3_init_calib_complete] [get_bd_pins mig_7series_0_gen2/init_calib_complete]
+  connect_bd_net -net mig_7series_0_ui_clk [get_bd_ports mig_ddr3_ui_clk] [get_bd_pins jtag_axi_0/aclk] [get_bd_pins mig_7series_0_gen2/ui_clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk]
+  connect_bd_net -net mig_7series_0_ui_clk_sync_rst [get_bd_ports mig_ddr3_ui_clk_sync_rst] [get_bd_pins mig_7series_0_gen2/ui_clk_sync_rst]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins jtag_axi_0/aresetn] [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins smartconnect_0/aresetn]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins mig_7series_0/aresetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
-  connect_bd_net -net sys_rst_0_1 [get_bd_ports mig_ddr3_sys_rst_n] [get_bd_pins mig_7series_0/sys_rst] [get_bd_pins proc_sys_reset_0/ext_reset_in]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins mig_7series_0_gen2/aresetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+  connect_bd_net -net sys_rst_0_1 [get_bd_ports mig_ddr3_sys_rst_n] [get_bd_pins mig_7series_0_gen2/sys_rst] [get_bd_pins proc_sys_reset_0/ext_reset_in]
 
   # Create address segments
-  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces jtag_axi_0/Data] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
-  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces ddr3_axi] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
+  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces jtag_axi_0/Data] [get_bd_addr_segs mig_7series_0_gen2/memmap/memaddr] -force
+  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces ddr3_axi] [get_bd_addr_segs mig_7series_0_gen2/memmap/memaddr] -force
 
 
   # Restore current instance

@@ -647,7 +647,10 @@ def makeDefList(options):
 
     # --gen2chipset option
     if options.gen2_chipset == True:
+        # Set RTL define
         defines.append("POLARA_GEN2_CHIPSET")
+        # Set environnment variable
+        os.environ["POLARA_GEN2_CHIPSET"]     = "1"
         
     return defines
 
