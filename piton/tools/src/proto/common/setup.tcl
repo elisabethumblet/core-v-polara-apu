@@ -70,11 +70,11 @@ if { ${BOARD} == "alveou280" } {
     }
 }
 # Use block design if using --gen2chipset protosyn option
-#if { [ info exists ::env(POLARA_GEN2_CHIPSET) ] } {
-#    foreach bd_file ${DESIGN_BD_FILES} {
-#        lappend ALL_BD_FILES "${bd_file}.bd"
-#    }
-#}
+if { [ info exists ::env(POLARA_GEN2_CHIPSET) ] } {
+    foreach bd_file ${DESIGN_BD_FILES} {
+        lappend ALL_BD_FILES "${bd_file}.bd"
+    }
+}
 
 set ALL_COE_FILES [concat ${DESIGN_COE_IP_FILES}]
 
