@@ -47,6 +47,10 @@ module gen2_polara_top(
         output logic                        mem_flit_out_val ,
         input logic                         mem_flit_out_rdy ,
 
+        // Others
+        output logic                        init_calib_complete_out,
+        output logic                        mem_ui_clk_sync_rst,
+                       
         // UART
         input logic                         uart_boot_en
 );
@@ -131,19 +135,23 @@ module gen2_polara_top(
    logic [31:0]                          delay_cnt;
    logic                                 core_ref_clk;
    logic                                 ui_clk_syn_rst_delayed;
-   logic                                 ui_clk;
+   
    logic                                 afifo_rst_1;
    logic                                 afifo_ui_rst_r;
    logic                                 afifo_ui_rst_r_r;
    logic                                 ui_clk_sync_rst;
    logic                                 afifo_rst_2;
-                                
-   
+                               
+   logic                                 init_calib_complete;
 
    // -------------------------------------------------------------------------------
    // Behavioral
    // -------------------------------------------------------------------------------
 
+   // from mc_top.v
+   assign init_calib_complete = noc_axi4_bridge_init_done;
+   assign init_calib_complete_out = init_calib_complete & ~ui_clk_syn_rst_delayed;
+   
    // -------------------------------------------------------------------------------
    // rst logic taken from mc_top.v
    // -------------------------------------------------------------------------------
@@ -173,6 +181,7 @@ module gen2_polara_top(
    end
    
    assign afifo_rst_1 = ui_clk_syn_rst_delayed;
+   assign mem_ui_clk_sync_rst = ui_clk_syn_rst_delayed;
 
    assign ui_clk = mig_ddr3_ui_clk;
    always @(posedge ui_clk) begin
