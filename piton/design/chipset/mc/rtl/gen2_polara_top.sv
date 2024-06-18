@@ -15,17 +15,40 @@
 
 module gen2_polara_top(
 
-    input    logic                           chipset_clk,
+        // DDR3 Physical Interface
+        output logic [`DDR3_ADDR_WIDTH-1:0] ddr3_sdram_addr, 
+        output logic [`DDR3_BA_WIDTH-1:0]   ddr3_sdram_ba,
+        output logic                        ddr3_sdram_cas_n,
+        output logic [`DDR3_CK_WIDTH-1:0]   ddr3_sdram_ck_n,
+        output logic [`DDR3_CK_WIDTH-1:0]   ddr3_sdram_ck_p,
+        output logic [`DDR3_CKE_WIDTH-1:0]  ddr3_sdram_cke,
+        output logic [`DDR3_CS_WIDTH-1:0]   ddr3_sdram_cs_n,
+        inout logic [`DDR3_DM_WIDTH-1:0]    ddr3_sdram_dm,
+        inout logic [`DDR3_DQ_WIDTH-1:0]    ddr3_sdram_dq,
+        inout logic [`DDR3_DQS_WIDTH-1:0]   ddr3_sdram_dqs_n,
+        inout logic [`DDR3_DQS_WIDTH-1:0]   ddr3_sdram_dqs_p,
+        output logic [`DDR3_ODT_WIDTH-1:0]  ddr3_sdram_odt,
+        output logic                        ddr3_sdram_ras_n,
+        output logic                        ddr3_sdram_reset_n,
+        output logic                        ddr3_sdram_we_n,
 
-	input    logic    [`NOC_DATA_WIDTH-1:0]  mem_flit_in_data ,
-    input    logic                           mem_flit_in_val ,
-    output   logic                           mem_flit_in_rdy ,
+        // Clocks and reset
+        input logic                         chipset_clk,
+        input logic                         mig_ddr3_sys_diff_clock_clk_n,
+        input logic                         mig_ddr3_sys_diff_clock_clk_p,
+        input logic                         sys_rst_n,
 
-    output   logic    [`NOC_DATA_WIDTH-1:0]  mem_flit_out_data ,
-    output   logic                           mem_flit_out_val ,
-    input    logic                           mem_flit_out_rdy ,
+        // NOC
+	    input logic [`NOC_DATA_WIDTH-1:0]   mem_flit_in_data ,
+        input logic                         mem_flit_in_val ,
+        output logic                        mem_flit_in_rdy ,
 
-    input    logic                           uart_boot_en
+        output logic [`NOC_DATA_WIDTH-1:0]  mem_flit_out_data ,
+        output logic                        mem_flit_out_val ,
+        input logic                         mem_flit_out_rdy ,
+
+        // UART
+        input logic                         uart_boot_en
 );
    // -------------------------------------------------------------------------------
    // Signal declarations
@@ -102,18 +125,73 @@ module gen2_polara_top(
    logic [`AXI4_USER_WIDTH   -1:0]       m_axi_wuser; // not used
 
    logic                                 mig_ddr3_ui_clk;
+
+   logic                                 ui_clk_sync_rst_r;
+   logic                                 ui_clk_sync_rst_r_r;
+   logic [31:0]                          delay_cnt;
+   logic                                 core_ref_clk;
+   logic                                 ui_clk_syn_rst_delayed;
+   logic                                 ui_clk;
+   logic                                 afifo_rst_1;
+   logic                                 afifo_ui_rst_r;
+   logic                                 afifo_ui_rst_r_r;
+   logic                                 ui_clk_sync_rst;
+   logic                                 afifo_rst_2;
+                                
    
 
    // -------------------------------------------------------------------------------
    // Behavioral
    // -------------------------------------------------------------------------------
+
+   // -------------------------------------------------------------------------------
+   // rst logic taken from mc_top.v
+   // -------------------------------------------------------------------------------
    
+   // needed for correct rst of async fifo
+
+   always @(posedge core_ref_clk) begin
+      ui_clk_sync_rst_r   <= ui_clk_sync_rst;
+      ui_clk_sync_rst_r_r <= ui_clk_sync_rst_r;
+   end
+   
+   always @(posedge core_ref_clk) begin
+      if (~sys_rst_n)
+        delay_cnt <= 32'h1ff;
+      else begin
+         delay_cnt <= (delay_cnt != 0) & ~ui_clk_sync_rst_r_r ? delay_cnt - 1 : delay_cnt;
+      end
+   end
+   
+   assign core_ref_clk = chipset_clk;
+   always @(posedge core_ref_clk) begin
+      if (ui_clk_sync_rst)
+        ui_clk_syn_rst_delayed <= 1'b1;
+      else begin
+        ui_clk_syn_rst_delayed <= delay_cnt != 0;
+      end
+   end
+   
+   assign afifo_rst_1 = ui_clk_syn_rst_delayed;
+
+   assign ui_clk = mig_ddr3_ui_clk;
+   always @(posedge ui_clk) begin
+      afifo_ui_rst_r <= afifo_rst_1;
+      afifo_ui_rst_r_r <= afifo_ui_rst_r;
+   end
+
+   assign ui_clk_sync_rst = noc_axi4_bridge_rst;
+   assign afifo_rst_2 = afifo_ui_rst_r_r | ui_clk_sync_rst;
+   
+   // -------------------------------------------------------------------------------
+   // Instances
+   // -------------------------------------------------------------------------------
     noc_bidir_afifo  mig_afifo  (
         .clk_1           (chipset_clk),
-        .rst_1           (       ), // for mc they do a complicated rst chain, Alveo comes from chipset_rst of chipset top level. Why this discrepency?
+        .rst_1           (afifo_rst_1), 
 
-        .clk_2           (mig_ddr3_ui_clk), // ddr ui_clk
-        .rst_2           (       ), // for mc they do a complicated rst chain, Alveo directly from c0_ddr4_ui_clk_sync_rst
+        .clk_2           (mig_ddr3_ui_clk), 
+        .rst_2           (afifo_rst_2), 
 
         // CPU --> MIG
         .flit_in_val_1   (mem_flit_in_val),
@@ -127,7 +205,7 @@ module gen2_polara_top(
         // MIG --> CPU
         .flit_in_val_2   (trans_fifo_val),
         .flit_in_data_2  (trans_fifo_data),
-        .flit_in_rdy_2   (trans_fifo_rdyt),
+        .flit_in_rdy_2   (trans_fifo_rdy),
 
         .flit_out_val_1  (mem_flit_out_val),
         .flit_out_data_1 (mem_flit_out_data),
@@ -136,9 +214,9 @@ module gen2_polara_top(
 
     noc_axi4_bridge noc_axi4_bridge  (
 		.clk                (mig_ddr3_ui_clk),  
-		.rst_n              (~noc_axi4_bridge_rst), // mc uses a bit of logic and depends on defines, Alveo just a not from ddr
+		.rst_n              (~noc_axi4_bridge_rst), 
 		.uart_boot_en       (uart_boot_en),
-		.phy_init_done      (noc_axi4_bridge_init_done), // idem
+		.phy_init_done      (noc_axi4_bridge_init_done), 
 
 		.src_bridge_vr_noc2_val (fifo_trans_val),
 		.src_bridge_vr_noc2_dat (fifo_trans_data),
@@ -256,17 +334,17 @@ module gen2_polara_top(
         .ddr3_sdram_reset_n(ddr3_sdram_reset_n),
         .ddr3_sdram_we_n(ddr3_sdram_we_n),
         // DDR3 memory ready
-        .mig_ddr3_init_calib_complete(mig_ddr3_init_calib_complete),
+        .mig_ddr3_init_calib_complete(noc_axi4_bridge_init_done),
         // Input Clock for MIG
         // Xilinx recommends an external clock as the input clock (low jitter)
         .mig_ddr3_sys_diff_clock_clk_n(mig_ddr3_sys_diff_clock_clk_n),
         .mig_ddr3_sys_diff_clock_clk_p(mig_ddr3_sys_diff_clock_clk_p),
         // Asynchronous reset for the MIG's sys_rst_n
         // also used as reset for the AXI bus (synced with ui_clk)
-        .mig_ddr3_sys_rst_n(mig_ddr3_sys_rst_n),
+        .mig_ddr3_sys_rst_n(sys_rst_n),
         // MIG generated ui_clk and synchronized reset
         .mig_ddr3_ui_clk(mig_ddr3_ui_clk),
-        .mig_ddr3_ui_clk_sync_rst(mig_ddr3_ui_clk_sync_rst)
+        .mig_ddr3_ui_clk_sync_rst(noc_axi4_bridge_rst)
     );
    
 endmodule
