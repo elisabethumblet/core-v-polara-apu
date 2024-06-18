@@ -101,6 +101,11 @@ module chipset_impl(
     output        chip_rstn            ,
 `endif
 
+`ifdef POLARA_GEN2_CHIPSET
+    input wire mig_ddr3_sys_diff_clock_clk_n,
+    input wire mig_ddr3_sys_diff_clock_clk_p,
+`endif
+
 `ifndef PITONSYS_NO_MC
 `ifdef PITON_FPGA_MC_DDR3
 `ifndef F1_BOARD
@@ -805,6 +810,42 @@ credit_to_valrdy noc3_xbar_to_%s(
             .m_axi_bready(m_axi_bready), 
             .ddr_ready(ddr_ready)
         );
+    `elsif POLARA_GEN2_CHIPSET
+      gen2_polara_top gen2_polara_top_i(
+        .ddr3_sdram_addr(ddr_addr),
+        .ddr3_sdram_ba(ddr_ba),
+        .ddr3_sdram_cas_n(ddr_cas_n),
+        .ddr3_sdram_ck_n(ddr_ck_n),
+        .ddr3_sdram_ck_p(ddr_ck_p),
+        .ddr3_sdram_cke(ddr_cke),
+        .ddr3_sdram_cs_n(ddr_cs_n),
+        .ddr3_sdram_dm(ddr_dm),
+        .ddr3_sdram_dq(ddr_dq),
+        .ddr3_sdram_dqs_n(ddr_dqs_n),
+        .ddr3_sdram_dqs_p(ddr_dqs_p),
+        .ddr3_sdram_odt(ddr_odt),
+        .ddr3_sdram_ras_n(ddr_ras_n),
+        .ddr3_sdram_reset_n(ddr_reset_n),
+        .ddr3_sdram_we_n(ddr_we_n),
+
+        .chipset_clk(chipset_clk),
+        .mig_ddr3_sys_diff_clock_clk_n(mig_ddr3_sys_diff_clock_clk_n),
+        .mig_ddr3_sys_diff_clock_clk_p(mig_ddr3_sys_diff_clock_clk_p),
+        .sys_rst_n(chipset_rst_n),
+
+        .mem_flit_in_data(buf_mem_noc2_data),
+        .mem_flit_in_val(buf_mem_noc2_valid),
+        .mem_flit_in_rdy(mem_buf_noc2_ready),
+
+        .mem_flit_out_data(mem_buf_noc3_data),
+        .mem_flit_out_val(mem_buf_noc3_valid),
+        .mem_flit_out_rdy(buf_mem_noc3_ready),
+
+        .init_calib_complete_out(init_calib_complete),
+        .mem_ui_clk_sync_rst(mc_ui_clk_sync_rst),
+
+        .uart_boot_en(uart_boot_en)
+     );
     `elsif ALVEO_BOARD
         u280_polara_top u280_polara_i (
 
@@ -903,41 +944,6 @@ credit_to_valrdy noc3_xbar_to_%s(
             .ddr_odt(ddr_odt)
         );
     `endif // F1_BOARD
-
-    `ifdef POLARA_GEN2_CHIPSET
-    gen2_polara_top gen2_polara_top_i(
-        .ddr3_sdram_addr(ddr_addr),
-        .ddr3_sdram_ba(ddr_ba),
-        .ddr3_sdram_cas_n(ddr_cas_n),
-        .ddr3_sdram_ck_n(ddr_ck_n),
-        .ddr3_sdram_ck_p(ddr_ck_p),
-        .ddr3_sdram_cke(ddr_cke),
-        .ddr3_sdram_cs_n(ddr_cs_n),
-        .ddr3_sdram_dm(ddr_dm),
-        .ddr3_sdram_dq(ddr_dq),
-        .ddr3_sdram_dqs_n(ddr_dqs_n),
-        .ddr3_sdram_dqs_p(ddr_dqs_p),
-        .ddr3_sdram_odt(ddr_odt),
-        .ddr3_sdram_ras_n(ddr_ras_n),
-        .ddr3_sdram_reset_n(ddr_reset_n),
-        .ddr3_sdram_we_n(ddr_we_n),
-
-        .chipset_clk(),
-        .mig_ddr3_sys_diff_clock_clk_n(),
-        .mig_ddr3_sys_diff_clock_clk_p(),
-        .sys_rst_n(),
-
-        .mem_flit_in_data(buf_mem_noc2_data),
-        .mem_flit_in_val(buf_mem_noc2_valid),
-        .mem_flit_in_rdy(mem_buf_noc2_ready),
-
-        .mem_flit_out_data(mem_buf_noc3_data),
-        .mem_flit_out_val(mem_buf_noc3_valid),
-        .mem_flit_out_rdy(buf_mem_noc3_ready),
-        
-        .uart_boot_en()
-    );
-    `endif // POLARA_GEN2_CHIPSET
 
 `else
 
