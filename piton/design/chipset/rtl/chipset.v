@@ -82,6 +82,8 @@
 //  PITON_NOC_POWER_CHIPSET_TEST This indicates to use a completely different
 //                               chipset that just sends dummy network packets
 //                               into the chip for testing NoC power
+//  POLARA_GEN2_CHIPSET         Uses specific memory controller for the chipset being implemented
+//                              on a genesys2 board for the Polara project.
 
 
 module chipset(
@@ -806,8 +808,8 @@ end
     assign leds[2] = init_calib_complete;
     assign leds[3] = 1'b0;
     assign leds[4] = piton_prsnt_n;
-    assign leds[5] = chipset_rst_n_ff;
-    assign leds[6] = invalid_access;
+    assign leds[5] = test_start;
+    assign leds[6] = chipset_prsnt_n;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
             `ifdef PITONSYS_UART_BOOT
@@ -1231,6 +1233,11 @@ chipset_impl_noc_power_test  chipset_impl (
     .noc_power_test_hop_count (noc_power_test_hop_count),
 `endif
 
+    `ifdef POLARA_GEN2_CHIPSET
+     .mig_ddr3_sys_diff_clock_clk_n(clk_osc_n),
+     .mig_ddr3_sys_diff_clock_clk_p(clk_osc_p),
+    `endif
+
     `ifndef PITONSYS_NO_MC
     `ifdef PITON_FPGA_MC_DDR3
     `ifndef F1_BOARD
@@ -1361,7 +1368,7 @@ chipset_impl_noc_power_test  chipset_impl (
             `endif //ifndef F1_BOARD
         `endif // endif PITON_FPGA_MC_DDR3
     `endif // endif PITONSYS_NO_MC
-
+                                           
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
             ,
@@ -1407,8 +1414,7 @@ chipset_impl_noc_power_test  chipset_impl (
 
             `endif // PITON_FPGA_ETHERNETLITE   
     `endif // endif PITONSYS_IOCTRL
-
-
+                                           
     `ifdef ALVEO_BOARD
         ,    // PCIe
         .pci_express_x16_rxn(pci_express_x16_rxn),
