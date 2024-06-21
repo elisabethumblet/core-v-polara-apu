@@ -156,8 +156,8 @@ set_property PACKAGE_PIN B19 [get_ports btnu]
 set_property IOSTANDARD LVCMOS18 [get_ports btnu]
 # btnc
 # piton_prsnt_n for Genesys2 chipset target (RR 2024/05/28)
-#set_property PACKAGE_PIN E18 [get_ports piton_prsnt_n]
-#set_property IOSTANDARD LVCMOS25 [get_ports piton_prsnt_n]
+set_property PACKAGE_PIN E18 [get_ports piton_prsnt_n]
+set_property IOSTANDARD LVCMOS18 [get_ports piton_prsnt_n]
 
 ## Ethernet
 
@@ -477,9 +477,9 @@ set_property -dict {PACKAGE_PIN P23 IOSTANDARD LVCMOS18} [get_ports intf_chip_da
 #set_property IOSTANDARD LVDS_25 [get_ports {chipset_passthru_data_p[22]}]
 set_property -dict {PACKAGE_PIN L26 IOSTANDARD LVCMOS18} [get_ports intf_chip_data[22]]
 
-set_property PACKAGE_PIN J26 [get_ports piton_prsnt_n]
-set_property IOSTANDARD LVCMOS18 [get_ports piton_prsnt_n]
-set_property PULLUP true [get_ports piton_prsnt_n]
+#set_property PACKAGE_PIN J26 [get_ports piton_prsnt_n]
+#set_property IOSTANDARD LVCMOS18 [get_ports piton_prsnt_n]
+#set_property PULLUP true [get_ports piton_prsnt_n]
 #set_property -dict { PACKAGE_PIN K26   IOSTANDARD LVCMOS25 } [get_ports { F47_P }]; #IO_L10P_T1_AD4P_15 Sch=fmc_ha_p[13]
 
 #set_property IOSTANDARD LVDS_25 [get_ports {chipset_passthru_data_n[29]}]
