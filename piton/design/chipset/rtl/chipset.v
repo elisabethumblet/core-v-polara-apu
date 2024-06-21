@@ -806,7 +806,7 @@ end
     assign leds[0] = clk_locked;
     assign leds[1] = ~piton_ready_n;
     assign leds[2] = init_calib_complete;
-    assign leds[3] = 1'b0;
+    assign leds[3] = chipset_rst_n_ff;
     assign leds[4] = piton_prsnt_n;
     assign leds[5] = test_start;
     assign leds[6] = chipset_prsnt_n;
