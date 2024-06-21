@@ -84,7 +84,7 @@
 //                               into the chip for testing NoC power
 //  POLARA_GEN2_CHIPSET         Uses specific memory controller for the chipset being implemented
 //                              on a genesys2 board for the Polara project.
-
+//  POLARA_GEN2_CHIPSETSE       Uses a single ended clock for the MIG instead of differential.
 
 module chipset(
 
@@ -1233,11 +1233,15 @@ chipset_impl_noc_power_test  chipset_impl (
     .noc_power_test_hop_count (noc_power_test_hop_count),
 `endif
 
-    `ifdef POLARA_GEN2_CHIPSET
+`ifdef POLARA_GEN2_CHIPSET
+ `ifdef POLARA_GEN2_CHIPSETSE
+     .mig_ddr3_sys_se_clock_clk(mc_clk),
+ `else // POLARA_GEN2_CHIPSETSE                                         
      .mig_ddr3_sys_diff_clock_clk_n(clk_osc_n),
      .mig_ddr3_sys_diff_clock_clk_p(clk_osc_p),
-    `endif
-
+ `endif // POLARA_GEN2_CHIPSETSE
+`endif // POLARA_GEN2_CHIPSET
+                                           
     `ifndef PITONSYS_NO_MC
     `ifdef PITON_FPGA_MC_DDR3
     `ifndef F1_BOARD

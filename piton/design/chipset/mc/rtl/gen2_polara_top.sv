@@ -34,9 +34,14 @@ module gen2_polara_top(
 
         // Clocks and reset
         input logic                         chipset_clk,
+        input logic                         sys_rst_n,
+`ifndef POLARA_GEN2_CHIPSETSE
         input logic                         mig_ddr3_sys_diff_clock_clk_n,
         input logic                         mig_ddr3_sys_diff_clock_clk_p,
-        input logic                         sys_rst_n,
+`else
+        input logic mig_ddr3_sys_se_clock_clk,                       
+`endif
+                       
 
         // NOC
 	    input logic [`NOC_DATA_WIDTH-1:0]   mem_flit_in_data ,
@@ -143,6 +148,7 @@ module gen2_polara_top(
    logic                                 afifo_rst_2;
                                
    logic                                 init_calib_complete;
+   
 
    // -------------------------------------------------------------------------------
    // Behavioral
@@ -286,7 +292,8 @@ module gen2_polara_top(
 		.m_axi_rready    		(ddr3_axi_rready)		
 		
 	);
-    
+
+    `ifndef POLARA_GEN2_CHIPSETSE
     gen2_polara_fpga gen2_polara_fpga_i(
         // AXI Interface for NOC/Master
         .ddr3_axi_araddr(ddr3_axi_araddr),
@@ -355,5 +362,67 @@ module gen2_polara_top(
         .mig_ddr3_ui_clk(mig_ddr3_ui_clk),
         .mig_ddr3_ui_clk_sync_rst(noc_axi4_bridge_rst)
     );
+    `else // !`ifndef POLARA_GEN2_CHIPSETSE
+    gen2_polara_fpga_se_clk gen2_polara_fpga_se_clk_i
+       (.ddr3_axi_araddr(ddr3_axi_araddr),
+        .ddr3_axi_arburst(ddr3_axi_arburst),
+        .ddr3_axi_arcache(ddr3_axi_arcache),
+        .ddr3_axi_arid(ddr3_axi_arid),
+        .ddr3_axi_arlen(ddr3_axi_arlen),
+        .ddr3_axi_arlock(ddr3_axi_arlock),
+        .ddr3_axi_arprot(ddr3_axi_arprot),
+        .ddr3_axi_arqos(ddr3_axi_arqos),
+        .ddr3_axi_arready(ddr3_axi_arready),
+        .ddr3_axi_arsize(ddr3_axi_arsize),
+        .ddr3_axi_arvalid(ddr3_axi_arvalid),
+        .ddr3_axi_awaddr(ddr3_axi_awaddr),
+        .ddr3_axi_awburst(ddr3_axi_awburst),
+        .ddr3_axi_awcache(ddr3_axi_awcache),
+        .ddr3_axi_awid(ddr3_axi_awid),
+        .ddr3_axi_awlen(ddr3_axi_awlen),
+        .ddr3_axi_awlock(ddr3_axi_awlock),
+        .ddr3_axi_awprot(ddr3_axi_awprot),
+        .ddr3_axi_awqos(ddr3_axi_awqos),
+        .ddr3_axi_awready(ddr3_axi_awready),
+        .ddr3_axi_awsize(ddr3_axi_awsize),
+        .ddr3_axi_awvalid(ddr3_axi_awvalid),
+        .ddr3_axi_bid(ddr3_axi_bid),
+        .ddr3_axi_bready(ddr3_axi_bready),
+        .ddr3_axi_bresp(ddr3_axi_bresp),
+        .ddr3_axi_bvalid(ddr3_axi_bvalid),
+        .ddr3_axi_rdata(ddr3_axi_rdata),
+        .ddr3_axi_rid(ddr3_axi_rid),
+        .ddr3_axi_rlast(ddr3_axi_rlast),
+        .ddr3_axi_rready(ddr3_axi_rready),
+        .ddr3_axi_rresp(ddr3_axi_rresp),
+        .ddr3_axi_rvalid(ddr3_axi_rvalid),
+        .ddr3_axi_wdata(ddr3_axi_wdata),
+        .ddr3_axi_wlast(ddr3_axi_wlast),
+        .ddr3_axi_wready(ddr3_axi_wready),
+        .ddr3_axi_wstrb(ddr3_axi_wstrb),
+        .ddr3_axi_wvalid(ddr3_axi_wvalid),
+        .ddr3_sdram_addr(ddr3_sdram_addr),
+        .ddr3_sdram_ba(ddr3_sdram_ba),
+        .ddr3_sdram_cas_n(ddr3_sdram_cas_n),
+        .ddr3_sdram_ck_n(ddr3_sdram_ck_n),
+        .ddr3_sdram_ck_p(ddr3_sdram_ck_p),
+        .ddr3_sdram_cke(ddr3_sdram_cke),
+        .ddr3_sdram_cs_n(ddr3_sdram_cs_n),
+        .ddr3_sdram_dm(ddr3_sdram_dm),
+        .ddr3_sdram_dq(ddr3_sdram_dq),
+        .ddr3_sdram_dqs_n(ddr3_sdram_dqs_n),
+        .ddr3_sdram_dqs_p(ddr3_sdram_dqs_p),
+        .ddr3_sdram_odt(ddr3_sdram_odt),
+        .ddr3_sdram_ras_n(ddr3_sdram_ras_n),
+        .ddr3_sdram_reset_n(ddr3_sdram_reset_n),
+        .ddr3_sdram_we_n(ddr3_sdram_we_n),
+        .mig_ddr3_init_calib_complete(mig_ddr3_init_calib_complete),
+        .mig_ddr3_sys_rst_n(mig_ddr3_sys_rst_n),
+        .mig_ddr3_sys_se_clock_clk(mig_ddr3_sys_se_clock_clk),
+        .mig_ddr3_ui_clk(mig_ddr3_ui_clk),
+        .mig_ddr3_ui_clk_sync_rst(mig_ddr3_ui_clk_sync_rst)
+        );
+    `endif // !`ifndef POLARA_GEN2_CHIPSETSE
+   
    
 endmodule

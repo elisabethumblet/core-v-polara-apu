@@ -503,6 +503,7 @@ def setParserOptions(parser):
     parser.add_option("--postroutephysopt", dest="postroutephysopt", action="store_true", default=False)
     parser.add_option("--vc707chip", dest="polara_vc707_chip_flag", action="store_true", default=False)
     parser.add_option("--gen2chipset", dest="gen2_chipset", action="store_true", default=False)
+    parser.add_option("--se", dest="se", action="store_true", default=False)
 
     return parser
 
@@ -651,7 +652,12 @@ def makeDefList(options):
         defines.append("POLARA_GEN2_CHIPSET")
         # Set environnment variable
         os.environ["POLARA_GEN2_CHIPSET"]     = "1"
-        
+        if options.se == True:
+            # Set RTL define
+            defines.append("POLARA_GEN2_CHIPSETSE")
+            # Set environnment variable
+            os.environ["POLARA_GEN2_CHIPSETSE"]     = "1"
+
     return defines
 
 def makeMemMapping(st_brd, work_dir, log_dir):

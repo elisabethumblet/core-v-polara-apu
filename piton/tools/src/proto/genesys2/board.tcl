@@ -33,11 +33,22 @@ set FPGA_PART "xc7k325tffg900-2"
 set VIVADO_FLOW_PERF_OPT 0
 set BOARD_DEFAULT_VERILOG_MACROS "GENESYS2_BOARD"
 
+# Single ended clock (for MIG input clock) has a specific block design
+if { [ info exists ::env(POLARA_GEN2_CHIPSETSE) ] } {
+    # Create a block design containing a JTAG-AXI master using the FPGA_PART variable
+    # It will produce the "gen2_polara_fpga.bd" file
 
-# Create a block design containing a JTAG-AXI master using the FPGA_PART variable
-# It will produce the "gen2_polara_fpga.bd" file
+    source $DV_ROOT/tools/src/proto/${BOARD}/gen2_polara_fpga_se_clk.tcl
 
-source $DV_ROOT/tools/src/proto/${BOARD}/gen2_polara_fpga.tcl
+    # Grab the file from where the above tcl script has placed it
+    set DESIGN_BD_FILES [list $DV_ROOT/design/chipset/xilinx/genesys2/gen2_polara_fpga_se_clk/gen2_polara_fpga_se_clk]
+} else {
+    # Create a block design containing a JTAG-AXI master using the FPGA_PART variable
+    # It will produce the "gen2_polara_fpga.bd" file
 
-# Grab the file from where the above tcl script has placed it
-set DESIGN_BD_FILES [list $DV_ROOT/design/chipset/xilinx/genesys2/gen2_polara_fpga/gen2_polara_fpga]
+    source $DV_ROOT/tools/src/proto/${BOARD}/gen2_polara_fpga.tcl
+
+    # Grab the file from where the above tcl script has placed it
+    set DESIGN_BD_FILES [list $DV_ROOT/design/chipset/xilinx/genesys2/gen2_polara_fpga/gen2_polara_fpga]
+
+}

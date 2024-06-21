@@ -64,6 +64,7 @@
 //                                      being synthesized for. There are more than just these
 //  POLARA_GEN2_CHIPSET                 Uses specific memory controller for the chipset being implemented
 //                                      on a genesys2 board for the Polara project.
+//  POLARA_GEN2_CHIPSETSE               Uses a single ended clock for the MIG instead of a differential clock.
 <%
 import os
 import sys
@@ -102,8 +103,12 @@ module chipset_impl(
 `endif
 
 `ifdef POLARA_GEN2_CHIPSET
+`ifdef POLARA_GEN2_CHIPSETSE
+    input wire mig_ddr3_sys_se_clock_clk,
+`else
     input wire mig_ddr3_sys_diff_clock_clk_n,
     input wire mig_ddr3_sys_diff_clock_clk_p,
+`endif
 `endif
 
 `ifndef PITONSYS_NO_MC
@@ -829,8 +834,12 @@ credit_to_valrdy noc3_xbar_to_%s(
         .ddr3_sdram_we_n(ddr_we_n),
 
         .chipset_clk(chipset_clk),
+    `ifdef POLARA_GEN2_CHIPSETSE
+        .mig_ddr3_sys_se_clock_clk(mig_ddr3_sys_se_clock_clk),
+    `else
         .mig_ddr3_sys_diff_clock_clk_n(mig_ddr3_sys_diff_clock_clk_n),
         .mig_ddr3_sys_diff_clock_clk_p(mig_ddr3_sys_diff_clock_clk_p),
+    `endif
         .sys_rst_n(chipset_rst_n),
 
         .mem_flit_in_data(buf_mem_noc2_data),
