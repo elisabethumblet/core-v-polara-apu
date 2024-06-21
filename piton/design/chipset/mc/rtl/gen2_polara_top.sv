@@ -416,11 +416,11 @@ module gen2_polara_top(
         .ddr3_sdram_ras_n(ddr3_sdram_ras_n),
         .ddr3_sdram_reset_n(ddr3_sdram_reset_n),
         .ddr3_sdram_we_n(ddr3_sdram_we_n),
-        .mig_ddr3_init_calib_complete(mig_ddr3_init_calib_complete),
-        .mig_ddr3_sys_rst_n(mig_ddr3_sys_rst_n),
+        .mig_ddr3_init_calib_complete(noc_axi4_bridge_init_done),
+        .mig_ddr3_sys_rst_n(sys_rst_n),
         .mig_ddr3_sys_se_clock_clk(mig_ddr3_sys_se_clock_clk),
         .mig_ddr3_ui_clk(mig_ddr3_ui_clk),
-        .mig_ddr3_ui_clk_sync_rst(mig_ddr3_ui_clk_sync_rst)
+        .mig_ddr3_ui_clk_sync_rst(noc_axi4_bridge_rst)
         );
     `endif // !`ifndef POLARA_GEN2_CHIPSETSE
    
