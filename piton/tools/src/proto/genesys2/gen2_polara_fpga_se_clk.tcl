@@ -376,8 +376,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net sys_rst_0_1 [get_bd_ports mig_ddr3_sys_rst_n] [get_bd_pins mig_7series_0/sys_rst] [get_bd_pins proc_sys_reset_0/ext_reset_in]
 
   # Create address segments
-  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces jtag_axi_0/Data] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
-  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces ddr3_axi] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
+  assign_bd_address -offset 0x00000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces jtag_axi_0/Data] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
+  assign_bd_address -offset 0x00000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces ddr3_axi] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
 
 
   # Restore current instance
