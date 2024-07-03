@@ -261,8 +261,6 @@ def getTestList(fname, flog, ustr_files=False):
 
     test_list = list()
     suff = "ustr" if ustr_files else "([s|S|c]|riscv)"
-    dbg.print_info("suff is: ", suff)
-    dbg.print_info("Test found:")
     for line in f:
         mstr = "([0-9a-zA-Z_-]+\.%s)" % suff
         m = re.search(mstr, line)
