@@ -28,8 +28,8 @@ set_property IOSTANDARD LVDS [get_ports clk_osc_p]
 set_property PACKAGE_PIN AD12 [get_ports clk_osc_p]
 set_property PACKAGE_PIN AD11 [get_ports clk_osc_n]
 set_property IOSTANDARD LVDS [get_ports clk_osc_n]
-
-#set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets clk_mmcm/inst/clk_in1_clk_mmcm]
+# Line needed to avoid placer failure
+set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets clk_mmcm/inst/clk_in1_clk_mmcm]
 
 # Non-MMCM clock constraints
 #create_clock -period 5.000 -name passthru_chipset_clk_p -waveform {0.000 2.500} [get_ports passthru_chipset_clk_p]
