@@ -105,6 +105,17 @@ module chipset_impl(
 `ifdef POLARA_GEN2_CHIPSET
 `ifdef POLARA_GEN2_CHIPSETSE
     input wire mig_ddr3_sys_se_clock_clk,
+    output wire chip_async_mux,
+    output wire chip_clk_en,
+    output wire chip_clk_mux_sel,
+    output wire chip_rst_n,
+    output wire fll_rst_n,
+    output wire fll_bypass,
+    output wire fll_clkdiv,
+    output wire fll_lock,
+    output wire fll_cfg_req,
+    output wire fll_opmode,
+    output wire [3:0] fll_range,
 `else
     input wire mig_ddr3_sys_diff_clock_clk_n,
     input wire mig_ddr3_sys_diff_clock_clk_p,

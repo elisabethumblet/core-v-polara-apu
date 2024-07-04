@@ -373,6 +373,21 @@ module chipset(
 
 `endif // endif PITONSYS_IOCTRL
 
+// Polara Board specific I/Os
+`ifdef POLARA_GEN2_CHIPSETSE
+        output wire chip_async_mux,
+        output wire chip_clk_en,
+        output wire chip_clk_mux_sel,
+        output wire chip_rst_n,
+        output wire fll_rst_n,
+        output wire fll_bypass,
+        output wire fll_clkdiv,
+        output wire fll_lock,
+        output wire fll_cfg_req,
+        output wire fll_opmode,
+        output wire [3:0] fll_range,
+`endif
+               
 // Piton Board specific I/Os
 `ifdef PITON_BOARD
     output [1:0]                                        sma_clk_out_p,
@@ -1236,6 +1251,17 @@ chipset_impl_noc_power_test  chipset_impl (
 `ifdef POLARA_GEN2_CHIPSET
  `ifdef POLARA_GEN2_CHIPSETSE
      .mig_ddr3_sys_se_clock_clk(mc_clk),
+     .chip_async_mux(chip_async_mux),
+     .chip_clk_en(chip_clk_en),
+     .chip_clk_mux_sel(chip_clk_mux_sel),
+     .chip_rst_n(chip_rst_n),
+     .fll_rst_n(fll_rst_n),
+     .fll_bypass(fll_bypass),
+     .fll_clkdiv(fll_clkdiv),
+     .fll_lock(fll_lock),
+     .fll_cfg_req(fll_cfg_req),
+     .fll_opmode(fll_opmode),
+     .fll_range(fll_range),
  `else // POLARA_GEN2_CHIPSETSE                                         
      .mig_ddr3_sys_diff_clock_clk_n(clk_osc_n),
      .mig_ddr3_sys_diff_clock_clk_p(clk_osc_p),

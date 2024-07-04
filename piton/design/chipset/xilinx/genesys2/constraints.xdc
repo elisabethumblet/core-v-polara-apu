@@ -205,6 +205,22 @@ set_property -dict {PACKAGE_PIN P21 IOSTANDARD LVCMOS18} [get_ports core_ref_clk
 set_property -dict {PACKAGE_PIN M29 IOSTANDARD LVCMOS18} [get_ports io_clk]
 
 # FMC Signals
+
+set_property -dict {PACKAGE_PIN P22 IOSTANDARD LVCMOS18} [get_ports chip_async_mux]
+set_property -dict {PACKAGE_PIN N25 IOSTANDARD LVCMOS18} [get_ports chip_clk_en]
+set_property -dict {PACKAGE_PIN N26 IOSTANDARD LVCMOS18} [get_ports chip_clk_mux_sel]
+set_property -dict {PACKAGE_PIN M30 IOSTANDARD LVCMOS18} [get_ports chip_rst_n]
+set_property -dict {PACKAGE_PIN N29 IOSTANDARD LVCMOS18} [get_ports fll_rst_n]
+set_property -dict {PACKAGE_PIN N30 IOSTANDARD LVCMOS18} [get_ports fll_bypass]
+set_property -dict {PACKAGE_PIN K28 IOSTANDARD LVCMOS18} [get_ports fll_clkdiv]
+set_property -dict {PACKAGE_PIN K29 IOSTANDARD LVCMOS18} [get_ports fll_lock]
+set_property -dict {PACKAGE_PIN M24 IOSTANDARD LVCMOS18} [get_ports fll_cfg_req]
+set_property -dict {PACKAGE_PIN M25 IOSTANDARD LVCMOS18} [get_ports fll_opmode]
+set_property -dict {PACKAGE_PIN H29 IOSTANDARD LVCMOS18} [get_ports fll_range[3]]
+set_property -dict {PACKAGE_PIN J29 IOSTANDARD LVCMOS18} [get_ports fll_range[2]]
+set_property -dict {PACKAGE_PIN L28 IOSTANDARD LVCMOS18} [get_ports fll_range[1]]
+set_property -dict {PACKAGE_PIN M28 IOSTANDARD LVCMOS18} [get_ports fll_range[0]]
+
 #set_property IOSTANDARD LVDS_25 [get_ports {chipset_passthru_data_n[11]}]
 #set_property PACKAGE_PIN D27 [get_ports {chipset_passthru_data_p[11]}]
 #set_property PACKAGE_PIN C27 [get_ports {chipset_passthru_data_n[11]}]
