@@ -63,7 +63,7 @@ module chip(
    // Clock mux select (bypass PLL or not)
    // Double redundancy with pll_bypass
    input  [1:0]                                 clk_mux_sel,
-
+   
    // JTAG
    input                                        jtag_clk,
    input                                        jtag_rst_l,
@@ -84,9 +84,13 @@ module chip(
    output                                       piton_prsnt_n,
    output                                       piton_ready_n,
 
+   // No need for the vc707 chip that works with the genesys2 chipset (Polara project)
+`ifndef POLARA_VC707_CHIP
    input                                        chipset_prsnt_n,
+`endif // endif POLARA_VC707_CHIP
 
    output [7:0]                                 leds,
+   
 `endif // endif PITON_CHIP_FPGA
 
 `ifndef PITON_NO_CHIP_BRIDGE
