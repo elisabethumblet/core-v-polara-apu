@@ -847,6 +847,17 @@ credit_to_valrdy noc3_xbar_to_%s(
         .chipset_clk(chipset_clk),
     `ifdef POLARA_GEN2_CHIPSETSE
         .mig_ddr3_sys_se_clock_clk(mig_ddr3_sys_se_clock_clk),
+        .chip_async_mux(chip_async_mux),
+        .chip_clk_en(chip_clk_en),
+        .chip_clk_mux_sel(chip_clk_mux_sel),
+        .chip_rst_n(chip_rst_n),
+        .fll_rst_n(fll_rst_n),
+        .fll_bypass(fll_bypass),
+        .fll_clkdiv(fll_clkdiv),
+        .fll_lock(fll_lock),
+        .fll_cfg_req(fll_cfg_req),
+        .fll_opmode(fll_opmode),
+        .fll_range(fll_range),
     `else
         .mig_ddr3_sys_diff_clock_clk_n(mig_ddr3_sys_diff_clock_clk_n),
         .mig_ddr3_sys_diff_clock_clk_p(mig_ddr3_sys_diff_clock_clk_p),
