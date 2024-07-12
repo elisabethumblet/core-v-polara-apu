@@ -769,7 +769,7 @@ module chip(
    .rst_n                  (rst_n),
 `else // ifndef PITON_CHIP_FPGA
    .rst_n                       (rst_n & (~chipset_prsnt_n)),
-`endif
+`endif // ifndef PITON_CHIP_FPGA
    .pll_rst_n              (pll_rst_n),
    .pll_rangea             (pll_rangea),
    .clk_mux_sel               (clk_mux_sel),
