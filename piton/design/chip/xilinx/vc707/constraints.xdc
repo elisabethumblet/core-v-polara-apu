@@ -36,8 +36,6 @@
 #set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets chipset/clk_mmcm/inst/clk_in1_clk_mmcm]
 
 # Reset
-#set_property IOSTANDARD LVCMOS18 [get_ports sys_rst_n]
-#set_property PACKAGE_PIN AV40 [get_ports sys_rst_n]
 set_property IOSTANDARD LVCMOS18 [get_ports rst_n]
 set_property PACKAGE_PIN C39 [get_ports rst_n]
 
@@ -181,7 +179,8 @@ set_property IOSTANDARD LVCMOS18 [get_ports leds[7]]
 # 50MHz
 create_clock -period 20 -name io_clk -waveform {0.000 10} [get_ports io_clk]
 create_clock -period 20 -name core_ref_clk -waveform {0.000 10} [get_ports core_ref_clk]
-
+# Needed to pass placement (2024/07/08 RR)
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {io_clk_IBUF}]
 set_property -dict {PACKAGE_PIN C38 IOSTANDARD LVCMOS18} [get_ports io_clk]
 set_property -dict {PACKAGE_PIN E33 IOSTANDARD LVCMOS18} [get_ports core_ref_clk]
 
@@ -192,11 +191,11 @@ set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {core_ref_clk_IBUF}]
 set_property -dict {PACKAGE_PIN L31 IOSTANDARD LVCMOS18} [get_ports chip_intf_channel[1]]
 set_property -dict {PACKAGE_PIN K32 IOSTANDARD LVCMOS18} [get_ports chip_intf_channel[0]]
 
-set_property -dict {PACKAGE_PIN J25 IOSTANDARD LVCMOS18} [get_ports chipset_prsnt_n]
+#set_property -dict {PACKAGE_PIN J25 IOSTANDARD LVCMOS18} [get_ports chipset_prsnt_n]
 
 set_property -dict {PACKAGE_PIN J31 IOSTANDARD LVCMOS18} [get_ports chip_intf_credit_back[2]]
-set_property -dict {PACKAGE_PIN L30 IOSTANDARD LVCMOS18} [get_ports chip_intf_credit_back[1]]
-set_property -dict {PACKAGE_PIN L29 IOSTANDARD LVCMOS18} [get_ports chip_intf_credit_back[0]]
+set_property -dict {PACKAGE_PIN L32 IOSTANDARD LVCMOS18} [get_ports chip_intf_credit_back[1]]
+set_property -dict {PACKAGE_PIN M32 IOSTANDARD LVCMOS18} [get_ports chip_intf_credit_back[0]]
 
 set_property -dict {PACKAGE_PIN H41 IOSTANDARD LVCMOS18} [get_ports intf_chip_channel[1]]
 set_property -dict {PACKAGE_PIN H40 IOSTANDARD LVCMOS18} [get_ports intf_chip_channel[0]]
