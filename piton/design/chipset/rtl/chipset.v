@@ -386,6 +386,8 @@ module chipset(
         output wire fll_cfg_req,
         output wire fll_opmode,
         output wire [3:0] fll_range,
+
+        input  wire FMC_PRSNT,
 `endif
                
 // Piton Board specific I/Os
@@ -824,7 +826,7 @@ end
     assign leds[3] = chipset_rst_n_ff;
     assign leds[4] = piton_prsnt_n;
     assign leds[5] = test_start;
-    assign leds[6] = chipset_prsnt_n;
+    assign leds[6] = FMC_PRSNT;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
             `ifdef PITONSYS_UART_BOOT

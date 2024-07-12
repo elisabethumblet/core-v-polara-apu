@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# Debug
+set_property -dict {PACKAGE_PIN AA21 IOSTANDARD LVCMOS33} [get_ports FMC_PRSNT]
+
 # Clock signals
 set_property IOSTANDARD LVDS [get_ports clk_osc_p]
 set_property PACKAGE_PIN AD12 [get_ports clk_osc_p]
@@ -38,8 +41,13 @@ set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets clk_mmcm/inst/clk_in1_clk_
 #create_clock -period 5.000 -name chipset_passthru_clk_p -waveform {0.000 2.500} [get_ports chipset_passthru_clk_p]
 #create_clock -period 5.000 -name chipset_passthru_clk_n -waveform {2.500 5.000} [get_ports chipset_passthru_clk_n]
 # Assuming that io_clk has to be created like chipset_passthru_clk_p (RR 2024/05/21)
-create_clock -period 15.000 -name io_clk -waveform {0.000 7.500} [get_ports io_clk]
-create_clock -period 15.000 -name core_ref_clk -waveform {0.000 7.500} [get_ports core_ref_clk]
+# 66.666 MHz
+#create_clock -period 15.000 -name io_clk -waveform {0.000 7.500} [get_ports io_clk]
+#create_clock -period 15.000 -name core_ref_clk -waveform {0.000 7.500} [get_ports core_ref_clk]
+# 50 MHz
+create_clock -period 20.000 -name io_clk -waveform {0.000 10.000} [get_ports io_clk]
+create_clock -period 20.000 -name core_ref_clk -waveform {0.000 10.000} [get_ports core_ref_clk]
+
 
 # Constraint RGMII interface
 create_generated_clock -name txc_gen -source [get_pins net_phy_txc_oddr/C] -multiply_by 1 [get_ports net_phy_txc]
