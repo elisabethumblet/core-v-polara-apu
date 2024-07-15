@@ -43,7 +43,6 @@ if { $list_projs eq "" } {
    set_property BOARD_PART digilentinc.com:genesys2:part0:1.1 [current_project]
 }
 
-
 # CHANGE DESIGN NAME HERE
 variable design_name
 set design_name gen2_polara_fpga_se_clk
@@ -311,7 +310,9 @@ proc create_root_design { parentCell } {
 
   set ddr3_sdram [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 ddr3_sdram ]
 
-  set polara_gen2chipset_bus [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 polara_gen2chipset_bus ]
+  set polara_gen2chipset_bus_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 polara_gen2chipset_bus_i ]
+
+  set polara_gen2chipset_bus_o [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 polara_gen2chipset_bus_o ]
 
 
   # Create ports
@@ -331,8 +332,12 @@ proc create_root_design { parentCell } {
   # Create instance: axi_gpio_0, and set properties
   set axi_gpio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 ]
   set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS_2 {1} \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {14} \
+   CONFIG.C_GPIO2_WIDTH {2} \
+   CONFIG.C_GPIO_WIDTH {12} \
+   CONFIG.C_IS_DUAL {1} \
+   CONFIG.C_TRI_DEFAULT {0x00000300} \
  ] $axi_gpio_0
 
   # Create instance: jtag_axi_0, and set properties
@@ -371,7 +376,8 @@ proc create_root_design { parentCell } {
 
   # Create interface connections
   connect_bd_intf_net -intf_net S01_AXI_0_1 [get_bd_intf_ports ddr3_axi] [get_bd_intf_pins smartconnect_0/S01_AXI]
-  connect_bd_intf_net -intf_net axi_gpio_0_GPIO [get_bd_intf_ports polara_gen2chipset_bus] [get_bd_intf_pins axi_gpio_0/GPIO]
+  connect_bd_intf_net -intf_net axi_gpio_0_GPIO [get_bd_intf_ports polara_gen2chipset_bus_o] [get_bd_intf_pins axi_gpio_0/GPIO]
+  connect_bd_intf_net -intf_net axi_gpio_0_GPIO2 [get_bd_intf_ports polara_gen2chipset_bus_i] [get_bd_intf_pins axi_gpio_0/GPIO2]
   connect_bd_intf_net -intf_net jtag_axi_0_M_AXI [get_bd_intf_pins jtag_axi_0/M_AXI] [get_bd_intf_pins smartconnect_0/S00_AXI]
   connect_bd_intf_net -intf_net mig_7series_0_DDR3 [get_bd_intf_ports ddr3_sdram] [get_bd_intf_pins mig_7series_0/DDR3]
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins mig_7series_0/S_AXI] [get_bd_intf_pins smartconnect_0/M00_AXI]

@@ -48,8 +48,8 @@ module gen2_polara_top(
         output logic                        chip_rst_n,
         output logic                        fll_rst_n,
         output logic                        fll_bypass,
-        output logic                        fll_clkdiv,
-        output logic                        fll_lock,
+        input  logic                        fll_clkdiv,
+        input  logic                        fll_lock,
         output logic                        fll_cfg_req,
         output logic                        fll_opmode,
         output logic [3:0]                  fll_range,
@@ -163,7 +163,8 @@ module gen2_polara_top(
                                
    logic                                 init_calib_complete;
 
-   logic [13:0]                          polara_gen2chipset_bus;
+   logic [1:0]                           polara_gen2chipset_bus_i;
+   logic [11:0]                          polara_gen2chipset_bus_o;
 
    // -------------------------------------------------------------------------------
    // Behavioral
@@ -436,21 +437,27 @@ module gen2_polara_top(
         .mig_ddr3_sys_se_clock_clk(mig_ddr3_sys_se_clock_clk),
         .mig_ddr3_ui_clk(mig_ddr3_ui_clk),
         .mig_ddr3_ui_clk_sync_rst(noc_axi4_bridge_rst),
-        .polara_gen2chipset_bus_tri_o(polara_gen2chipset_bus)
+        .polara_gen2chipset_bus_i_tri_i(polara_gen2chipset_bus_i),
+        .polara_gen2chipset_bus_o_tri_o(polara_gen2chipset_bus_o)
         );
 
    // Route polara_gen2chipset_bus signals
-   assign chip_async_mux = polara_gen2chipset_bus[1];
-   assign chip_clk_en = polara_gen2chipset_bus[2];
-   assign chip_clk_mux_sel = polara_gen2chipset_bus[3];
-   assign chip_rst_n = polara_gen2chipset_bus[0];
-   assign fll_rst_n = polara_gen2chipset_bus[4];
-   assign fll_bypass = polara_gen2chipset_bus[5];
-   assign fll_clkdiv = polara_gen2chipset_bus[6];
-   assign fll_lock = polara_gen2chipset_bus[7];
-   assign fll_cfg_req = polara_gen2chipset_bus[8];
-   assign fll_opmode = polara_gen2chipset_bus[9];
-   assign fll_range[3:0] = polara_gen2chipset_bus[13:10];
+   assign chip_rst_n = polara_gen2chipset_bus_o[0];
+   assign chip_async_mux = polara_gen2chipset_bus_o[1];
+   assign chip_clk_en = polara_gen2chipset_bus_o[2];
+   assign chip_clk_mux_sel = polara_gen2chipset_bus_o[3];
+
+   assign fll_rst_n = polara_gen2chipset_bus_o[4];
+   assign fll_bypass = polara_gen2chipset_bus_o[5];
+   assign fll_opmode = polara_gen2chipset_bus_o[6];
+   assign fll_cfg_req = polara_gen2chipset_bus_o[7];
+
+   assign fll_range[3:0] = polara_gen2chipset_bus_o[11:8];
+   
+   assign polara_gen2chipset_bus_i[0] = fll_lock;
+   assign polara_gen2chipset_bus_i[1] = fll_clkdiv;
+   
+
    
  `endif // !`ifndef POLARA_GEN2_CHIPSETSE
 
