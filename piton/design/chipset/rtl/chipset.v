@@ -162,11 +162,13 @@ module chipset(
 `endif
 
     // Piton ready input
+`ifndef POLARA_GEN2_CHIPSETSE
 `ifndef PITON_BOARD
     input                                       piton_ready_n,
     input                                       piton_prsnt_n,
     output                                      chipset_prsnt_n,
 `endif  // PITON_BOARD
+`endif // POLARA_GEN2_CHIPSETSE
 
     // There are actually 3 options for how to
     // communicate to the chip: directly without a
@@ -729,7 +731,11 @@ begin
 `ifdef PITONSYS_UART_RESET
     chipset_rst_n = rst_n_rect & clk_locked & (~piton_prsnt_n) & uart_rst_out_n;
 `else
+`ifdef POLARA_GEN2_CHIPSET
+    chipset_rst_n = rst_n_rect & clk_locked;
+`else
     chipset_rst_n = rst_n_rect & clk_locked & (~piton_prsnt_n);
+`endif // POLARA_GEN2_CHIPSET
 `endif // PITONSYS_UART_RESET
 `endif  // PITON_BOARD
 
@@ -819,6 +825,27 @@ end
     assign leds[1] = init_calib_complete;
     assign leds[2] = processor_offchip_noc2_valid;
     assign leds[3] = offchip_processor_noc3_valid;
+`elsif POLARA_GEN2_CHIPSET
+    assign leds[0] = clk_locked;
+    assign leds[1] = test_start;
+    assign leds[2] = init_calib_complete;
+    assign leds[3] = chipset_rst_n_ff;
+    assign leds[4] = chipset_rst_n_f;
+    assign leds[5] = rst_n_rect;
+    assign leds[6] = rst_n;
+    `ifdef PITONSYS_IOCTRL
+        `ifdef PITONSYS_UART
+            `ifdef PITONSYS_UART_BOOT
+                assign leds[7] = uart_boot_en;
+            `else // ifndef PITONSYS_UART_BOOT
+                assign leds[7] = 1'b0;
+            `endif // endif PITONSYS_UART_BOOT
+        `else // ifndef PITONSYS_UART
+            assign leds[7] = 1'b0;
+        `endif // endif PITONSYS_UART
+    `else // ifndef PITONSYS_IOCTRL
+        assign leds[7] = 1'b0;
+    `endif // endif PITONSYS_IOCTRL
 `else   // PITON_BOARD
     assign leds[0] = clk_locked;
     assign leds[1] = ~piton_ready_n;
