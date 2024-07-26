@@ -10,13 +10,15 @@
 # ####################################################################
 
 # Inspired by: https://www.xilinx.com/video/software/jtag-to-axi-master-core.html
+# AXI GPIO documentation: https://docs.amd.com/v/u/en-US/pg144-axi-gpio
 
 # Assumptions:
 # core is named hw_axi_1
 # DDR3 base address 0x0000_0000
 # GPIO base address 0x4000_0000
 
-# GPIO mapping
+# Channel 1 GPIO mapping (outputs)
+# Channel 1 AXI GPIO Data Register Address Space Offset: 0x0000
 # 0 (LSB): chip_rst_n
 # 1: chip_async_mux
 # 2: chip_clk_en
@@ -27,9 +29,20 @@
 # 7: fll_cfg_req
 # 11-8: fll_range[3:0]
 
+# Channel 2 GPIO mapping (inputs)
+# Channel 2 AXI GPIO Data Register Address Space Offset: 0x0008
+# 0: fll_lock
+# 1: fll_clkdiv
+
+# ####################################################################
+# Init
+# ####################################################################
 # 1. Reset the core
 reset_hw_axi [get_hw_axis hw_axi_1]
 
+# ####################################################################
+# Genesys 2 Memory Test
+# ####################################################################
 # 2. Create a write transaction (16 word AXI burst write)
 create_hw_axi_txn -force write0 [get_hw_axis hw_axi_1] -address 00000000 -data {FFFFFFFF_EEEEEEEE_DDDDDDDD_CCCCCCCC_BBBBBBBB_AAAAAAAA_99999999_88888888_77777777_66666666_55555555_44444444_33333333_22222222_11111111_00000000} -len 16 -type write
 
@@ -42,6 +55,9 @@ create_hw_axi_txn -force read0 [get_hw_axis hw_axi_1] -address 00000000 -len 16 
 # 5. Run the read transaction
 run_hw_axi [get_hw_axi_txns read0]
 
+# ####################################################################
+# VC707 chip emulation useful commands
+# ####################################################################
 # 6. Assert chip reset
 create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
 # Run it
@@ -51,3 +67,9 @@ run_hw_axi [get_hw_axi_txns rston]
 create_hw_axi_txn -force rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000001} -len 1 -type write
 # Run it
 run_hw_axi [get_hw_axi_txns rstoff]
+
+# ####################################################################
+# Polara ASIC useful commands
+# ####################################################################
+
+
