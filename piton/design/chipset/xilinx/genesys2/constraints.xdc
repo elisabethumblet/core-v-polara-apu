@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Debug
-set_property -dict {PACKAGE_PIN AA21 IOSTANDARD LVCMOS33} [get_ports FMC_PRSNT]
+set_property -dict {PACKAGE_PIN L30 IOSTANDARD LVCMOS18} [get_ports dbg0]
 
 # Clock signals
 set_property IOSTANDARD LVDS [get_ports clk_osc_p]

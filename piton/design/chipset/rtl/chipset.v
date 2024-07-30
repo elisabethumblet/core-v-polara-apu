@@ -389,7 +389,8 @@ module chipset(
         output wire fll_opmode,
         output wire [3:0] fll_range,
 
-        input  wire FMC_PRSNT,
+        output wire dbg0,
+
 `endif
                
 // Piton Board specific I/Os
@@ -826,11 +827,12 @@ end
     assign leds[2] = processor_offchip_noc2_valid;
     assign leds[3] = offchip_processor_noc3_valid;
 `elsif POLARA_GEN2_CHIPSET
+    assign dbg0    = fll_clkdiv;
     assign leds[0] = clk_locked;
-    assign leds[1] = test_start;
-    assign leds[2] = init_calib_complete;
-    assign leds[3] = chipset_rst_n_ff;
-    assign leds[4] = chipset_rst_n_f;
+    assign leds[1] = fll_lock;
+    assign leds[2] = test_start;
+    assign leds[3] = init_calib_complete;
+    assign leds[4] = chipset_rst_n_ff;
     assign leds[5] = rst_n_rect;
     assign leds[6] = rst_n;
     `ifdef PITONSYS_IOCTRL
@@ -853,7 +855,7 @@ end
     assign leds[3] = chipset_rst_n_ff;
     assign leds[4] = piton_prsnt_n;
     assign leds[5] = test_start;
-    assign leds[6] = FMC_PRSNT;
+    assign leds[6] = test_start;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
             `ifdef PITONSYS_UART_BOOT
