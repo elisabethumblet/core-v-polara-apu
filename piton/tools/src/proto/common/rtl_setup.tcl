@@ -74,9 +74,11 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/common/rtl/noc_simple_merger.v" \
     "${DV_ROOT}/design/chip/rtl/OCI.v" \
     "${DV_ROOT}/design/chip/rtl/chip.v" \
-    "${DV_ROOT}/design/chip/pll/rtl/pll_top.v" \
-    "${DV_ROOT}/design/chip/pll/rtl/clk_mux.v" \
-    "${DV_ROOT}/design/chip/pll/rtl/clk_se_to_diff.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_top.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_ctrl.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_clk_div.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_clk_mux.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/gf22_FLL.v" \
     "${DV_ROOT}/design/chip/jtag/rtl/jtag.v" \
     "${DV_ROOT}/design/chip/jtag/rtl/jtag_interface_tap.v" \
     "${DV_ROOT}/design/chip/jtag/rtl/jtag_ucb_transmitter.v" \
@@ -402,7 +404,7 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/baremetal/bootrom.sv"                    \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/linux/bootrom_linux.sv"                  \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/polara_bootrom.sv"                  \
-    "${DV_ROOT}/design/chip/tile/ariane/core/include/cv64a6_imafdc_sv39_openpiton_config_pkg.sv" \
+    "${DV_ROOT}/design/chip/tile/ariane/core/include/cv64a6_imadfcv_sv39_polara_config_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/include/riscv_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/riscv-dbg/src/dm_pkg.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/core/include/ariane_dm_pkg.sv" \
