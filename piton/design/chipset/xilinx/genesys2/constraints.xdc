@@ -25,6 +25,21 @@
 
 # Debug
 set_property -dict {PACKAGE_PIN L30 IOSTANDARD LVCMOS18} [get_ports dbg0]
+set_property -dict {PACKAGE_PIN K30 IOSTANDARD LVCMOS18} [get_ports dbg1]
+set_property -dict {PACKAGE_PIN K26 IOSTANDARD LVCMOS18} [get_ports dbg2]
+set_property -dict {PACKAGE_PIN J26 IOSTANDARD LVCMOS18} [get_ports dbg3]
+set_property -dict {PACKAGE_PIN M22 IOSTANDARD LVCMOS18} [get_ports dbg4]
+set_property -dict {PACKAGE_PIN M23 IOSTANDARD LVCMOS18} [get_ports dbg5]
+set_property -dict {PACKAGE_PIN J27 IOSTANDARD LVCMOS18} [get_ports dbg6]
+set_property -dict {PACKAGE_PIN J28 IOSTANDARD LVCMOS18} [get_ports dbg7]
+set_property -dict {PACKAGE_PIN L26 IOSTANDARD LVCMOS18} [get_ports dbg8]
+set_property -dict {PACKAGE_PIN L27 IOSTANDARD LVCMOS18} [get_ports dbg9]
+set_property -dict {PACKAGE_PIN J21 IOSTANDARD LVCMOS18} [get_ports dbg10]
+set_property -dict {PACKAGE_PIN J22 IOSTANDARD LVCMOS18} [get_ports dbg11]
+set_property -dict {PACKAGE_PIN P23 IOSTANDARD LVCMOS18} [get_ports dbg12]
+set_property -dict {PACKAGE_PIN N24 IOSTANDARD LVCMOS18} [get_ports dbg13]
+set_property -dict {PACKAGE_PIN N27 IOSTANDARD LVCMOS18} [get_ports dbg14]
+set_property -dict {PACKAGE_PIN M27 IOSTANDARD LVCMOS18} [get_ports dbg15]
 
 # Clock signals
 set_property IOSTANDARD LVDS [get_ports clk_osc_p]
@@ -754,6 +769,7 @@ set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
 
 
 
+
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 4 [get_debug_cores u_ila_0]
@@ -766,44 +782,32 @@ set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property port_width 1 [get_debug_ports u_ila_0/clk]
 connect_debug_port u_ila_0/clk [get_nets [list clk_mmcm/inst/chipset_clk]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-set_property port_width 1 [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {chipset_impl/gen2_polara_top_i/ui_clk_syn_rst_delayed_reg_0[0]}]]
+set_property port_width 2 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {fpga_bridge/fpga_chip_out/serial_buffer_channel[0]} {fpga_bridge/fpga_chip_out/serial_buffer_channel[1]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
-set_property port_width 2 [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {chipset_impl/uart_top/writer_str_sel[0]} {chipset_impl/uart_top/writer_str_sel[1]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {fpga_bridge/fpga_chip_out/credit_from_chip_ff[0]} {fpga_bridge/fpga_chip_out/credit_from_chip_ff[1]} {fpga_bridge/fpga_chip_out/credit_from_chip_ff[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-set_property port_width 1 [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list chipset_impl/uart_top/atg_init_done]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {fpga_bridge/fpga_chip_out/separator/D[0]} {fpga_bridge/fpga_chip_out/separator/D[1]} {fpga_bridge/fpga_chip_out/separator/D[2]} {fpga_bridge/fpga_chip_out/separator/D[3]} {fpga_bridge/fpga_chip_out/separator/D[4]} {fpga_bridge/fpga_chip_out/separator/D[5]} {fpga_bridge/fpga_chip_out/separator/D[6]} {fpga_bridge/fpga_chip_out/separator/D[7]} {fpga_bridge/fpga_chip_out/separator/D[8]} {fpga_bridge/fpga_chip_out/separator/D[9]} {fpga_bridge/fpga_chip_out/separator/D[10]} {fpga_bridge/fpga_chip_out/separator/D[11]} {fpga_bridge/fpga_chip_out/separator/D[12]} {fpga_bridge/fpga_chip_out/separator/D[13]} {fpga_bridge/fpga_chip_out/separator/D[14]} {fpga_bridge/fpga_chip_out/separator/D[15]} {fpga_bridge/fpga_chip_out/separator/D[16]} {fpga_bridge/fpga_chip_out/separator/D[17]} {fpga_bridge/fpga_chip_out/separator/D[18]} {fpga_bridge/fpga_chip_out/separator/D[19]} {fpga_bridge/fpga_chip_out/separator/D[20]} {fpga_bridge/fpga_chip_out/separator/D[21]} {fpga_bridge/fpga_chip_out/separator/D[22]} {fpga_bridge/fpga_chip_out/separator/D[23]} {fpga_bridge/fpga_chip_out/separator/D[24]} {fpga_bridge/fpga_chip_out/separator/D[25]} {fpga_bridge/fpga_chip_out/separator/D[26]} {fpga_bridge/fpga_chip_out/separator/D[27]} {fpga_bridge/fpga_chip_out/separator/D[28]} {fpga_bridge/fpga_chip_out/separator/D[29]} {fpga_bridge/fpga_chip_out/separator/D[30]} {fpga_bridge/fpga_chip_out/separator/D[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-set_property port_width 1 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list chipset_impl/init_calib_complete_ff]]
+set_property port_width 2 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {fpga_bridge/fpga_chip_in/data_channel_fff[0]} {fpga_bridge/fpga_chip_in/data_channel_fff[1]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
-set_property port_width 1 [get_debug_ports u_ila_0/probe4]
-connect_debug_port u_ila_0/probe4 [get_nets [list {chipset_impl/uart_top/mux_sel_reg[0]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {fpga_bridge/fpga_chip_in/credit_fifo_out[0]} {fpga_bridge/fpga_chip_in/credit_fifo_out[1]} {fpga_bridge/fpga_chip_in/credit_fifo_out[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
-set_property port_width 1 [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list {chipset_impl/uart_top/mux_sel_reg[1]}]]
+set_property port_width 64 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {fpga_bridge/fpga_chip_in/buffered_data[0]} {fpga_bridge/fpga_chip_in/buffered_data[1]} {fpga_bridge/fpga_chip_in/buffered_data[2]} {fpga_bridge/fpga_chip_in/buffered_data[3]} {fpga_bridge/fpga_chip_in/buffered_data[4]} {fpga_bridge/fpga_chip_in/buffered_data[5]} {fpga_bridge/fpga_chip_in/buffered_data[6]} {fpga_bridge/fpga_chip_in/buffered_data[7]} {fpga_bridge/fpga_chip_in/buffered_data[8]} {fpga_bridge/fpga_chip_in/buffered_data[9]} {fpga_bridge/fpga_chip_in/buffered_data[10]} {fpga_bridge/fpga_chip_in/buffered_data[11]} {fpga_bridge/fpga_chip_in/buffered_data[12]} {fpga_bridge/fpga_chip_in/buffered_data[13]} {fpga_bridge/fpga_chip_in/buffered_data[14]} {fpga_bridge/fpga_chip_in/buffered_data[15]} {fpga_bridge/fpga_chip_in/buffered_data[16]} {fpga_bridge/fpga_chip_in/buffered_data[17]} {fpga_bridge/fpga_chip_in/buffered_data[18]} {fpga_bridge/fpga_chip_in/buffered_data[19]} {fpga_bridge/fpga_chip_in/buffered_data[20]} {fpga_bridge/fpga_chip_in/buffered_data[21]} {fpga_bridge/fpga_chip_in/buffered_data[22]} {fpga_bridge/fpga_chip_in/buffered_data[23]} {fpga_bridge/fpga_chip_in/buffered_data[24]} {fpga_bridge/fpga_chip_in/buffered_data[25]} {fpga_bridge/fpga_chip_in/buffered_data[26]} {fpga_bridge/fpga_chip_in/buffered_data[27]} {fpga_bridge/fpga_chip_in/buffered_data[28]} {fpga_bridge/fpga_chip_in/buffered_data[29]} {fpga_bridge/fpga_chip_in/buffered_data[30]} {fpga_bridge/fpga_chip_in/buffered_data[31]} {fpga_bridge/fpga_chip_in/buffered_data[32]} {fpga_bridge/fpga_chip_in/buffered_data[33]} {fpga_bridge/fpga_chip_in/buffered_data[34]} {fpga_bridge/fpga_chip_in/buffered_data[35]} {fpga_bridge/fpga_chip_in/buffered_data[36]} {fpga_bridge/fpga_chip_in/buffered_data[37]} {fpga_bridge/fpga_chip_in/buffered_data[38]} {fpga_bridge/fpga_chip_in/buffered_data[39]} {fpga_bridge/fpga_chip_in/buffered_data[40]} {fpga_bridge/fpga_chip_in/buffered_data[41]} {fpga_bridge/fpga_chip_in/buffered_data[42]} {fpga_bridge/fpga_chip_in/buffered_data[43]} {fpga_bridge/fpga_chip_in/buffered_data[44]} {fpga_bridge/fpga_chip_in/buffered_data[45]} {fpga_bridge/fpga_chip_in/buffered_data[46]} {fpga_bridge/fpga_chip_in/buffered_data[47]} {fpga_bridge/fpga_chip_in/buffered_data[48]} {fpga_bridge/fpga_chip_in/buffered_data[49]} {fpga_bridge/fpga_chip_in/buffered_data[50]} {fpga_bridge/fpga_chip_in/buffered_data[51]} {fpga_bridge/fpga_chip_in/buffered_data[52]} {fpga_bridge/fpga_chip_in/buffered_data[53]} {fpga_bridge/fpga_chip_in/buffered_data[54]} {fpga_bridge/fpga_chip_in/buffered_data[55]} {fpga_bridge/fpga_chip_in/buffered_data[56]} {fpga_bridge/fpga_chip_in/buffered_data[57]} {fpga_bridge/fpga_chip_in/buffered_data[58]} {fpga_bridge/fpga_chip_in/buffered_data[59]} {fpga_bridge/fpga_chip_in/buffered_data[60]} {fpga_bridge/fpga_chip_in/buffered_data[61]} {fpga_bridge/fpga_chip_in/buffered_data[62]} {fpga_bridge/fpga_chip_in/buffered_data[63]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
-set_property port_width 1 [get_debug_ports u_ila_0/probe6]
-connect_debug_port u_ila_0/probe6 [get_nets [list chipset_impl/test_bad_end]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
-set_property port_width 1 [get_debug_ports u_ila_0/probe7]
-connect_debug_port u_ila_0/probe7 [get_nets [list chipset_impl/test_good_end]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
-set_property port_width 1 [get_debug_ports u_ila_0/probe8]
-connect_debug_port u_ila_0/probe8 [get_nets [list chipset_impl/uart_tx]]
-create_debug_port u_ila_0 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe9]
-set_property port_width 1 [get_debug_ports u_ila_0/probe9]
-connect_debug_port u_ila_0/probe9 [get_nets [list uart_tx_OBUF]]
+set_property port_width 2 [get_debug_ports u_ila_0/probe6]
+connect_debug_port u_ila_0/probe6 [get_nets [list {fpga_bridge/fpga_chip_in/buffered_channel[0]} {fpga_bridge/fpga_chip_in/buffered_channel[1]}]]
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
