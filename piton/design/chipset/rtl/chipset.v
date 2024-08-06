@@ -826,7 +826,7 @@ end
     assign leds[3] = chipset_rst_n_ff;
     assign leds[4] = piton_prsnt_n;
     assign leds[5] = test_start;
-    assign leds[6] = FMC_PRSNT;
+    assign leds[6] = chip_rst_n;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
             `ifdef PITONSYS_UART_BOOT
