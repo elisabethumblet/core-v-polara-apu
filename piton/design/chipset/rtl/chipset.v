@@ -538,10 +538,11 @@ module chipset(
 `ifdef PITON_CHIPSET_CLKS_GEN
     wire                                        chipset_clk;
     wire                                        mc_clk;
-    wire                                        io_clk_wire;
 `endif // endif PITON_CHIPSET_CLKS_GEN
 
 `ifdef POLARA_GEN2_CHIPSETSE
+   wire                                         io_clk_wire;
+   wire                                         io_clk_wire_int;
    wire                                         io_clk_wire_phase_sel;
    wire                                         io_clk_wire_phase_sel_f;
    wire                                         io_clk_wire_phase_sel_ff;
@@ -693,10 +694,6 @@ wire            sd_clk_out_internal;
 // the packet filter to peripherals flags invalid accesses
 wire            invalid_access;
 
-`ifdef POLARA_GEN2_CHIPSETSE
-   wire         io_clk_wire;
-`endif
-
 //////////////////////
 // Sequential Logic //
 //////////////////////
@@ -728,7 +725,7 @@ end
 always @(posedge chipset_clk)
 begin
    io_clk_wire_phase_sel_f <= io_clk_wire_phase_sel;
-   io_clk_wire_phase_sel_ff <= io_clk_wire_phase_sel_ff;
+   io_clk_wire_phase_sel_ff <= io_clk_wire_phase_sel_f;
 end
 `endif // POLARA_GEN2_CHIPSETSE
    
@@ -736,6 +733,12 @@ end
 // Combinational Logic //
 /////////////////////////
 
+`ifdef POLARA_GEN2_CHIPSETSE
+   assign io_clk_wire = io_clk_wire_phase_sel_ff ? io_clk_wire_int : (~io_clk_wire_int);
+   assign io_clk_wire_phase_sel = sw[5];
+   
+`endif // POLARA_GEN2_CHIPSETSE
+   
 `ifndef PITON_BOARD
     `ifndef PITONSYS_INC_PASSTHRU
         assign io_clk_loopback = io_clk;
@@ -888,7 +891,7 @@ end
     assign leds[2] = test_start;
     assign leds[3] = init_calib_complete;
     assign leds[4] = chipset_rst_n_ff;
-    assign leds[5] = rst_n_rect;
+    assign leds[5] = io_clk_wire_phase_sel_ff;
     assign leds[6] = rst_n;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
@@ -964,7 +967,7 @@ end
             `endif // endif PITON_CHIPSET_DIFF_CLK
 
             `ifdef POLARA_GEN2_CHIPSETSE
-                .io_clk(io_clk_wire),
+                .io_clk(io_clk_wire_int),
             `endif
                                      
             .reset(1'b0),
