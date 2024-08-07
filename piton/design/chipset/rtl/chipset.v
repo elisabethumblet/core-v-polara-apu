@@ -687,6 +687,9 @@ wire            sd_clk_out_internal;
 // the packet filter to peripherals flags invalid accesses
 wire            invalid_access;
 
+`ifdef POLARA_GEN2_CHIPSETSE
+   wire         io_clk_wire;
+`endif
 
 //////////////////////
 // Sequential Logic //
@@ -728,7 +731,12 @@ end
         // this chipset clocks. This means everything is synchronous
         // to the same clock
         assign core_ref_clk     = chipset_clk;
-        assign io_clk           = chipset_clk;
+        `ifndef POLARA_GEN2_CHIPSETSE
+            assign io_clk           = chipset_clk;
+        `else
+            assign io_clk           = io_clk_wire;
+        `endif   
+        
     `endif // PITON_CLKS_CHIPSET
 `endif // PITON_BOARD
 
@@ -940,6 +948,10 @@ end
                 .clk_in1(clk_osc),
             `endif // endif PITON_CHIPSET_DIFF_CLK
 
+            `ifdef POLARA_GEN2_CHIPSETSE
+                .io_clk(io_clk_wire),
+            `endif
+                                     
             .reset(1'b0),
             .locked(clk_locked),
                                      
@@ -1090,6 +1102,7 @@ fpga_bridge(
     .fpga_out_clk       (chipset_clk            ),
     .fpga_in_clk        (chipset_clk            ),
 
+    `ifndef POLARA_GEN2_CHIPSETSE
     `ifdef PITONSYS_INC_PASSTHRU
         .intf_out_clk   (chipset_passthru_clk   ),
         .intf_in_clk    (passthru_chipset_clk   ),
@@ -1097,6 +1110,11 @@ fpga_bridge(
         .intf_out_clk   (io_clk_loopback        ),
         .intf_in_clk    (io_clk_loopback        ),
     `endif // endif PITONSYS_INC_PASSTHRU
+    `endif // endif POLARA_GEN2_CHIPSETSE
+    `ifdef POLARA_GEN2_CHIPSETSE
+        .intf_out_clk   (io_clk_wire        ),
+        .intf_in_clk    (io_clk_wire        ),
+    `endif
 
     .fpga_intf_data_noc1(fpga_intf_data_noc1),
     .fpga_intf_data_noc2(fpga_intf_data_noc2),
