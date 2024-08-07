@@ -541,6 +541,12 @@ module chipset(
     wire                                        io_clk_wire;
 `endif // endif PITON_CHIPSET_CLKS_GEN
 
+`ifdef POLARA_GEN2_CHIPSETSE
+   wire                                         io_clk_wire_phase_sel;
+   wire                                         io_clk_wire_phase_sel_f;
+   wire                                         io_clk_wire_phase_sel_ff;
+`endif
+   
 `ifdef PITON_BOARD
     // Internal generated clocks
     wire                                        core_ref_clk_inter;
@@ -714,6 +720,15 @@ end
     end
 `endif  // PITON_BOARD
 
+`ifdef POLARA_GEN2_CHIPSETSE
+// Synchronizing with chipset_clk even if it's only to control a selection bit of a 'MUX' 
+always @(posedge chipset_clk)
+begin
+   io_clk_wire_phase_sel_f <= io_clk_wire_phase_sel;
+   io_clk_wire_phase_sel_ff <= io_clk_wire_phase_sel_ff;
+end
+`endif // POLARA_GEN2_CHIPSETSE
+   
 /////////////////////////
 // Combinational Logic //
 /////////////////////////
