@@ -146,7 +146,9 @@ def usage():
     print("\n       --vc707chip", file=sys.stderr)
     print("              Sets POLARA_VC707_CHIP rtl define used to recreate Polara chip on VC707 FPGA (False by default)", file=sys.stderr)
     print("              Assumes vc707 board is chosen", file=sys.stderr)
-#    parser.add_option("--gen2chipset", dest="gen2_chipset", action="store_true", default=False)
+    print("\n       --vc707chipset", file=sys.stderr)
+    print("              Sets POLARA_VC707_CHIPSET rtl define used to recreate Polara chipset on VC707 FPGA (False by default)", file=sys.stderr)
+    print("              Assumes vc707 board is chosen", file=sys.stderr)
     print("\n       --gen2chipset", file=sys.stderr)
     print("              Sets POLARA_GEN2_CHIPSET define.", file=sys.stderr)
     print("              Assumes genesys2 board is chosen", file=sys.stderr)
@@ -502,6 +504,7 @@ def setParserOptions(parser):
     parser.add_option("--zeroer_off", dest="zeroer_off", action="store_true", default=False)
     parser.add_option("--postroutephysopt", dest="postroutephysopt", action="store_true", default=False)
     parser.add_option("--vc707chip", dest="polara_vc707_chip_flag", action="store_true", default=False)
+    parser.add_option("--vc707chipset", dest="polara_vc707_chipset_flag", action="store_true", default=False)
     parser.add_option("--gen2chipset", dest="gen2_chipset", action="store_true", default=False)
     parser.add_option("--se", dest="se", action="store_true", default=False)
 
@@ -644,8 +647,16 @@ def makeDefList(options):
 
     # --vc707chip option
     if options.polara_vc707_chip_flag == True:
+        # Set RTL define
         defines.append("POLARA_VC707_CHIP")
 
+    # --vc707chipset option
+    if options.polara_vc707_chipset_flag == True:
+        # Set RTL define
+        defines.append("POLARA_VC707_CHIPSET")
+        # Set environnment variable
+        os.environ["POLARA_VC707_CHIPSET"]     = "1"
+        
     # --gen2chipset option
     if options.gen2_chipset == True:
         # Set RTL define
