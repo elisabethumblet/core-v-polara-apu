@@ -389,7 +389,23 @@ module chipset(
         output wire fll_opmode,
         output wire [3:0] fll_range,
 
-        input  wire FMC_PRSNT,
+        output wire dbg0,
+        output wire dbg1,
+        output wire dbg2,
+        output wire dbg3,
+        output wire dbg4,
+        output wire dbg5,
+        output wire dbg6,
+        output wire dbg7,
+        output wire dbg8,
+        output wire dbg9,
+        output wire dbg10,
+        output wire dbg11,
+        output wire dbg12,
+        output wire dbg13,
+        output wire dbg14,
+        output wire dbg15,
+
 `endif
                
 // Piton Board specific I/Os
@@ -522,6 +538,7 @@ module chipset(
 `ifdef PITON_CHIPSET_CLKS_GEN
     wire                                        chipset_clk;
     wire                                        mc_clk;
+    wire                                        io_clk_wire;
 `endif // endif PITON_CHIPSET_CLKS_GEN
 
 `ifdef PITON_BOARD
@@ -826,11 +843,28 @@ end
     assign leds[2] = processor_offchip_noc2_valid;
     assign leds[3] = offchip_processor_noc3_valid;
 `elsif POLARA_GEN2_CHIPSET
+    assign dbg0    = fll_clkdiv;
+    assign dbg1    = chipset_clk;
+    assign dbg2    = chipset_clk;
+    assign dbg3    = intf_chip_credit_back[0];
+    assign dbg4    = intf_chip_credit_back[1];
+    assign dbg5    = intf_chip_credit_back[2];
+    assign dbg6    = chip_intf_channel[0];
+    assign dbg7    = chip_intf_channel[1];
+    assign dbg8    = intf_chip_channel[0];
+    assign dbg9    = intf_chip_channel[1];
+    assign dbg10    = chip_intf_credit_back[0];
+    assign dbg11    = chip_intf_credit_back[1];
+    assign dbg12    = chip_intf_credit_back[2];
+    assign dbg13    = chip_intf_data[0];
+    assign dbg14    = chip_intf_data[1];
+    assign dbg15    = chip_intf_data[2];
+   
     assign leds[0] = clk_locked;
-    assign leds[1] = test_start;
-    assign leds[2] = init_calib_complete;
-    assign leds[3] = chipset_rst_n_ff;
-    assign leds[4] = chipset_rst_n_f;
+    assign leds[1] = fll_lock;
+    assign leds[2] = test_start;
+    assign leds[3] = init_calib_complete;
+    assign leds[4] = chipset_rst_n_ff;
     assign leds[5] = rst_n_rect;
     assign leds[6] = rst_n;
     `ifdef PITONSYS_IOCTRL
@@ -853,7 +887,7 @@ end
     assign leds[3] = chipset_rst_n_ff;
     assign leds[4] = piton_prsnt_n;
     assign leds[5] = test_start;
-    assign leds[6] = FMC_PRSNT;
+    assign leds[6] = chip_rst_n;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
             `ifdef PITONSYS_UART_BOOT
@@ -908,10 +942,10 @@ end
 
             .reset(1'b0),
             .locked(clk_locked),
-
+                                     
             // Main chipset clock
             .chipset_clk(chipset_clk)
-
+                                     
             `ifndef PITONSYS_NO_MC
             `ifdef PITON_FPGA_MC_DDR3
                 // Memory controller clock

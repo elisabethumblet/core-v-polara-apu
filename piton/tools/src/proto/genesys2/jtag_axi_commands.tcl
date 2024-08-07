@@ -58,12 +58,12 @@ run_hw_axi [get_hw_axi_txns read0]
 # ####################################################################
 # VC707 chip emulation useful commands
 # ####################################################################
-# 6. Assert chip reset
+# 6. Assert chip reset_n
 create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
 # Run it
 run_hw_axi [get_hw_axi_txns rston]
 
-# 7. Deassert chip reset
+# 7. Deassert chip reset_n
 create_hw_axi_txn -force rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000001} -len 1 -type write
 # Run it
 run_hw_axi [get_hw_axi_txns rstoff]
@@ -72,4 +72,144 @@ run_hw_axi [get_hw_axi_txns rstoff]
 # Polara ASIC useful commands
 # ####################################################################
 
+# ------------------------------------------
+# FLL Tests (chip stays in reset)
+# ------------------------------------------
+# Test bypass
+# ------------------------------------------
+create_hw_axi_txn -force fllrstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000010} -len 1 -type write
+run_hw_axi [get_hw_axi_txns fllrstoff]
+# 1. Set bypass = 1, opmode = 1, fll_rst_n = 1
+create_hw_axi_txn -force bypassrstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000070} -len 1 -type write
+run_hw_axi [get_hw_axi_txns bypassrstoff]
+# 2. Set cfgreq = 1
+create_hw_axi_txn -force bypasscfg [get_hw_axis hw_axi_1] -address 40000000 -data {000000F0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns bypasscfg]
+# 3. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns bypassrstoff]
+# 4. Reset everything
+create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
+run_hw_axi [get_hw_axi_txns rston]
+# ------------------------------------------
+# Test FLL, f_fll = 2^0 * f_ref
+# ------------------------------------------
+# 1. Set opmode = 1, fll_rst_n = 1, fll_range = 0000
+create_hw_axi_txn -force oprstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000050} -len 1 -type write
+run_hw_axi [get_hw_axi_txns oprstoff]
+# 2. Set cfgreq = 1
+create_hw_axi_txn -force opcfg [get_hw_axis hw_axi_1] -address 40000000 -data {000000D0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns opcfg]
+# 3. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns oprstoff]
+# 4. Reset everything
+run_hw_axi [get_hw_axi_txns rston]
+# ------------------------------------------
+# Test FLL, f_fll = 2^1 * f_ref
+# ------------------------------------------
+# 1. Set opmode = 1, fll_rst_n = 1, fll_range = 0001
+create_hw_axi_txn -force op1rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000150} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op1rstoff]
+# 2. Set cfgreq = 1
+create_hw_axi_txn -force op1cfg [get_hw_axis hw_axi_1] -address 40000000 -data {000001D0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op1cfg]
+# 3. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns op1rstoff]
+# 4. Reset everything
+run_hw_axi [get_hw_axi_txns rston]
+# ------------------------------------------
+# Test FLL, f_fll = 2^2 * f_ref
+# ------------------------------------------
+# 1. Set opmode = 1, fll_rst_n = 1, fll_range = 0010
+create_hw_axi_txn -force op2rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000250} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op2rstoff]
+# 2. Set cfgreq = 1
+create_hw_axi_txn -force op2cfg [get_hw_axis hw_axi_1] -address 40000000 -data {000002D0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op2cfg]
+# 3. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns op2rstoff]
+# 4. Reset everything
+run_hw_axi [get_hw_axi_txns rston]
+# ------------------------------------------
+# Test FLL, f_fll = 2^4 * f_ref
+# ------------------------------------------
+# 1. Set opmode = 1, fll_rst_n = 1, fll_range = 0100
+create_hw_axi_txn -force op4rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000350} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op4rstoff]
+# 2. Set cfgreq = 1
+create_hw_axi_txn -force op4cfg [get_hw_axis hw_axi_1] -address 40000000 -data {000003D0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op4cfg]
+# 3. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns op4rstoff]
+# 4. Reset everything
+run_hw_axi [get_hw_axi_txns rston]
+# ------------------------------------------
+# Test FLL, f_fll = 2^8 * f_ref
+# ------------------------------------------
+# 1. Set opmode = 1, fll_rst_n = 1, fll_range = 1000
+create_hw_axi_txn -force op8rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000850} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op8rstoff]
+# 2. Set cfgreq = 1
+create_hw_axi_txn -force op8cfg [get_hw_axis hw_axi_1] -address 40000000 -data {000008D0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op8cfg]
+# 3. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns op8rstoff]
+# 4. Reset everything
+run_hw_axi [get_hw_axi_txns rston]
 
+# ------------------------------------------
+# Hello world, no FLL (brouillon)
+# ------------------------------------------
+# 1. rst_n off
+create_hw_axi_txn -force rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000001} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns rstoff]
+# 2. rst_n on
+create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns rston]
+# 3. chip_async_mux = 1, chip_clk_en = 1, chip_clk_mux_sel = 1, rst on
+create_hw_axi_txn -force cfgrst [get_hw_axis hw_axi_1] -address 40000000 -data {0000000E} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns cfgrst]
+# 4. cfg take off rst
+create_hw_axi_txn -force cfgrstoff [get_hw_axis hw_axi_1] -address 40000000 -data {0000000F} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns cfgrstoff]
+
+
+# ------------------------------------------
+# Hello world, with FLL
+# ------------------------------------------
+# FLL previously configured with range = 2
+# 1. Keep the config but activate: async_mux = 1, clk_en = 1
+create_hw_axi_txn -force en2rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000256} -len 1 -type write
+run_hw_axi [get_hw_axi_txns en2rston]
+# 2. Release the reset
+create_hw_axi_txn -force en2rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000257} -len 1 -type write
+run_hw_axi [get_hw_axi_txns en2rstoff]
+
+# Does not seem to work
+
+# ------------------------------------------
+# Hello world, with FLL
+# ------------------------------------------
+# 1. rst_n off
+create_hw_axi_txn -force rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000001} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns rstoff]
+# 2. rst_n on
+create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns rston]
+# 3. chip_clk_mux_sel = 1 (seems to work cuz current goes up)
+create_hw_axi_txn -force muxon [get_hw_axis hw_axi_1] -address 40000000 -data {00000008} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns muxon]
+# 3. chip_clk_en = 1
+create_hw_axi_txn -force enon [get_hw_axis hw_axi_1] -address 40000000 -data {0000000C} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns enon]
+# 4. Take rst off (current goes down a bit)
+create_hw_axi_txn -force syson [get_hw_axis hw_axi_1] -address 40000000 -data {0000000D} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns syson]
