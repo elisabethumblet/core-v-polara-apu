@@ -208,6 +208,7 @@ def main():
         datacsv.seek(0)
         datareader = csv.DictReader(datacsv)
         print(datareader.fieldnames)
+        # Analyze data
         for row in datareader:
             if row['Sample in Buffer'] != RADIX:
                 if (int(row['Sample in Buffer']) >= int(trigpoint)) and (int(row['Sample in Buffer']) < int(trigpoint) + INTERVAL_SAMPLES):
