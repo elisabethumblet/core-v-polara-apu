@@ -150,8 +150,14 @@ def usage():
     print("              Sets POLARA_VC707_CHIPSET rtl define used to recreate Polara chipset on VC707 FPGA (False by default)", file=sys.stderr)
     print("              Assumes vc707 board is chosen", file=sys.stderr)
     print("\n       --gen2chipset", file=sys.stderr)
-    print("              Sets POLARA_GEN2_CHIPSET define.", file=sys.stderr)
+    print("              Sets POLARA_GEN2_CHIPSET define. Necessary with --se to create the Polara chipset.", file=sys.stderr)
     print("              Assumes genesys2 board is chosen", file=sys.stderr)
+    print("\n       --se", file=sys.stderr)
+    print("              Sets POLARA_GEN2_CHIPSETSE define.", file=sys.stderr)
+    print("              Assumes genesys2 board is chosen", file=sys.stderr)
+    print("\n       --noctest", file=sys.stderr)
+    print("              Sets PITON_NOC_POWER_CHIPSET_TEST define.", file=sys.stderr)
+    print("              To generate packets to test Polara's NOC.", file=sys.stderr)
     print("\n       -h, --help", file=sys.stderr)
     print("              Display this help message and exit", file=sys.stderr)
     print("\n", file=sys.stderr)
@@ -507,6 +513,7 @@ def setParserOptions(parser):
     parser.add_option("--vc707chipset", dest="polara_vc707_chipset_flag", action="store_true", default=False)
     parser.add_option("--gen2chipset", dest="gen2_chipset", action="store_true", default=False)
     parser.add_option("--se", dest="se", action="store_true", default=False)
+    parser.add_option("--noctest", dest="noctest", action="store_true", default=False)
 
     return parser
 
@@ -668,6 +675,13 @@ def makeDefList(options):
             defines.append("POLARA_GEN2_CHIPSETSE")
             # Set environnment variable
             os.environ["POLARA_GEN2_CHIPSETSE"]     = "1"
+
+    # --noctest option
+    if options.noctest == True:
+        # Set RTL define
+        defines.append("PITON_NOC_POWER_CHIPSET_TEST")
+        # Set environnment variable
+        os.environ["PITON_NOC_POWER_CHIPSET_TEST"] = "1"
 
     return defines
 
