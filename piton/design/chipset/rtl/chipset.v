@@ -544,8 +544,8 @@ module chipset(
    wire                                         io_clk_wire;
    wire                                         io_clk_wire_int;
    wire                                         io_clk_wire_phase_sel;
-   wire                                         io_clk_wire_phase_sel_f;
-   wire                                         io_clk_wire_phase_sel_ff;
+   reg                                         io_clk_wire_phase_sel_f;
+   reg                                         io_clk_wire_phase_sel_ff;
 `endif
    
 `ifdef PITON_BOARD
@@ -1130,8 +1130,8 @@ fpga_bridge(
     `endif // endif PITONSYS_INC_PASSTHRU
     `endif // endif POLARA_GEN2_CHIPSETSE
     `ifdef POLARA_GEN2_CHIPSETSE
-        .intf_out_clk   (io_clk_wire        ),
-        .intf_in_clk    (io_clk_wire        ),
+        .intf_out_clk   (io_clk_wire_int        ),
+        .intf_in_clk    (io_clk_wire_int        ),
     `endif
 
     .fpga_intf_data_noc1(fpga_intf_data_noc1),
