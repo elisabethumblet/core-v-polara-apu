@@ -1506,11 +1506,13 @@ chipset_impl_noc_power_test  chipset_impl (
             ,
             .uart_tx(uart_tx),
             .uart_rx(uart_rx)
+            `ifndef PITON_NOC_POWER_CHIPSET_TEST
             `ifdef PITONSYS_UART_BOOT
                 ,
                 .uart_boot_en(uart_boot_en),
                 .uart_timeout_en(uart_timeout_en)
             `endif // endif PITONSYS_UART_BOOT
+            `endif // PITON_NOC_POWER_CHIPSET_TEST
         `endif // endif PITONSYS_UART
 
         `ifdef PITONSYS_SPI
@@ -1527,6 +1529,7 @@ chipset_impl_noc_power_test  chipset_impl (
             .sd_cmd(sd_cmd),
             .sd_dat(sd_dat)
         `endif // endif PITONSYS_SPI
+            `ifndef PITON_NOC_POWER_CHIPSET_TEST
             `ifdef PITON_FPGA_ETHERNETLITE      
                 ,
                 .net_axi_clk        (net_axi_clk            ),
@@ -1544,7 +1547,8 @@ chipset_impl_noc_power_test  chipset_impl (
                 .net_phy_mdio_io    (net_phy_mdio_io        ),
                 .net_phy_mdc        (net_phy_mdc            )
 
-            `endif // PITON_FPGA_ETHERNETLITE   
+            `endif // PITON_FPGA_ETHERNETLITE
+            `endif // PITON_NOC_POWER_CHIPSET_TEST
     `endif // endif PITONSYS_IOCTRL
                                            
     `ifdef ALVEO_BOARD
