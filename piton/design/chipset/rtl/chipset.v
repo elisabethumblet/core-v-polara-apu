@@ -1340,13 +1340,15 @@ chipset_impl_noc_power_test  chipset_impl (
     .piton_ready_n      (piton_ready_n      ),
 
     .test_start         (test_start         ),
-    .uart_rst_out_n     (uart_rst_out_n     ),
-    .invalid_access_o   (invalid_access     ),
-
+    
 `ifdef PITON_NOC_POWER_CHIPSET_TEST
     .noc_power_test_hop_count (noc_power_test_hop_count),
+`else
+    .uart_rst_out_n     (uart_rst_out_n     ),
+    .invalid_access_o   (invalid_access     ),
 `endif
 
+`ifndef PITON_NOC_POWER_CHIPSET_TEST                                           
 `ifdef POLARA_GEN2_CHIPSET
  `ifdef POLARA_GEN2_CHIPSETSE
      .mig_ddr3_sys_se_clock_clk(mc_clk),
@@ -1366,6 +1368,7 @@ chipset_impl_noc_power_test  chipset_impl (
      .mig_ddr3_sys_diff_clock_clk_p(clk_osc_p),
  `endif // POLARA_GEN2_CHIPSETSE
 `endif // POLARA_GEN2_CHIPSET
+`endif // PITON_NOC_POWER_CHIPSET_TEST
                                            
     `ifndef PITONSYS_NO_MC
     `ifdef PITON_FPGA_MC_DDR3
