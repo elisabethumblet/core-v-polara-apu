@@ -543,9 +543,6 @@ module chipset(
 `ifdef POLARA_GEN2_CHIPSETSE
    wire                                         io_clk_wire;
    wire                                         io_clk_wire_int;
-   wire                                         io_clk_wire_phase_sel;
-   reg                                         io_clk_wire_phase_sel_f;
-   reg                                         io_clk_wire_phase_sel_ff;
 `endif
    
 `ifdef PITON_BOARD
@@ -719,25 +716,13 @@ end
                                             fpga_intf_rdy_noc3      ? 1'b1 : passthru_fifo_init_complete;
     end
 `endif  // PITON_BOARD
-
-`ifdef POLARA_GEN2_CHIPSETSE
-// Synchronizing with chipset_clk even if it's only to control a selection bit of a 'MUX' 
-always @(posedge chipset_clk)
-begin
-   io_clk_wire_phase_sel_f <= io_clk_wire_phase_sel;
-   io_clk_wire_phase_sel_ff <= io_clk_wire_phase_sel_f;
-end
-`endif // POLARA_GEN2_CHIPSETSE
    
 /////////////////////////
 // Combinational Logic //
 /////////////////////////
-
 `ifdef POLARA_GEN2_CHIPSETSE
-   assign io_clk_wire = io_clk_wire_phase_sel_ff ? io_clk_wire_int : (~io_clk_wire_int);
-   assign io_clk_wire_phase_sel = sw[5];
-   
-`endif // POLARA_GEN2_CHIPSETSE
+   assign io_clk_wire = io_clk_wire_int;
+`endif
    
 `ifndef PITON_BOARD
     `ifndef PITONSYS_INC_PASSTHRU
@@ -891,7 +876,7 @@ end
     assign leds[2] = test_start;
     assign leds[3] = init_calib_complete;
     assign leds[4] = chipset_rst_n_ff;
-    assign leds[5] = io_clk_wire_phase_sel_ff;
+    assign leds[5] = chipset_rst_n_ff;
     assign leds[6] = rst_n;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
