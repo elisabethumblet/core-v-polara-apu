@@ -1,4 +1,5 @@
 # Copyright (c) 2016 Princeton University
+# Copyright (c) 2024 Polytechnique Montreal
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

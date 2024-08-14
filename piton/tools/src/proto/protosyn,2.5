@@ -75,7 +75,6 @@ def usage():
     print("                  pico      (32bit RISCV core)", file=sys.stderr)
     print("                  pico_het  (heterogeneous pico+sparc arrangement)", file=sys.stderr)
     print("                  ariane    (64bit RISCV core)", file=sys.stderr)
-    print("                  ara       (64bit RISCV vec core)", file=sys.stderr)
     print("\n       --network_config <network_config>", file=sys.stderr)
     print("              Name of the network type to be used:", file=sys.stderr)
     print("                  2dmesh_config (default)", file=sys.stderr)
@@ -492,7 +491,7 @@ def makeDefList(options):
     #defines.append(df)
 
     # disable CSM in this case
-    if (options.core == 'ariane') or (options.core == 'ara'):
+    if (options.core == 'ariane'):
         defines.append("NO_RTL_CSM")
 
     if (options.board == "f1"):
@@ -777,15 +776,6 @@ def main():
             os.environ['RTL_SPARC' + str(i)] = "1"
             print_info('setenv RTL_SPARC' + str(i))
 
-    elif options.core == 'ara':
-        os.environ['PITON_ARA'] = "1"
-        os.environ['PITON_RV64_PLATFORM'] = "1"
-        os.environ['WT_DCACHE'] = "1"
-
-        for i in range(int(options.num_tiles)):
-            os.environ['RTL_ARA' + str(i)] = "1"
-            print_info('setenv RTL_ARA' + str(i))
-
     else:
         print_error("invalid core configuration " + str(options.core))
         sys.exit(1)
@@ -859,9 +849,6 @@ def main():
 
         if options.core == 'ariane':
             config += ' -ariane'
-    
-        if options.core == 'ara':
-            config += ' -ara'
 
         print_info("Synthesizing a test: %s" % options.test_name)
         print_info("Compilation started")

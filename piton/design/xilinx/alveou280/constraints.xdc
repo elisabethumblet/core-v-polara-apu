@@ -1,3 +1,4 @@
+# Copyright (c) 2024 Polytechnique Montreal
 # Bitstream generation
 # ---------------------------------------------------------------------
 set_property CONFIG_VOLTAGE 1.8 [current_design]

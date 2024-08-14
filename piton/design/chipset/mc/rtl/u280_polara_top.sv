@@ -1,44 +1,42 @@
-
+// Copyright (c) 2024 Polytechnique Montreal
 `include "mc_define.h"
 
 `include "noc_axi4_bridge_define.vh"
 
 module u280_polara_top (
 
-    input  logic       pcie_refclk_clk_n    ,
-    input  logic       pcie_refclk_clk_p    ,
-    input  logic       pcie_perstn          ,		
+    input  logic        pcie_refclk_clk_n    ,
+    input  logic        pcie_refclk_clk_p    ,
+    input  logic        pcie_perstn          ,		
     input  logic [15:0] pci_express_x16_rxn  ,
     input  logic [15:0] pci_express_x16_rxp  ,
     output logic [15:0] pci_express_x16_txn  ,
     output logic [15:0] pci_express_x16_txp  ,
-    input  logic       resetn               ,
+    input  logic        resetn               ,
 
-    output logic       c0_ddr4_act_n,
+    output logic        c0_ddr4_act_n,
     output logic [16:0] c0_ddr4_adr,
-    output logic [1:0] c0_ddr4_ba,
-    output logic [1:0] c0_ddr4_bg,
-    output logic [0:0] c0_ddr4_ck_c,
-    output logic [0:0] c0_ddr4_ck_t,
-    output logic [0:0] c0_ddr4_cke,
-    output logic [0:0] c0_ddr4_cs_n,
-    inout wire [71:0] c0_ddr4_dq,
-    inout wire [17:0] c0_ddr4_dqs_c,
-    inout wire [17:0] c0_ddr4_dqs_t,
-    output logic [0:0] c0_ddr4_odt,
-    output logic c0_ddr4_par,
-    output logic c0_ddr4_reset_n,
-    output logic c0_ddr4_ui_clk_sync_rst,
+    output logic [1:0]  c0_ddr4_ba,
+    output logic [1:0]  c0_ddr4_bg,
+    output logic [0:0]  c0_ddr4_ck_c,
+    output logic [0:0]  c0_ddr4_ck_t,
+    output logic [0:0]  c0_ddr4_cke,
+    output logic [0:0]  c0_ddr4_cs_n,
+    inout  wire  [71:0] c0_ddr4_dq,
+    inout  wire  [17:0] c0_ddr4_dqs_c,
+    inout  wire  [17:0] c0_ddr4_dqs_t,
+    output logic [0:0]  c0_ddr4_odt,
+    output logic        c0_ddr4_par,
+    output logic        c0_ddr4_reset_n,
+    output logic        c0_ddr4_ui_clk_sync_rst,
 
 	// Reference clock
-    input logic c0_sysclk_clk_n,
-    input logic c0_sysclk_clk_p,
-	// input mc_clk                  							,
-	// input mc_rstn                 							,
-    output logic   chip_rstn                                           ,
-	input  logic   chipset_clk             							,
-	input  logic chipset_rstn	          							,
-    output logic  c0_init_calib_complete,
+    input  logic c0_sysclk_clk_n,
+    input  logic c0_sysclk_clk_p,
+    output logic chip_rstn,
+	input  logic chipset_clk,
+	input  logic chipset_rstn,
+    output logic c0_init_calib_complete,
 	
 	input  logic  [`NOC_DATA_WIDTH-1:0]   mem_flit_in_data      ,
     input  logic                          mem_flit_in_val       ,
@@ -49,18 +47,16 @@ module u280_polara_top (
     input  logic                          mem_flit_out_rdy     
 );
 
-
 	logic mc_rst;
 	logic mc_clk;
 
+	logic                               trans_fifo_val;
+	logic    [`NOC_DATA_WIDTH-1:0]      trans_fifo_data;
+	logic                               trans_fifo_rdy;
 
-	logic                                trans_fifo_val;
-	logic    [`NOC_DATA_WIDTH-1:0]       trans_fifo_data;
-	logic                                trans_fifo_rdy;
-
-	logic                                fifo_trans_val;
-	logic    [`NOC_DATA_WIDTH-1:0]       fifo_trans_data;
-	logic                                fifo_trans_rdy;
+	logic                               fifo_trans_val;
+	logic    [`NOC_DATA_WIDTH-1:0]      fifo_trans_data;
+	logic                               fifo_trans_rdy;
 
 	logic [`AXI4_ID_WIDTH     -1:0]     m_axi_awid;
     logic [`AXI4_ADDR_WIDTH   -1:0]     m_axi_awaddr;
@@ -140,10 +136,10 @@ module u280_polara_top (
 		
 
 	noc_axi4_bridge noc_axi4_bridge  (
-		.clk                ( 	mc_clk  		),  
-		.rst_n              ( 	~mc_rst 		), 
-		.uart_boot_en       ( 	1'b0			),
-		.phy_init_done      ( 	c0_init_calib_complete	),
+		.clk                    ( mc_clk  		    ),  
+		.rst_n                  ( ~mc_rst 		    ), 
+		.uart_boot_en           ( 1'b0			    ),
+		.phy_init_done          ( c0_init_calib_complete),
 
 		.src_bridge_vr_noc2_val ( fifo_trans_val	),
 		.src_bridge_vr_noc2_dat ( fifo_trans_data	),
@@ -232,70 +228,70 @@ module u280_polara_top (
 		// DDR4 control interface, not used, grounded
 		.c0_ddr4_s_axi_ctrl_awvalid(1'b0                  ),  // input logic c0_ddr4_s_axi_ctrl_awvalid
 		.c0_ddr4_s_axi_ctrl_awready(                      ),  // output logic c0_ddr4_s_axi_ctrl_awready
-		.c0_ddr4_s_axi_ctrl_awaddr (32'b0                 ),    // input logic [31 : 0] c0_ddr4_s_axi_ctrl_awaddr
-		.c0_ddr4_s_axi_ctrl_wvalid (1'b0                  ),    // input logic c0_ddr4_s_axi_ctrl_wvalid
-		.c0_ddr4_s_axi_ctrl_wready (                      ),    // output logic c0_ddr4_s_axi_ctrl_wready
-		.c0_ddr4_s_axi_ctrl_wdata  (32'b0                 ),      // input logic [31 : 0] c0_ddr4_s_axi_ctrl_wdata
-		.c0_ddr4_s_axi_ctrl_bvalid (                      ),    // output logic c0_ddr4_s_axi_ctrl_bvalid
-		.c0_ddr4_s_axi_ctrl_bready (1'b0                  ),    // input logic c0_ddr4_s_axi_ctrl_bready
-		.c0_ddr4_s_axi_ctrl_bresp  (                      ),      // output logic [1 : 0] c0_ddr4_s_axi_ctrl_bresp
+		.c0_ddr4_s_axi_ctrl_awaddr (32'b0                 ),  // input logic [31 : 0] c0_ddr4_s_axi_ctrl_awaddr
+		.c0_ddr4_s_axi_ctrl_wvalid (1'b0                  ),  // input logic c0_ddr4_s_axi_ctrl_wvalid
+		.c0_ddr4_s_axi_ctrl_wready (                      ),  // output logic c0_ddr4_s_axi_ctrl_wready
+		.c0_ddr4_s_axi_ctrl_wdata  (32'b0                 ),  // input logic [31 : 0] c0_ddr4_s_axi_ctrl_wdata
+		.c0_ddr4_s_axi_ctrl_bvalid (                      ),  // output logic c0_ddr4_s_axi_ctrl_bvalid
+		.c0_ddr4_s_axi_ctrl_bready (1'b0                  ),  // input logic c0_ddr4_s_axi_ctrl_bready
+		.c0_ddr4_s_axi_ctrl_bresp  (                      ),  // output logic [1 : 0] c0_ddr4_s_axi_ctrl_bresp
 		.c0_ddr4_s_axi_ctrl_arvalid(1'b0                  ),  // input logic c0_ddr4_s_axi_ctrl_arvalid
 		.c0_ddr4_s_axi_ctrl_arready(                      ),  // output logic c0_ddr4_s_axi_ctrl_arready
-		.c0_ddr4_s_axi_ctrl_araddr (32'b0                 ),    // input logic [31 : 0] c0_ddr4_s_axi_ctrl_araddr
-		.c0_ddr4_s_axi_ctrl_rvalid (                      ),    // output logic c0_ddr4_s_axi_ctrl_rvalid
-		.c0_ddr4_s_axi_ctrl_rready (1'b0                  ),    // input logic c0_ddr4_s_axi_ctrl_rready
-		.c0_ddr4_s_axi_ctrl_rdata  (                      ),      // output logic [31 : 0] c0_ddr4_s_axi_ctrl_rdata
-		.c0_ddr4_s_axi_ctrl_rresp  (                      ),      // output logic [1 : 0] c0_ddr4_s_axi_ctrl_rresp
+		.c0_ddr4_s_axi_ctrl_araddr (32'b0                 ),  // input logic [31 : 0] c0_ddr4_s_axi_ctrl_araddr
+		.c0_ddr4_s_axi_ctrl_rvalid (                      ),  // output logic c0_ddr4_s_axi_ctrl_rvalid
+		.c0_ddr4_s_axi_ctrl_rready (1'b0                  ),  // input logic c0_ddr4_s_axi_ctrl_rready
+		.c0_ddr4_s_axi_ctrl_rdata  (                      ),  // output logic [31 : 0] c0_ddr4_s_axi_ctrl_rdata
+		.c0_ddr4_s_axi_ctrl_rresp  (                      ),  // output logic [1 : 0] c0_ddr4_s_axi_ctrl_rresp
 
 		.chip_rstn                 (	chip_rstn         ),
 
 		// AXI4 Memory Interface
-		.c0_ddr4_s_axi_awid    ( m_axi_awid),                  // input logic [15 : 0] c0_ddr4_s_axi_awid
+		.c0_ddr4_s_axi_awid      ( m_axi_awid),                // input logic [15 : 0] c0_ddr4_s_axi_awid
 		.c0_ddr4_s_axi_awaddr    ( m_axi_awaddr),              // input logic [34 : 0] c0_ddr4_s_axi_awaddr
-		.c0_ddr4_s_axi_awlen    ( m_axi_awlen),                // input logic [7 : 0] c0_ddr4_s_axi_awlen
+		.c0_ddr4_s_axi_awlen     ( m_axi_awlen),               // input logic [7 : 0] c0_ddr4_s_axi_awlen
 		.c0_ddr4_s_axi_awsize    ( m_axi_awsize),              // input logic [2 : 0] c0_ddr4_s_axi_awsize
-		.c0_ddr4_s_axi_awburst    ( m_axi_awburst),            // input logic [1 : 0] c0_ddr4_s_axi_awburst
+		.c0_ddr4_s_axi_awburst   ( m_axi_awburst),             // input logic [1 : 0] c0_ddr4_s_axi_awburst
 		.c0_ddr4_s_axi_awlock    ( m_axi_awlock),              // input logic [0 : 0] c0_ddr4_s_axi_awlock
-		.c0_ddr4_s_axi_awcache    ( m_axi_awcache),            // input logic [3 : 0] c0_ddr4_s_axi_awcache
+		.c0_ddr4_s_axi_awcache   ( m_axi_awcache),             // input logic [3 : 0] c0_ddr4_s_axi_awcache
 		.c0_ddr4_s_axi_awprot    ( m_axi_awprot),              // input logic [2 : 0] c0_ddr4_s_axi_awprot
-		.c0_ddr4_s_axi_awqos    ( m_axi_awqos),                // input logic [3 : 0] c0_ddr4_s_axi_awqos
-		.c0_ddr4_s_axi_awvalid    ( m_axi_awvalid),            // input logic c0_ddr4_s_axi_awvalid
-		.c0_ddr4_s_axi_awready    ( m_axi_awready),            // output logic c0_ddr4_s_axi_awready
-		.c0_ddr4_s_axi_wdata    ( m_axi_wdata),                // input logic [511 : 0] c0_ddr4_s_axi_wdata
-		.c0_ddr4_s_axi_wstrb    ( m_axi_wstrb),                // input logic [63 : 0] c0_ddr4_s_axi_wstrb
-		.c0_ddr4_s_axi_wlast    ( m_axi_wlast),                // input logic c0_ddr4_s_axi_wlast
+		.c0_ddr4_s_axi_awqos     ( m_axi_awqos),               // input logic [3 : 0] c0_ddr4_s_axi_awqos
+		.c0_ddr4_s_axi_awvalid   ( m_axi_awvalid),             // input logic c0_ddr4_s_axi_awvalid
+		.c0_ddr4_s_axi_awready   ( m_axi_awready),             // output logic c0_ddr4_s_axi_awready
+		.c0_ddr4_s_axi_wdata     ( m_axi_wdata),               // input logic [511 : 0] c0_ddr4_s_axi_wdata
+		.c0_ddr4_s_axi_wstrb     ( m_axi_wstrb),               // input logic [63 : 0] c0_ddr4_s_axi_wstrb
+		.c0_ddr4_s_axi_wlast     ( m_axi_wlast),               // input logic c0_ddr4_s_axi_wlast
 		.c0_ddr4_s_axi_wvalid    ( m_axi_wvalid),              // input logic c0_ddr4_s_axi_wvalid
 		.c0_ddr4_s_axi_wready    ( m_axi_wready),              // output logic c0_ddr4_s_axi_wready
 		.c0_ddr4_s_axi_bready    ( m_axi_bready),              // input logic c0_ddr4_s_axi_bready
-		.c0_ddr4_s_axi_bid    ( m_axi_bid),                    // output logic [15 : 0] c0_ddr4_s_axi_bid
-		.c0_ddr4_s_axi_bresp    ( m_axi_bresp),                // output logic [1 : 0] c0_ddr4_s_axi_bresp
+		.c0_ddr4_s_axi_bid       ( m_axi_bid),                 // output logic [15 : 0] c0_ddr4_s_axi_bid
+		.c0_ddr4_s_axi_bresp     ( m_axi_bresp),               // output logic [1 : 0] c0_ddr4_s_axi_bresp
 		.c0_ddr4_s_axi_bvalid    ( m_axi_bvalid),              // output logic c0_ddr4_s_axi_bvalid
-		.c0_ddr4_s_axi_arid    ( m_axi_arid),                  // input logic [15 : 0] c0_ddr4_s_axi_arid
+		.c0_ddr4_s_axi_arid      ( m_axi_arid),                // input logic [15 : 0] c0_ddr4_s_axi_arid
 		.c0_ddr4_s_axi_araddr    ( m_axi_araddr),              // input logic [34 : 0] c0_ddr4_s_axi_araddr
-		.c0_ddr4_s_axi_arlen    ( m_axi_arlen),                // input logic [7 : 0] c0_ddr4_s_axi_arlen
+		.c0_ddr4_s_axi_arlen     ( m_axi_arlen),               // input logic [7 : 0] c0_ddr4_s_axi_arlen
 		.c0_ddr4_s_axi_arsize    ( m_axi_arsize),              // input logic [2 : 0] c0_ddr4_s_axi_arsize
-		.c0_ddr4_s_axi_arburst    ( m_axi_arburst),            // input logic [1 : 0] c0_ddr4_s_axi_arburst
+		.c0_ddr4_s_axi_arburst   ( m_axi_arburst),             // input logic [1 : 0] c0_ddr4_s_axi_arburst
 		.c0_ddr4_s_axi_arlock    ( m_axi_arlock),              // input logic [0 : 0] c0_ddr4_s_axi_arlock
-		.c0_ddr4_s_axi_arcache    ( m_axi_arcache),            // input logic [3 : 0] c0_ddr4_s_axi_arcache
+		.c0_ddr4_s_axi_arcache   ( m_axi_arcache),             // input logic [3 : 0] c0_ddr4_s_axi_arcache
 		.c0_ddr4_s_axi_arprot    ( m_axi_arprot),              // input logic [2 : 0] c0_ddr4_s_axi_arprot
-		.c0_ddr4_s_axi_arqos    ( m_axi_arqos),                // input logic [3 : 0] c0_ddr4_s_axi_arqos
-		.c0_ddr4_s_axi_arvalid    ( m_axi_arvalid),            // input logic c0_ddr4_s_axi_arvalid
-		.c0_ddr4_s_axi_arready    ( m_axi_arready),            // output logic c0_ddr4_s_axi_arready
+		.c0_ddr4_s_axi_arqos     ( m_axi_arqos),               // input logic [3 : 0] c0_ddr4_s_axi_arqos
+		.c0_ddr4_s_axi_arvalid   ( m_axi_arvalid),             // input logic c0_ddr4_s_axi_arvalid
+		.c0_ddr4_s_axi_arready   ( m_axi_arready),             // output logic c0_ddr4_s_axi_arready
 		.c0_ddr4_s_axi_rready    ( m_axi_rready),              // input logic c0_ddr4_s_axi_rready
-		.c0_ddr4_s_axi_rlast    ( m_axi_rlast),                // output logic c0_ddr4_s_axi_rlast
+		.c0_ddr4_s_axi_rlast     ( m_axi_rlast),               // output logic c0_ddr4_s_axi_rlast
 		.c0_ddr4_s_axi_rvalid    ( m_axi_rvalid),              // output logic c0_ddr4_s_axi_rvalid
-		.c0_ddr4_s_axi_rresp    ( m_axi_rresp),                // output logic [1 : 0] c0_ddr4_s_axi_rresp
-		.c0_ddr4_s_axi_rid    ( m_axi_rid),                    // output logic [15 : 0] c0_ddr4_s_axi_rid
-		.c0_ddr4_s_axi_rdata    ( m_axi_rdata),                 // output logic [511 : 0] c0_ddr4_s_axi_rdata
+		.c0_ddr4_s_axi_rresp     ( m_axi_rresp),               // output logic [1 : 0] c0_ddr4_s_axi_rresp
+		.c0_ddr4_s_axi_rid       ( m_axi_rid),                 // output logic [15 : 0] c0_ddr4_s_axi_rid
+		.c0_ddr4_s_axi_rdata     ( m_axi_rdata),               // output logic [511 : 0] c0_ddr4_s_axi_rdata
 		// PCIe 
-		.pci_express_x16_rxn(pci_express_x16_rxn),
-		.pci_express_x16_rxp(pci_express_x16_rxp),
-		.pci_express_x16_txn(pci_express_x16_txn),
-		.pci_express_x16_txp(pci_express_x16_txp),
-		.pcie_perstn(pcie_perstn),
-		.pcie_refclk_clk_n(pcie_refclk_clk_n),
-		.pcie_refclk_clk_p(pcie_refclk_clk_p),
-		.resetn(resetn)
+		.pci_express_x16_rxn     (pci_express_x16_rxn),
+		.pci_express_x16_rxp     (pci_express_x16_rxp),
+		.pci_express_x16_txn     (pci_express_x16_txn),
+		.pci_express_x16_txp     (pci_express_x16_txp),
+		.pcie_perstn             (pcie_perstn),
+		.pcie_refclk_clk_n       (pcie_refclk_clk_n),
+		.pcie_refclk_clk_p       (pcie_refclk_clk_p),
+		.resetn					 (resetn)
 		);
 		
 endmodule		

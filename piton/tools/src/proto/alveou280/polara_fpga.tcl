@@ -1,4 +1,4 @@
-
+# Copyright (c) 2024 Polytechnique Montreal
 ################################################################
 # This is a generated script based on design: polara_fpga
 #
