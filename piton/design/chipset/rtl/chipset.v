@@ -543,6 +543,8 @@ module chipset(
 `ifdef POLARA_GEN2_CHIPSETSE
    wire                                         io_clk_wire;
    wire                                         io_clk_wire_int;
+   wire                                         io_clk_not_wire_int;
+   wire                                         io_clk_wire_phase_sel;
 `endif
    
 `ifdef PITON_BOARD
@@ -721,7 +723,8 @@ end
 // Combinational Logic //
 /////////////////////////
 `ifdef POLARA_GEN2_CHIPSETSE
-   assign io_clk_wire = io_clk_wire_int;
+   assign io_clk_wire_phase_sel = sw[5];
+   assign io_clk_wire = io_clk_wire_phase_sel ? io_clk_not_wire_int : io_clk_wire_int;
 `endif
    
 `ifndef PITON_BOARD
@@ -953,6 +956,7 @@ end
 
             `ifdef POLARA_GEN2_CHIPSETSE
                 .io_clk(io_clk_wire_int),
+                .io_clk_not(io_clk_not_wire_int),
             `endif
                                      
             .reset(1'b0),
