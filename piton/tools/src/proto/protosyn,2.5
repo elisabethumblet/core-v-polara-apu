@@ -628,7 +628,9 @@ def makeDefList(options):
     if options.eth or options.design == "chipset" or options.design == "system":
         # Ethernet controller is supported on Genesys2 and nexysVideo
         if options.board == "genesys2" or options.board == "nexysVideo":
-            defines.append("PITON_FPGA_ETHERNETLITE")
+            # Don't want ethernet for the Polara chipset
+            if options.gen2_chipset == False:
+                defines.append("PITON_FPGA_ETHERNETLITE")
         else:
             print_info("--eth option is ignored for %s" % options.board)
 
