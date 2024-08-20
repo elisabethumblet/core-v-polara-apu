@@ -146,10 +146,18 @@ def usage():
     print("\n       --vc707chip", file=sys.stderr)
     print("              Sets POLARA_VC707_CHIP rtl define used to recreate Polara chip on VC707 FPGA (False by default)", file=sys.stderr)
     print("              Assumes vc707 board is chosen", file=sys.stderr)
-#    parser.add_option("--gen2chipset", dest="gen2_chipset", action="store_true", default=False)
+    print("\n       --vc707chipset", file=sys.stderr)
+    print("              Sets POLARA_VC707_CHIPSET rtl define used to recreate Polara chipset on VC707 FPGA (False by default)", file=sys.stderr)
+    print("              Assumes vc707 board is chosen", file=sys.stderr)
     print("\n       --gen2chipset", file=sys.stderr)
-    print("              Sets POLARA_GEN2_CHIPSET define.", file=sys.stderr)
+    print("              Sets POLARA_GEN2_CHIPSET define. Necessary with --se to create the Polara chipset.", file=sys.stderr)
     print("              Assumes genesys2 board is chosen", file=sys.stderr)
+    print("\n       --se", file=sys.stderr)
+    print("              Sets POLARA_GEN2_CHIPSETSE define.", file=sys.stderr)
+    print("              Assumes genesys2 board is chosen", file=sys.stderr)
+    print("\n       --noctest", file=sys.stderr)
+    print("              Sets PITON_NOC_POWER_CHIPSET_TEST define.", file=sys.stderr)
+    print("              To generate packets to test Polara's NOC.", file=sys.stderr)
     print("\n       -h, --help", file=sys.stderr)
     print("              Display this help message and exit", file=sys.stderr)
     print("\n", file=sys.stderr)
@@ -502,8 +510,10 @@ def setParserOptions(parser):
     parser.add_option("--zeroer_off", dest="zeroer_off", action="store_true", default=False)
     parser.add_option("--postroutephysopt", dest="postroutephysopt", action="store_true", default=False)
     parser.add_option("--vc707chip", dest="polara_vc707_chip_flag", action="store_true", default=False)
+    parser.add_option("--vc707chipset", dest="polara_vc707_chipset_flag", action="store_true", default=False)
     parser.add_option("--gen2chipset", dest="gen2_chipset", action="store_true", default=False)
     parser.add_option("--se", dest="se", action="store_true", default=False)
+    parser.add_option("--noctest", dest="noctest", action="store_true", default=False)
 
     return parser
 
@@ -618,7 +628,9 @@ def makeDefList(options):
     if options.eth or options.design == "chipset" or options.design == "system":
         # Ethernet controller is supported on Genesys2 and nexysVideo
         if options.board == "genesys2" or options.board == "nexysVideo":
-            defines.append("PITON_FPGA_ETHERNETLITE")
+            # Don't want ethernet for the Polara chipset
+            if options.gen2_chipset == False:
+                defines.append("PITON_FPGA_ETHERNETLITE")
         else:
             print_info("--eth option is ignored for %s" % options.board)
 
@@ -644,8 +656,16 @@ def makeDefList(options):
 
     # --vc707chip option
     if options.polara_vc707_chip_flag == True:
+        # Set RTL define
         defines.append("POLARA_VC707_CHIP")
 
+    # --vc707chipset option
+    if options.polara_vc707_chipset_flag == True:
+        # Set RTL define
+        defines.append("POLARA_VC707_CHIPSET")
+        # Set environnment variable
+        os.environ["POLARA_VC707_CHIPSET"]     = "1"
+        
     # --gen2chipset option
     if options.gen2_chipset == True:
         # Set RTL define
@@ -657,6 +677,13 @@ def makeDefList(options):
             defines.append("POLARA_GEN2_CHIPSETSE")
             # Set environnment variable
             os.environ["POLARA_GEN2_CHIPSETSE"]     = "1"
+
+    # --noctest option
+    if options.noctest == True:
+        # Set RTL define
+        defines.append("PITON_NOC_POWER_CHIPSET_TEST")
+        # Set environnment variable
+        os.environ["PITON_NOC_POWER_CHIPSET_TEST"] = "1"
 
     return defines
 

@@ -538,9 +538,15 @@ module chipset(
 `ifdef PITON_CHIPSET_CLKS_GEN
     wire                                        chipset_clk;
     wire                                        mc_clk;
-    wire                                        io_clk_wire;
 `endif // endif PITON_CHIPSET_CLKS_GEN
 
+`ifdef POLARA_GEN2_CHIPSETSE
+   wire                                         io_clk_wire;
+   wire                                         io_clk_wire_int;
+   wire                                         io_clk_not_wire_int;
+   wire                                         io_clk_wire_phase_sel;
+`endif
+   
 `ifdef PITON_BOARD
     // Internal generated clocks
     wire                                        core_ref_clk_inter;
@@ -687,7 +693,6 @@ wire            sd_clk_out_internal;
 // the packet filter to peripherals flags invalid accesses
 wire            invalid_access;
 
-
 //////////////////////
 // Sequential Logic //
 //////////////////////
@@ -713,11 +718,15 @@ end
                                             fpga_intf_rdy_noc3      ? 1'b1 : passthru_fifo_init_complete;
     end
 `endif  // PITON_BOARD
-
+   
 /////////////////////////
 // Combinational Logic //
 /////////////////////////
-
+`ifdef POLARA_GEN2_CHIPSETSE
+   assign io_clk_wire_phase_sel = sw[5];
+   assign io_clk_wire = io_clk_wire_phase_sel ? io_clk_not_wire_int : io_clk_wire_int;
+`endif
+   
 `ifndef PITON_BOARD
     `ifndef PITONSYS_INC_PASSTHRU
         assign io_clk_loopback = io_clk;
@@ -728,7 +737,12 @@ end
         // this chipset clocks. This means everything is synchronous
         // to the same clock
         assign core_ref_clk     = chipset_clk;
-        assign io_clk           = chipset_clk;
+        `ifndef POLARA_GEN2_CHIPSETSE
+            assign io_clk           = chipset_clk;
+        `else
+            assign io_clk           = io_clk_wire;
+        `endif   
+        
     `endif // PITON_CLKS_CHIPSET
 `endif // PITON_BOARD
 
@@ -865,7 +879,7 @@ end
     assign leds[2] = test_start;
     assign leds[3] = init_calib_complete;
     assign leds[4] = chipset_rst_n_ff;
-    assign leds[5] = rst_n_rect;
+    assign leds[5] = chipset_rst_n_ff;
     assign leds[6] = rst_n;
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
@@ -940,6 +954,11 @@ end
                 .clk_in1(clk_osc),
             `endif // endif PITON_CHIPSET_DIFF_CLK
 
+            `ifdef POLARA_GEN2_CHIPSETSE
+                .io_clk(io_clk_wire_int),
+                .io_clk_not(io_clk_not_wire_int),
+            `endif
+                                     
             .reset(1'b0),
             .locked(clk_locked),
                                      
@@ -1090,6 +1109,7 @@ fpga_bridge(
     .fpga_out_clk       (chipset_clk            ),
     .fpga_in_clk        (chipset_clk            ),
 
+    `ifndef POLARA_GEN2_CHIPSETSE
     `ifdef PITONSYS_INC_PASSTHRU
         .intf_out_clk   (chipset_passthru_clk   ),
         .intf_in_clk    (passthru_chipset_clk   ),
@@ -1097,6 +1117,11 @@ fpga_bridge(
         .intf_out_clk   (io_clk_loopback        ),
         .intf_in_clk    (io_clk_loopback        ),
     `endif // endif PITONSYS_INC_PASSTHRU
+    `endif // endif POLARA_GEN2_CHIPSETSE
+    `ifdef POLARA_GEN2_CHIPSETSE
+        .intf_out_clk   (io_clk_wire_int        ),
+        .intf_in_clk    (io_clk_wire_int        ),
+    `endif
 
     .fpga_intf_data_noc1(fpga_intf_data_noc1),
     .fpga_intf_data_noc2(fpga_intf_data_noc2),
@@ -1304,13 +1329,15 @@ chipset_impl_noc_power_test  chipset_impl (
     .piton_ready_n      (piton_ready_n      ),
 
     .test_start         (test_start         ),
-    .uart_rst_out_n     (uart_rst_out_n     ),
-    .invalid_access_o   (invalid_access     ),
-
+    
 `ifdef PITON_NOC_POWER_CHIPSET_TEST
     .noc_power_test_hop_count (noc_power_test_hop_count),
+`else
+    .uart_rst_out_n     (uart_rst_out_n     ),
+    .invalid_access_o   (invalid_access     ),
 `endif
 
+`ifndef PITON_NOC_POWER_CHIPSET_TEST                                           
 `ifdef POLARA_GEN2_CHIPSET
  `ifdef POLARA_GEN2_CHIPSETSE
      .mig_ddr3_sys_se_clock_clk(mc_clk),
@@ -1330,6 +1357,7 @@ chipset_impl_noc_power_test  chipset_impl (
      .mig_ddr3_sys_diff_clock_clk_p(clk_osc_p),
  `endif // POLARA_GEN2_CHIPSETSE
 `endif // POLARA_GEN2_CHIPSET
+`endif // PITON_NOC_POWER_CHIPSET_TEST
                                            
     `ifndef PITONSYS_NO_MC
     `ifdef PITON_FPGA_MC_DDR3
@@ -1467,11 +1495,13 @@ chipset_impl_noc_power_test  chipset_impl (
             ,
             .uart_tx(uart_tx),
             .uart_rx(uart_rx)
+            `ifndef PITON_NOC_POWER_CHIPSET_TEST
             `ifdef PITONSYS_UART_BOOT
                 ,
                 .uart_boot_en(uart_boot_en),
                 .uart_timeout_en(uart_timeout_en)
             `endif // endif PITONSYS_UART_BOOT
+            `endif // PITON_NOC_POWER_CHIPSET_TEST
         `endif // endif PITONSYS_UART
 
         `ifdef PITONSYS_SPI
@@ -1488,6 +1518,7 @@ chipset_impl_noc_power_test  chipset_impl (
             .sd_cmd(sd_cmd),
             .sd_dat(sd_dat)
         `endif // endif PITONSYS_SPI
+            `ifndef PITON_NOC_POWER_CHIPSET_TEST
             `ifdef PITON_FPGA_ETHERNETLITE      
                 ,
                 .net_axi_clk        (net_axi_clk            ),
@@ -1505,7 +1536,8 @@ chipset_impl_noc_power_test  chipset_impl (
                 .net_phy_mdio_io    (net_phy_mdio_io        ),
                 .net_phy_mdc        (net_phy_mdc            )
 
-            `endif // PITON_FPGA_ETHERNETLITE   
+            `endif // PITON_FPGA_ETHERNETLITE
+            `endif // PITON_NOC_POWER_CHIPSET_TEST
     `endif // endif PITONSYS_IOCTRL
                                            
     `ifdef ALVEO_BOARD
