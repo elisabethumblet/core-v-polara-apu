@@ -9,253 +9,175 @@
 
 module chipset_impl_polara_loopback(
     // Clocks and resets
-    input chipset_clk,
-    input chipset_rst_n,
-
-    // Misc
-    output test_start,
+    input                        chipset_clk,
+    input                        chipset_rst_n,
 
     // Main chip interface
-    output [`NOC_DATA_WIDTH-1:0]                chipset_intf_data_noc1,
-    output [`NOC_DATA_WIDTH-1:0]                chipset_intf_data_noc2,
-    output [`NOC_DATA_WIDTH-1:0]                chipset_intf_data_noc3,
-    output                                      chipset_intf_val_noc1,
-    output                                      chipset_intf_val_noc2,
-    output                                      chipset_intf_val_noc3,
-    input                                       chipset_intf_rdy_noc1,
-    input                                       chipset_intf_rdy_noc2,
-    input                                       chipset_intf_rdy_noc3,
+    output [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc1,
+    output [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc2,
+    output [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc3,
+    output                       chipset_intf_val_noc1,
+    output                       chipset_intf_val_noc2,
+    output                       chipset_intf_val_noc3,
+    input                        chipset_intf_rdy_noc1,
+    input                        chipset_intf_rdy_noc2,
+    input                        chipset_intf_rdy_noc3,
 
-    input  [`NOC_DATA_WIDTH-1:0]                intf_chipset_data_noc1,
-    input  [`NOC_DATA_WIDTH-1:0]                intf_chipset_data_noc2,
-    input  [`NOC_DATA_WIDTH-1:0]                intf_chipset_data_noc3,
-    input                                       intf_chipset_val_noc1,
-    input                                       intf_chipset_val_noc2,
-    input                                       intf_chipset_val_noc3,
-    output                                      intf_chipset_rdy_noc1,
-    output                                      intf_chipset_rdy_noc2,
-    output                                      intf_chipset_rdy_noc3                                    
+    input [`NOC_DATA_WIDTH-1:0]  intf_chipset_data_noc1,
+    input [`NOC_DATA_WIDTH-1:0]  intf_chipset_data_noc2,
+    input [`NOC_DATA_WIDTH-1:0]  intf_chipset_data_noc3,
+    input                        intf_chipset_val_noc1,
+    input                        intf_chipset_val_noc2,
+    input                        intf_chipset_val_noc3,
+    output                       intf_chipset_rdy_noc1,
+    output                       intf_chipset_rdy_noc2,
+    output                       intf_chipset_rdy_noc3,
 
+    // Chip and other BD signals
+    input                        mc_clk, // not sure if needed
+    input                        mig_ddr3_sys_se_clock_clk,
+    output                       chip_async_mux,
+    output                       chip_clk_en,
+    output                       chip_clk_mux_sel,
+    output                       chip_rst_n,
+    output                       init_calib_complete,
+    output                       test_start,
+
+    // FLL
+    input                        fll_clkdiv,
+    input                        fll_lock,
+    output                       fll_bypass,
+    output                       fll_cfg_req,
+    output                       fll_opmode,
+    output [3:0]                 fll_range,
+    output                       fll_rst_n, 
+                                    
     // Just dummy signals
-`ifdef PITONSYS_IOCTRL
-`ifdef PITONSYS_UART
-    ,
-    output                                      uart_tx,
-    input                                       uart_rx
-`endif // endif PITONSYS_UART
-`endif // endif PITONSYS_IOCTRL
+    output                       uart_tx,
+    input                        uart_rx,
+    input                        uart_boot_en,
+    input                        uart_timeout_en
 );
    
 ///////////////////////
 // Type declarations //
 ///////////////////////
 
-// NoC power message header
-// CHIPID: 14'd0
-// XPOS: variable, depends on number of hops
-// YPOS: variable, depends on number of hops
+// /////////////////////////////////////////////////////////////////
+// NoC message for polara loopback
+// CHIPID: 14'd1
+// XPOS: 8'd0
+// YPOS: 8'd0
 // FBITS: 4'd0
-// PAYLOAD LENGTH: 8'd6 // Max accepted by L1.5
+// PAYLOAD LENGTH: 8'd0
 // MESSAGE TYPE: MSG_TYPE_INV_FWD // Causes dummy invalidations
 // MSHR/TAG: 8'd0
 // RESERVED: 6'd0
-parameter                                       MSG_HEADER = {14'd0, 8'd0, 8'd0, 4'd0, 8'd6, 
-                                                              `MSG_TYPE_INV_FWD, 8'd0, 6'd0};
+// /////////////////////////////////////////////////////////////////
 
-parameter                                       STATE_RESET = 2'd0;
-parameter                                       STATE_SEND_HEADER = 2'd1;
-parameter                                       STATE_SEND_DATA_PATTERN_A = 2'd2;
-parameter                                       STATE_SEND_DATA_PATTERN_B = 2'd3;
+   wire [1:0]                           polara_gen2chipset_bus_i;
+   wire [11:0]                          polara_gen2chipset_bus_o;
+   wire                                 chip_rst_n_inter;
 
-reg                                             rst_n;
+   parameter STATE_RESET = 2'b00;
+   parameter STATE_SEND  = 2'b01;
+   parameter STATE_WAIT  = 2'b10;
 
-reg  [1:0]                                      state_f;
-reg  [1:0]                                      state_next;
-
-reg  [7:0]                                      payload_count_f;
-reg  [7:0]                                      payload_count_next;
-
-reg  [`NOC_DATA_WIDTH-1:0]                      out_data;
-
+   reg [1:0]                            CurrentState, NextState;
+   
+   wire [`NOC_DATA_WIDTH-1:0]            out_data;
+   
+   
 //////////////////////
 // Sequential Logic //
 //////////////////////
 
-always @ (posedge chipset_clk)
-begin
-    if (~rst_n)
-    begin
-        state_f <= STATE_RESET;
-        payload_count_f <= 8'd0;
-    end
-    else
-    begin
-        state_f <= state_next;
-        payload_count_f <= payload_count_next;
-    end
-end // always @ (posedge chipset_clk)
-
+   always @ (posedge chipset_clk)
+     begin: SEQ
+        if (~chip_rst_n_inter)
+          begin
+             CurrentState <= STATE_RESET;
+          end
+        else
+          begin
+             CurrentState <= NextState;
+          end
+     end
+   
 /////////////////////////
 // Combinational Logic //
 /////////////////////////
 
-`ifdef PITONSYS_IOCTRL
-`ifdef PITONSYS_UART
-    assign uart_tx = 1'b0;
-`endif // endif PITONSYS_UART
-`endif // endif PITONSYS_IOCTRL
-
-// State machine
-always @ *
-begin
-    state_next = state_f;
-    payload_count_next = payload_count_f;
-
-    case (state_f)
-        STATE_RESET:
-        begin
-            state_next = STATE_SEND_HEADER;
-        end
-        STATE_SEND_HEADER:
-        begin
-            if (chipset_intf_rdy_noc2)
-                state_next = STATE_SEND_DATA_PATTERN_A;
-        end
-        STATE_SEND_DATA_PATTERN_A:
-        begin
-            if (chipset_intf_rdy_noc2)
+   // Output data
+   assign out_data = {14'd1, 8'd0, 8'd0, 4'd0, 8'd0, `MSG_TYPE_INV_FWD, 8'd0, 6'd0};
+   
+   // State machine
+   always @ (*)
+     begin: COMB
+        case (CurrentState)
+          STATE_RESET:
             begin
-                if (payload_count_f == 8'd5)
-                begin
-                    state_next = STATE_SEND_HEADER;
-                    payload_count_next = 8'd0;
-                end
-                else
-                begin
-                    state_next = STATE_SEND_DATA_PATTERN_B;
-                    payload_count_next = payload_count_f + 1'b1;
-                end
-            end
-        end
-        STATE_SEND_DATA_PATTERN_B:
-        begin
-            if (chipset_intf_rdy_noc2)
+               if (chip_rst_n_inter)
+                 begin
+                    NextState = STATE_SEND;
+                 end
+               else
+                 begin
+                    NextState = STATE_RESET;
+                 end
+            end // case: STATE_RESET
+          STATE_SEND:
             begin
-                if (payload_count_f == 8'd5)
-                begin
-                    state_next = STATE_SEND_HEADER;
-                    payload_count_next = 8'd0;
-                end
-                else
-                begin
-                    state_next = STATE_SEND_DATA_PATTERN_A;
-                    payload_count_next = payload_count_f + 1'b1;
-                end    
+               if (chipset_intf_rdy_noc2)
+                 begin
+                    NextState = STATE_WAIT;
+                 end
             end 
-        end
-    endcase
-end // always @ *
+          default: // STATE_WAIT
+            begin
+               NextState = STATE_WAIT;
+            end
+        endcase // case (CurrentState)
+     end
+   
+   
+   // Instantiate the block design
+   gen2_polara_fpga_loopback gen2_polara_fpga_i
+       (.bd_clk(chipset_clk),
+        .mig_ddr3_sys_rst_n(chipset_rst_n),
+        .polara_gen2chipset_bus_i_tri_i(polara_gen2chipset_bus_i),
+        .polara_gen2chipset_bus_o_tri_o(polara_gen2chipset_bus_o));
 
-// Out data generation
-always @ *
-begin
-    out_data = {`NOC_DATA_WIDTH{1'bx}};
+   // Route polara_gen2chipset_bus signals
+   assign chip_rst_n = chip_rst_n_inter;
+   assign chip_rst_n_inter = polara_gen2chipset_bus_o[0];
+   assign chip_async_mux = polara_gen2chipset_bus_o[1];
+   assign chip_clk_en = polara_gen2chipset_bus_o[2];
+   assign chip_clk_mux_sel = polara_gen2chipset_bus_o[3];
 
-    case (state_f)
-        STATE_RESET:
-        begin
-            out_data = {`NOC_DATA_WIDTH{1'bx}};
-        end
-        STATE_SEND_HEADER:
-        begin
-            out_data = MSG_HEADER;
-            case (noc_power_test_hop_count)
-                4'd0:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd0;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd0;
-                end
-                4'd1:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd1;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd0;
-                end
-                4'd2:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd2;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd0;
-                end
-                4'd3:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd3;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd0;
-                end
-                4'd4:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd4;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd0;
-                end
-                4'd5:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd4;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd1;
-                end
-                4'd6:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd4;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd2;
-                end
-                4'd7:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd4;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd3;
-                end
-                4'd8:
-                begin
-                    out_data[`MSG_DST_X] = `MSG_DST_X_WIDTH'd4;
-                    out_data[`MSG_DST_Y] = `MSG_DST_Y_WIDTH'd4;
-                end
-            endcase
-        end
-        STATE_SEND_DATA_PATTERN_A:
-        begin
-`ifdef NOC_POWER_TEST_0xA_0x5_PATTERN
-            out_data = {`NOC_DATA_WIDTH/2{2'b01}};
-`elsif NOC_POWER_TEST_0x0_0x0_PATTERN
-            out_data = {`NOC_DATA_WIDTH{1'b0}};
-`elsif NOC_POWER_TEST_0x0_0x3_PATTERN
-            out_data = {`NOC_DATA_WIDTH/4{4'b0011}};
-`else
-            out_data = {`NOC_DATA_WIDTH{1'b1}};
-`endif // endif NOC_POWER_TEST_0xA_0x5_PATTERN
-        end
-        STATE_SEND_DATA_PATTERN_B:
-        begin
-`ifdef NOC_POWER_TEST_0xA_0x5_PATTERN
-            out_data = {`NOC_DATA_WIDTH/2{2'b10}};
-`elsif NOC_POWER_TEST_0x0_0x0_PATTERN
-            out_data = {`NOC_DATA_WIDTH{1'b0}};
-`elsif NOC_POWER_TEST_0x0_0x3_PATTERN
-            out_data = {`NOC_DATA_WIDTH{1'b0}};
-`else
-            out_data = {`NOC_DATA_WIDTH{1'b0}};
-`endif // endif NOC_POWER_TEST_0xA_0x5_PATTERN
-        end
-    endcase
-end   
+   assign fll_rst_n = polara_gen2chipset_bus_o[4];
+   assign fll_bypass = polara_gen2chipset_bus_o[5];
+   assign fll_opmode = polara_gen2chipset_bus_o[6];
+   assign fll_cfg_req = polara_gen2chipset_bus_o[7];
 
-assign test_start = 1'b1;
+   assign fll_range[3:0] = polara_gen2chipset_bus_o[11:8];
+   
+   assign polara_gen2chipset_bus_i[0] = fll_lock;
+   assign polara_gen2chipset_bus_i[1] = fll_clkdiv;
 
-assign chipset_intf_data_noc1 = {`NOC_DATA_WIDTH{1'bx}};
-assign chipset_intf_data_noc2 = out_data;
-assign chipset_intf_data_noc3 = {`NOC_DATA_WIDTH{1'bx}};
+   // Assign network I/Os
+   assign test_start = 1'b1;
 
-assign chipset_intf_val_noc1 = 1'b0;
-assign chipset_intf_val_noc2 = (state_f != STATE_RESET);
-assign chipset_intf_val_noc3 = 1'b0;
+   assign chipset_intf_data_noc1 = {`NOC_DATA_WIDTH{1'bx}};
+   assign chipset_intf_data_noc2 = out_data;
+   assign chipset_intf_data_noc3 = {`NOC_DATA_WIDTH{1'bx}};
 
-assign intf_chipset_rdy_noc1 = 1'b0;
-assign intf_chipset_rdy_noc2 = 1'b0;
-assign intf_chipset_rdy_noc3 = 1'b0;
+   assign chipset_intf_val_noc1 = 1'b0;
+   assign chipset_intf_val_noc2 = (CurrentState != STATE_RESET);
+   assign chipset_intf_val_noc3 = 1'b0;
 
+   assign intf_chipset_rdy_noc1 = 1'b0;
+   assign intf_chipset_rdy_noc2 = 1'b0;
+   assign intf_chipset_rdy_noc3 = 1'b0;
+   
 endmodule
