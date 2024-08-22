@@ -233,6 +233,7 @@ module chipset(
 `endif // endif PITON_NO_CHIP_BRIDGE PITONSYS_INC_PASSTHRU
 
     // DRAM and I/O interfaces
+`ifndef POLARA_LOOPBACK // No need for DDR for Polara loopback tests
 `ifndef PITONSYS_NO_MC
 `ifdef PITON_FPGA_MC_DDR3
     // Generalized interface for any FPGA board we support.
@@ -329,6 +330,7 @@ module chipset(
 `endif // ifndef F1_BOARD
 `endif //`ifdef PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
+`endif //  `ifndef POLARA_LOOPBACK
 
 
 `ifdef PITONSYS_IOCTRL
@@ -1320,21 +1322,28 @@ credit_to_valrdy processor_offchip_noc3_c2v(
 
 // Intantiate the actual chipset implementation
 `ifndef PITON_NOC_POWER_CHIPSET_TEST
+`ifdef POLARA_LOOPBACK
+chipset_impl_polara_loopback chipset_impl(
+`else
 chipset_impl    chipset_impl    (
+`endif // ifdef POLARA_LOOPBACK
 `else // ifdef PITON_NOC_POWER_CHIPSET_TEST
 chipset_impl_noc_power_test  chipset_impl (
-`endif
+`endif // ifdef PITON_NOC_POWER_CHIPSET_TEST
     .chipset_clk        (chipset_clk        ),
     .chipset_rst_n      (chipset_rst_n_ff   ),
+`ifndef POLARA_LOOPBACK                                           
     .piton_ready_n      (piton_ready_n      ),
-
+`endif
     .test_start         (test_start         ),
     
 `ifdef PITON_NOC_POWER_CHIPSET_TEST
     .noc_power_test_hop_count (noc_power_test_hop_count),
 `else
+`ifndef POLARA_LOOPBACK                                           
     .uart_rst_out_n     (uart_rst_out_n     ),
     .invalid_access_o   (invalid_access     ),
+`endif // ifndef POLARA_LOOPBACK                                           
 `endif
 
 `ifndef PITON_NOC_POWER_CHIPSET_TEST                                           
@@ -1394,6 +1403,7 @@ chipset_impl_noc_power_test  chipset_impl (
     .intf_chipset_rdy_noc3(intf_chipset_rdy_noc3)
 
     // DRAM and I/O interfaces
+    `ifndef POLARA_LOOPBACK                                           
     `ifndef PITONSYS_NO_MC
         `ifdef PITON_FPGA_MC_DDR3 
             ,
@@ -1489,6 +1499,7 @@ chipset_impl_noc_power_test  chipset_impl (
             `endif //ifndef F1_BOARD
         `endif // endif PITON_FPGA_MC_DDR3
     `endif // endif PITONSYS_NO_MC
+    `endif // endif POLARA_LOOPBACK
                                            
     `ifdef PITONSYS_IOCTRL
         `ifdef PITONSYS_UART
