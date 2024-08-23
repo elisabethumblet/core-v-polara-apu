@@ -65,12 +65,12 @@ module chipset_impl_polara_loopback(
 
 // /////////////////////////////////////////////////////////////////
 // NoC message for polara loopback
-// CHIPID: 14'd1
+// CHIPID: 14'b10000000000000
 // XPOS: 8'd0
 // YPOS: 8'd0
-// FBITS: 4'd0
+// FBITS: 4'b0010
 // PAYLOAD LENGTH: 8'd0
-// MESSAGE TYPE: MSG_TYPE_INV_FWD // Causes dummy invalidations
+// MESSAGE TYPE: MSG_TYPE_INV_FWD // Causes dummy invalidations 8'd18=8'b00010010
 // MSHR/TAG: 8'd0
 // RESERVED: 6'd0
 // /////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ module chipset_impl_polara_loopback(
 /////////////////////////
 
    // Output data
-   assign out_data = {14'd1, 8'd0, 8'd0, 4'd0, 8'd0, `MSG_TYPE_INV_FWD, 8'd0, 6'd0};
+   assign out_data = {14'b10000000000000, 8'd0, 8'd0, 4'b0010, 8'd0, `MSG_TYPE_INV_FWD, 8'd0, 6'd0};
    
    // State machine
    always @ (*)
