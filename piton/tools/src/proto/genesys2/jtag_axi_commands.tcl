@@ -41,6 +41,24 @@
 reset_hw_axi [get_hw_axis hw_axi_1]
 
 # ####################################################################
+# Loopback flow. We are not using FLL
+# ####################################################################
+# 1. Reset the core
+reset_hw_axi [get_hw_axis hw_axi_1]
+# 2. rst_n on
+create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns rston]
+# 3. chip_async_mux = 1, chip_clk_en = 1, chip_clk_mux_sel = 1, rst on
+create_hw_axi_txn -force cfgrst [get_hw_axis hw_axi_1] -address 40000000 -data {0000000E} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns cfgrst]
+# 4. cfg take off rst
+create_hw_axi_txn -force cfgrstoff [get_hw_axis hw_axi_1] -address 40000000 -data {0000000F} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns cfgrstoff]
+
+# ####################################################################
 # Genesys 2 Memory Test
 # ####################################################################
 # 2. Create a write transaction (16 word AXI burst write)
