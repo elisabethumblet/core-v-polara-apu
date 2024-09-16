@@ -12,13 +12,17 @@ module chipset_impl_polara_loopback(
     input                        chipset_clk,
     input                        chipset_rst_n,
 
+    // Switches
+    input                        sw_channel_msb,
+    input                        sw_channel_lsb,
+
     // Main chip interface
-    output [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc1,
-    output [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc2,
-    output [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc3,
-    output                       chipset_intf_val_noc1,
-    output                       chipset_intf_val_noc2,
-    output                       chipset_intf_val_noc3,
+    output reg [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc1,
+    output reg [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc2,
+    output reg [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc3,
+    output reg                      chipset_intf_val_noc1,
+    output reg                      chipset_intf_val_noc2,
+    output reg                      chipset_intf_val_noc3,
     input                        chipset_intf_rdy_noc1,
     input                        chipset_intf_rdy_noc2,
     input                        chipset_intf_rdy_noc3,
@@ -85,8 +89,11 @@ module chipset_impl_polara_loopback(
 
    reg [1:0]                            CurrentState, NextState;
    
-   wire [`NOC_DATA_WIDTH-1:0]            out_data;
+   wire [`NOC_DATA_WIDTH-1:0]           out_data;                                  
    
+   wire                                  sw_msb_debounced;
+   wire                                 sw_lsb_debounced;
+   wire [1:0]                            sw_debounced;  
    
 //////////////////////
 // Sequential Logic //
@@ -132,6 +139,10 @@ module chipset_impl_polara_loopback(
                  begin
                     NextState = STATE_WAIT;
                  end
+               else
+                 begin
+                    NextState = STATE_SEND;
+                 end
             end 
           default: // STATE_WAIT
             begin
@@ -147,6 +158,21 @@ module chipset_impl_polara_loopback(
         .mig_ddr3_sys_rst_n(chipset_rst_n),
         .polara_gen2chipset_bus_i_tri_i(polara_gen2chipset_bus_i),
         .polara_gen2chipset_bus_o_tri_o(polara_gen2chipset_bus_o));
+
+   // Instantiate debouncers for the 2 channel switches
+   debouncer debouncer_sw_msb(
+                              .clk(chipset_clk),
+                              .rstn(chipset_rst_n),
+                              .i_sig(sw_channel_msb),
+                              .o_sig_debounced(sw_msb_debounced));
+   debouncer debouncer_sw_lsb(
+                              .clk(chipset_clk),
+                              .rstn(chipset_rst_n),
+                              .i_sig(sw_channel_lsb),
+                              .o_sig_debounced(sw_lsb_debounced));
+   assign sw_debounced = {sw_msb_debounced, sw_lsb_debounced};
+   
+   
 
    // Route polara_gen2chipset_bus signals
    assign chip_rst_n = chip_rst_n_inter;
@@ -165,9 +191,28 @@ module chipset_impl_polara_loopback(
    assign polara_gen2chipset_bus_i[0] = fll_lock;
    assign polara_gen2chipset_bus_i[1] = fll_clkdiv;
 
+   // Demuxes to route data and valid signals
+   always @(*) begin : DATA_DEMUX
+    case(sw_debounced)
+      2'h1: {chipset_intf_data_noc1, chipset_intf_data_noc2, chipset_intf_data_noc3} = {out_data, {`NOC_DATA_WIDTH{1'bx}}, {`NOC_DATA_WIDTH{1'bx}} };
+      2'h2: {chipset_intf_data_noc1, chipset_intf_data_noc2, chipset_intf_data_noc3} = { {`NOC_DATA_WIDTH{1'bx}}, out_data, {`NOC_DATA_WIDTH{1'bx}} };
+      2'h3: {chipset_intf_data_noc1, chipset_intf_data_noc2, chipset_intf_data_noc3} = { {`NOC_DATA_WIDTH{1'bx}}, {`NOC_DATA_WIDTH{1'bx}}, out_data};
+      default: {chipset_intf_data_noc1, chipset_intf_data_noc2, chipset_intf_data_noc3} = { {`NOC_DATA_WIDTH{1'bx}}, {`NOC_DATA_WIDTH{1'bx}}, {`NOC_DATA_WIDTH{1'bx}} };
+    endcase
+   end
+
+   always @(*) begin : VALID_DEMUX
+    case(sw_debounced)
+      2'h1: {chipset_intf_val_noc1, chipset_intf_val_noc2, chipset_intf_val_noc3} = {(CurrentState != STATE_RESET), 1'b0, 1'b0 };
+      2'h2: {chipset_intf_val_noc1, chipset_intf_val_noc2, chipset_intf_val_noc3} = { 1'b0, (CurrentState != STATE_RESET), 1'b0 };
+      2'h3: {chipset_intf_val_noc1, chipset_intf_val_noc2, chipset_intf_val_noc3} = { 1'b0, 1'b0, (CurrentState != STATE_RESET) };
+      default: {chipset_intf_val_noc1, chipset_intf_val_noc2, chipset_intf_val_noc3} = { 1'b0, 1'b0, 1'b0 };
+    endcase
+   end
+   
    // Assign network I/Os
    assign test_start = 1'b1;
-
+/*
    assign chipset_intf_data_noc1 = {`NOC_DATA_WIDTH{1'bx}};
    assign chipset_intf_data_noc2 = out_data;
    assign chipset_intf_data_noc3 = {`NOC_DATA_WIDTH{1'bx}};
@@ -175,7 +220,7 @@ module chipset_impl_polara_loopback(
    assign chipset_intf_val_noc1 = 1'b0;
    assign chipset_intf_val_noc2 = (CurrentState != STATE_RESET);
    assign chipset_intf_val_noc3 = 1'b0;
-
+*/
    assign intf_chipset_rdy_noc1 = 1'b0;
    assign intf_chipset_rdy_noc2 = 1'b0;
    assign intf_chipset_rdy_noc3 = 1'b0;

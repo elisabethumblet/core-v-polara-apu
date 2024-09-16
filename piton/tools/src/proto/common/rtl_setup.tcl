@@ -778,7 +778,8 @@ set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/linux/bootrom_linux.sv" \
     "${DV_ROOT}/design/common/rtl/bram_1r1w_wrapper.v"  \
     "${DV_ROOT}/design/chipset/mc/rtl/gen2_polara_top.sv"\
-    "${DV_ROOT}/design/chipset/rtl/polara_loopback.v" \
+                                "${DV_ROOT}/design/chipset/rtl/polara_debouncer.sv" \
+                                "${DV_ROOT}/design/chipset/rtl/polara_loopback.v" \
     "${DV_ROOT}/design/chipset/rv64_platform/bootrom/baremetal/bootrom.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/corev_apu/axi_mem_if/src/axi2mem.sv" \
     "${DV_ROOT}/design/chip/tile/ariane/vendor/pulp-platform/axi/src/axi_pkg.sv" \
