@@ -85,6 +85,10 @@ module polara_loopback_packet_gen_tb();
         chip_rst_n_inter = 1'b1;
       #50
         chipset_intf_rdy_noc1 = 1'b1;
+      #500
+        chipset_intf_rdy_noc1 = 1'b0;
+      #500
+        chipset_intf_rdy_noc1 = 1'b1;
       #2000
         
       $finish;
