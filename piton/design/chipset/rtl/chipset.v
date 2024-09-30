@@ -1345,7 +1345,8 @@ chipset_impl_noc_power_test  chipset_impl (
     .invalid_access_o   (invalid_access     ),
 `else // ifndef POLARA_LOOPBACK
      .sw_channel_msb(sw[1]),
-     .sw_channel_lsb(sw[0]),                                      
+     .sw_channel_lsb(sw[0]),
+     .sw_march(sw[2]),
 `endif // ifndef POLARA_LOOPBACK                                           
 `endif
 
