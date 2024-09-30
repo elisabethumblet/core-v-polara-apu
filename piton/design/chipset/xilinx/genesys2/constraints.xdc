@@ -667,7 +667,7 @@ set_property -dict {PACKAGE_PIN J17 IOSTANDARD LVCMOS18} [get_ports {chip_intf_d
 #set_property PACKAGE_PIN H11 [get_ports {passthru_chipset_channel_p[1]}]
 #set_property PACKAGE_PIN H12 [get_ports {passthru_chipset_channel_n[1]}]
 #set_property IOSTANDARD LVDS_25 [get_ports {passthru_chipset_channel_p[1]}]
-set_property -dict {PACKAGE_PIN F21 IOSTANDARD LVCMOS18} [get_ports {chip_intf_channel[1]}]
+set_property -dict {PACKAGE_PIN E21 IOSTANDARD LVCMOS18} [get_ports {chip_intf_channel[1]}]
 
 #set_property IOSTANDARD LVDS_25 [get_ports {passthru_chipset_data_n[3]}]
 #set_property PACKAGE_PIN L12 [get_ports {passthru_chipset_data_p[3]}]
@@ -686,7 +686,7 @@ set_property -dict {PACKAGE_PIN F25 IOSTANDARD LVCMOS18} [get_ports {intf_chip_c
 #set_property PACKAGE_PIN D12 [get_ports {passthru_chipset_channel_p[0]}]
 #set_property PACKAGE_PIN D13 [get_ports {passthru_chipset_channel_n[0]}]
 #set_property IOSTANDARD LVDS_25 [get_ports {passthru_chipset_channel_p[0]}]
-set_property -dict {PACKAGE_PIN E21 IOSTANDARD LVCMOS18} [get_ports {chip_intf_channel[0]}]
+set_property -dict {PACKAGE_PIN F21 IOSTANDARD LVCMOS18} [get_ports {chip_intf_channel[0]}]
 
 #set_property IOSTANDARD LVDS_25 [get_ports {passthru_chipset_data_n[5]}]
 #set_property PACKAGE_PIN E14 [get_ports {passthru_chipset_data_p[5]}]
