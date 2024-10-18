@@ -33,6 +33,7 @@
 # Channel 2 AXI GPIO Data Register Address Space Offset: 0x0008
 # 0: fll_lock
 # 1: fll_clkdiv
+# set_msg_config -id "Labtoolstcl 44-481" -limit 5500
 
 # ####################################################################
 # Init
@@ -57,6 +58,35 @@ run_hw_axi [get_hw_axi_txns cfgrst]
 create_hw_axi_txn -force cfgrstoff [get_hw_axis hw_axi_1] -address 40000000 -data {0000000F} -len 1 -type write
 # Run it
 run_hw_axi [get_hw_axi_txns cfgrstoff]
+
+# ####################################################################
+# Loopback flow. FLL
+# ####################################################################
+# 1. Reset the core
+reset_hw_axi [get_hw_axis hw_axi_1]
+# 2. rst_n on
+create_hw_axi_txn -force rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000000} -len 1 -type write
+# Run it
+run_hw_axi [get_hw_axi_txns rston]
+# ------------------------------------------
+# f_fll = 2^2 * f_ref
+# ------------------------------------------
+# 3. Set opmode = 1, fll_rst_n = 1, fll_range = 0010
+create_hw_axi_txn -force op2rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000250} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op2rstoff]
+# 4. Set cfgreq = 1
+create_hw_axi_txn -force op2cfg [get_hw_axis hw_axi_1] -address 40000000 -data {000002D0} -len 1 -type write
+run_hw_axi [get_hw_axi_txns op2cfg]
+# 5. Set cfgreq = 0
+run_hw_axi [get_hw_axi_txns op2rstoff]
+# FLL previously configured with range = 2
+# 7. Keep the config but activate: async_mux = 1, clk_en = 1
+create_hw_axi_txn -force en2rston [get_hw_axis hw_axi_1] -address 40000000 -data {00000256} -len 1 -type write
+run_hw_axi [get_hw_axi_txns en2rston]
+# 8. Release the reset
+create_hw_axi_txn -force en2rstoff [get_hw_axis hw_axi_1] -address 40000000 -data {00000257} -len 1 -type write
+run_hw_axi [get_hw_axi_txns en2rstoff]
+
 
 # ####################################################################
 # Genesys 2 Memory Test
