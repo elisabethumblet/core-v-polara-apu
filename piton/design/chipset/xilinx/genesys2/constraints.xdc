@@ -705,6 +705,95 @@ set_property -dict {PACKAGE_PIN A25 IOSTANDARD LVCMOS18} [get_ports {intf_chip_c
 #set_property -dict { PACKAGE_PIN C14   IOSTANDARD LVCMOS25 } [get_ports { F79_N }]; #IO_L21N_T3_DQS_18 Sch=fmc_hb_n[21]
 #set_property -dict { PACKAGE_PIN D14   IOSTANDARD LVCMOS25 } [get_ports { F79_P }]; #IO_L21P_T3_DQS_18 Sch=fmc_hb_p[21]
 
+# ###############################################################
+# Input and output delay constraints
+# ###############################################################
+# Inputs
+# Try by saying can arrive in 90% of clock period
+# 90% * 125 = 112.5
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_channel[1]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_channel[0]]
+
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[31]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[30]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[29]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[28]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[27]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[26]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[25]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[24]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[23]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[22]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[21]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[20]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[19]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[18]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[17]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[16]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[15]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[14]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[13]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[12]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[11]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[10]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[9]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[8]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[7]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[6]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[5]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[4]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[3]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[2]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[1]]
+set_input_delay -max -clock io_clk 112.5 [get_ports chip_intf_data[0]]
+
+set_input_delay -max -clock io_clk 112.5 [get_ports intf_chip_credit_back[2]]
+set_input_delay -max -clock io_clk 112.5 [get_ports intf_chip_credit_back[1]]
+set_input_delay -max -clock io_clk 112.5 [get_ports intf_chip_credit_back[0]]
+
+# Outputs
+# Try by saying can leave in 20% of clock period
+# 20% * 125 = 25
+
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_channel[1]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_channel[0]]
+
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[31]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[30]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[29]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[28]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[27]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[26]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[25]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[24]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[23]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[22]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[21]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[20]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[19]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[18]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[17]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[16]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[15]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[14]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[13]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[12]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[11]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[10]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[9]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[8]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[7]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[6]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[5]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[4]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[3]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[2]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[1]]
+set_output_delay -max -clock io_clk 25 [get_ports intf_chip_data[0]]
+
+set_output_delay -max -clock io_clk 25 [get_ports chip_intf_credit_back[2]]
+set_output_delay -max -clock io_clk 25 [get_ports chip_intf_credit_back[1]]
+set_output_delay -max -clock io_clk 25 [get_ports chip_intf_credit_back[0]]
 
 ### False paths
 #set_clock_groups -name sync_gr1 -logically_exclusive -group [get_clocks chipset_clk_clk_mmcm] -group [get_clocks -include_generated_clocks mc_sys_clk_clk_mmcm]
