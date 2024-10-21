@@ -14,8 +14,10 @@ module polara_loopback_packet_gen_tb();
    reg                  chip_rst_n_inter;
    reg [1:0]            sw_debounced;
    reg                  march;
-   
+   reg                  go;                 
 
+   wire                 sanity;
+   
    wire [64-1:0]          chipset_intf_data_noc1;
    wire [64-1:0]          chipset_intf_data_noc2;
    wire [64-1:0]          chipset_intf_data_noc3;
@@ -38,6 +40,8 @@ module polara_loopback_packet_gen_tb();
                                   .chip_rst_n(chip_rst_n_inter),
                                   .sw_debounced(sw_debounced),
                                   .march(march),
+                                  .go(go),
+                                  .sanity_is_waiting(sanity),
                                   .chipset_intf_data_noc1(chipset_intf_data_noc1),
                                   .chipset_intf_data_noc2(chipset_intf_data_noc2),
                                   .chipset_intf_data_noc3(chipset_intf_data_noc3),
@@ -75,12 +79,17 @@ module polara_loopback_packet_gen_tb();
       chipset_intf_rdy_noc2 = 1'b0;
       chipset_intf_rdy_noc3 = 1'b0;
       march = 1'b0;
+      go = 1'b1;
+      
       #150
         chipset_intf_rdy_noc1 = 1'b1;
       #150
+        go = 1'b0;
         chip_rst_n_inter = 1'b0;
       chipset_intf_rdy_noc1 = 1'b0;
       march = 1'b1;
+      #50
+        go = 1'b1;
       #50
         chip_rst_n_inter = 1'b1;
       #50
@@ -90,7 +99,20 @@ module polara_loopback_packet_gen_tb();
       #500
         chipset_intf_rdy_noc1 = 1'b1;
       #2000
-        
+        chip_rst_n_inter = 1'b0;
+      go = 1'b0;
+      #100
+        chip_rst_n_inter = 1'b1;
+      $display("rst_n is over: %h", chip_rst_n_inter);
+      #50
+        $display("Current state should be 1, it is: %h", dut.CurrentState);
+      #400
+        go = 1'b1;
+      #400
+        go = 1'b0;
+      #2000
+        go = 1'b1;
+      #1000
       $finish;
       
    end

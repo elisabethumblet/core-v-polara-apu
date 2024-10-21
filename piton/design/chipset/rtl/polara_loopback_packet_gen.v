@@ -9,7 +9,9 @@ module polara_loopback_packet_gen(
                                   input               chipset_clk,
                                   input               chip_rst_n,
                                   input [1:0]         sw_debounced,
-                                  input               march,               
+                                  input               march,
+                                  input               go,               
+                                  output reg          sanity_is_waiting, 
                                   // Main chip interface
                                   /*                                    
                                    output reg [`NOC_DATA_WIDTH-1:0] chipset_intf_data_noc1,
@@ -60,22 +62,36 @@ module polara_loopback_packet_gen(
                             
    reg                                 noc_rdy;                                
 
+
+   
    // ////////////////////
    // Sequential Logic  //
    // ////////////////////
-   always @ (posedge chipset_clk)
+   always @ (posedge chipset_clk, negedge chip_rst_n)
      begin: SEQ
         if (~chip_rst_n)
           begin
              CurrentState <= STATE_RESET;
              out_data <= {64{1'b0}};
              payload_count <= 7'd0;
+             sanity_is_waiting <= 1'b1;
           end
         else
           begin
              case (CurrentState)
                STATE_RESET:
                  begin
+                    sanity_is_waiting <= 1'b1;
+                    if (go)
+                      begin
+                         sanity_is_waiting <= 1'b0;
+                         CurrentState <= STATE_WAIT;
+                      end
+                 end // case: STATE_RESET
+               
+               STATE_WAIT:
+                 begin
+                    sanity_is_waiting <= 1'b0;
                     if (march)
                       begin
                          CurrentState <= STATE_SEND_HEADER;
@@ -86,10 +102,11 @@ module polara_loopback_packet_gen(
                          CurrentState <= STATE_SEND;
                          out_data <= {14'b10000000000000, 8'd0, 8'd0, 4'b0010, 8'd0, 8'd18, 8'd0, 6'd0};
                       end
-                 end // case: STATE_RESET
+                 end
 
                STATE_SEND_HEADER:
                  begin
+                    sanity_is_waiting <= 1'b0;
                     if (noc_rdy)
                       begin
                          CurrentState <= STATE_SEND_DATA;
@@ -100,11 +117,13 @@ module polara_loopback_packet_gen(
 
                STATE_SEND_DATA:
                  begin
+                    sanity_is_waiting <= 1'b0;
                     if (noc_rdy)
                       begin
                          if (payload_count == 7'd64)
                            begin
-                              CurrentState <= STATE_WAIT;
+                              sanity_is_waiting <= 1'b1;
+                              CurrentState <= STATE_RESET;
                               out_data <= {64{1'b0}};
                               payload_count <= 7'd0;
                            end
@@ -123,9 +142,12 @@ module polara_loopback_packet_gen(
                
                STATE_SEND:
                  begin
+                    sanity_is_waiting <= 1'b0;
                     if (noc_rdy)
                       begin
-                         CurrentState = STATE_WAIT;
+                         sanity_is_waiting <= 1'b1;
+                         CurrentState = STATE_RESET;
+                         out_data <= {64{1'b0}};
                       end
                     else
                       begin
@@ -135,7 +157,8 @@ module polara_loopback_packet_gen(
                
                default: // STATE_WAIT
                  begin
-                    CurrentState <= STATE_WAIT;
+                    sanity_is_waiting <= 1'b1;
+                    CurrentState <= STATE_RESET;
                  end
                
              endcase // case (CurrentState)

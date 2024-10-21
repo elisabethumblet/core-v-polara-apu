@@ -9,13 +9,15 @@
 
 module chipset_impl_polara_loopback(
     // Clocks and resets
-    input               chipset_clk,
-    input               chipset_rst_n,
+    input           chipset_clk,
+    input           chipset_rst_n,
 
     // Switches
-    input               sw_channel_msb,
-    input               sw_channel_lsb,
-    input               sw_march,
+    input           sw_channel_msb,
+    input           sw_channel_lsb,
+    input           sw_march,
+    input           sw_go,
+    output          sanity_is_waiting,
 
     // Main chip interface
     /*                                    
@@ -35,40 +37,40 @@ module chipset_impl_polara_loopback(
     /*input [`NOC_DATA_WIDTH-1:0] intf_chipset_data_noc1,
     input [`NOC_DATA_WIDTH-1:0] intf_chipset_data_noc2,
     input [`NOC_DATA_WIDTH-1:0] intf_chipset_data_noc3,*/
-    input [64-1:0]      intf_chipset_data_noc1,
-    input [64-1:0]      intf_chipset_data_noc2,
-    input [64-1:0]      intf_chipset_data_noc3,
-    input               intf_chipset_val_noc1,
-    input               intf_chipset_val_noc2,
-    input               intf_chipset_val_noc3,
-    output              intf_chipset_rdy_noc1,
-    output              intf_chipset_rdy_noc2,
-    output              intf_chipset_rdy_noc3,
+    input [64-1:0]  intf_chipset_data_noc1,
+    input [64-1:0]  intf_chipset_data_noc2,
+    input [64-1:0]  intf_chipset_data_noc3,
+    input           intf_chipset_val_noc1,
+    input           intf_chipset_val_noc2,
+    input           intf_chipset_val_noc3,
+    output          intf_chipset_rdy_noc1,
+    output          intf_chipset_rdy_noc2,
+    output          intf_chipset_rdy_noc3,
 
     // Chip and other BD signals
-    input               mc_clk, // not sure if needed
-    input               mig_ddr3_sys_se_clock_clk,
-    output              chip_async_mux,
-    output              chip_clk_en,
-    output              chip_clk_mux_sel,
-    output              chip_rst_n,
-    output              init_calib_complete,
-    output              test_start,
+    input           mc_clk, // not sure if needed
+    input           mig_ddr3_sys_se_clock_clk,
+    output          chip_async_mux,
+    output          chip_clk_en,
+    output          chip_clk_mux_sel,
+    output          chip_rst_n,
+    output          init_calib_complete,
+    output          test_start,
 
     // FLL
-    input               fll_clkdiv,
-    input               fll_lock,
-    output              fll_bypass,
-    output              fll_cfg_req,
-    output              fll_opmode,
-    output [3:0]        fll_range,
-    output              fll_rst_n, 
+    input           fll_clkdiv,
+    input           fll_lock,
+    output          fll_bypass,
+    output          fll_cfg_req,
+    output          fll_opmode,
+    output [3:0]    fll_range,
+    output          fll_rst_n, 
                                     
     // Just dummy signals
-    output              uart_tx,
-    input               uart_rx,
-    input               uart_boot_en,
-    input               uart_timeout_en
+    output          uart_tx,
+    input           uart_rx,
+    input           uart_boot_en,
+    input           uart_timeout_en
 );
    
 // /////////////////////
@@ -95,6 +97,9 @@ module chipset_impl_polara_loopback(
    wire                                  sw_lsb_debounced;
    wire [1:0]                            sw_debounced;
    wire                                  sw_march_debounced;
+   wire                                  sw_go_debounced;
+
+   reg                                   Q1, chipset_rstn_sync;
    
 //////////////////////
 // Sequential Logic //
@@ -110,6 +115,8 @@ module chipset_impl_polara_loopback(
                                            .chip_rst_n(chip_rst_n_inter),
                                            .sw_debounced(sw_debounced),
                                            .march(sw_march_debounced),
+                                           .go(sw_go_debounced),
+                                           .sanity_is_waiting(sanity_is_waiting),
                                            .chipset_intf_data_noc1(chipset_intf_data_noc1),
                                            .chipset_intf_data_noc2(chipset_intf_data_noc2),
                                            .chipset_intf_data_noc3(chipset_intf_data_noc3),
@@ -127,29 +134,45 @@ module chipset_impl_polara_loopback(
    // Instantiate the block design
    gen2_polara_fpga_loopback gen2_polara_fpga_i(
                                                 .bd_clk(chipset_clk),
-                                                .mig_ddr3_sys_rst_n(chipset_rst_n),
+                                                .mig_ddr3_sys_rst_n(chipset_rstn_sync),
                                                 .polara_gen2chipset_bus_i_tri_i(polara_gen2chipset_bus_i),
                                                 .polara_gen2chipset_bus_o_tri_o(polara_gen2chipset_bus_o)
                                                 );
 
+   // Synchronize the reset signal and send to the rest of the blocks
+   always @ (posedge chipset_clk, negedge chipset_rst_n)
+     if(!chipset_rst_n) begin
+        Q1 <= 1’b0;
+        chipset_rstn_sync <= 1’b0;
+     end else begin
+        Q1 <= 1’b1;
+        chipset_rstn_sync <= Q1;
+     end
+   end
+   
    // Instantiate debouncers for the 2 channel switches
    debouncer debouncer_sw_msb(
                               .clk(chipset_clk),
-                              .rstn(chipset_rst_n),
+                              .rstn(chipset_rstn_sync),
                               .i_sig(sw_channel_msb),
                               .o_sig_debounced(sw_msb_debounced));
    debouncer debouncer_sw_lsb(
                               .clk(chipset_clk),
-                              .rstn(chipset_rst_n),
+                              .rstn(chipset_rstn_sync),
                               .i_sig(sw_channel_lsb),
                               .o_sig_debounced(sw_lsb_debounced));
    assign sw_debounced = {sw_msb_debounced, sw_lsb_debounced};
 
    debouncer debouncer_sw_march(
                               .clk(chipset_clk),
-                              .rstn(chipset_rst_n),
+                              .rstn(chipset_rstn_sync),
                               .i_sig(sw_march),
                               .o_sig_debounced(sw_march_debounced));
+   debouncer debouncer_sw_go(
+                             .clk(chipset_clk),
+                             .rstn(chipset_rstn_sync),
+                             .i_sig(sw_go),
+                             .o_sig_debounced(sw_go_debounced));
    
    
 
