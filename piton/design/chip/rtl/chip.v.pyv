@@ -179,12 +179,12 @@ module chip(
 
    wire                                         clk_en;
 
-   wire                                         fll_lock,
-   wire                                         fll_clkdiv,
-   wire                                         fll_bypass,
-   wire                                         fll_opmode,
-   wire [3:0]                                   fll_range,
-   wire                                         fll_cfgreq,
+   wire                                         fll_lock;
+   wire                                         fll_clkdiv;
+   wire                                         fll_bypass;
+   wire                                         fll_opmode;
+   wire [3:0]                                   fll_range;
+   wire                                         fll_cfgreq;
 
    wire                                         clk_mux_sel;
 
@@ -542,7 +542,7 @@ module chip(
 
    assign clk_en = 1'b1;
 
-   assign clk_mux_sel = 2'b0;
+   assign clk_mux_sel = 1'b1;
 
    assign jtag_clk = 1'b0;
    assign jtag_rst_l = 1'b1;

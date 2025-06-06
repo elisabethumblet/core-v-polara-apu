@@ -74,6 +74,12 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/common/rtl/noc_simple_merger.v" \
     "${DV_ROOT}/design/chip/rtl/OCI.v" \
     "${DV_ROOT}/design/chip/rtl/chip.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_top.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_clk_mux.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_ctrl.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/fll_clk_div.v" \
+    "${DV_ROOT}/design/chip/fll/rtl/gf22_FLL.v" \
+    "${DV_ROOT}/design/chip/pll/rtl/clk_se_to_diff.v" \
     "${DV_ROOT}/design/chip/pll/rtl/pll_top.v" \
     "${DV_ROOT}/design/chip/pll/rtl/clk_mux.v" \
     "${DV_ROOT}/design/chip/pll/rtl/clk_se_to_diff.v" \
